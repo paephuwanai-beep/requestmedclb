@@ -1,341 +1,469 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Med - ระบบเบิกยาและเวชภัณฑ์ กฟผ. (กฟผ.-รพ.74)</title>
+    <title>Request Med - ระบบเบิกยาและเวชภัณฑ์ กฟผ. (แบบ กฟผ.-รพ.74)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Prompt -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Prompt & Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Signature Pad -->
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Prompt', 'sans-serif'],
+                        sans: ['Prompt', 'Kanit', 'sans-serif'],
                     },
                     colors: {
-                        egat: { 50: '#e6f4f1', 100: '#c2e7e2', 600: '#006b5e', 700: '#00554a', 800: '#004037' }
+                        egat: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#16a34a',
+                            600: '#15803d',
+                            700: '#166534',
+                            800: '#14532d',
+                            900: '#064e3b',
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
+        body { font-family: 'Prompt', 'Kanit', sans-serif; }
         @media print {
-            body * { visibility: hidden; }
-            #printSection, #printSection * { visibility: visible; }
-            #printSection { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 10px; }
-            .no-print { display: none !important; }
+            body * {
+                visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+                visibility: visible;
+            }
+            #printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 10mm;
+                box-shadow: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
         }
-        .form-border { border: 1px solid #000; }
-        .form-border-t { border-top: 1px solid #000; }
-        .form-border-b { border-bottom: 1px solid #000; }
-        .form-border-l { border-left: 1px solid #000; }
-        .form-border-r { border-right: 1px solid #000; }
+        .signature-canvas {
+            touch-action: none;
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+        }
     </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col">
 
-    <!-- Navbar -->
-    <header class="bg-egat-700 text-white shadow-md no-print">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 max-w-md bg-white border-l-4 border-emerald-500 shadow-xl rounded-r-xl p-4 flex items-center space-x-3">
+        <div id="toast-icon" class="text-emerald-500 text-xl"><i class="fas fa-check-circle"></i></div>
+        <div>
+            <h4 id="toast-title" class="font-bold text-slate-900">แจ้งเตือน</h4>
+            <p id="toast-msg" class="text-sm text-slate-600">ดำเนินการสำเร็จ</p>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <header class="bg-emerald-900 text-white shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="bg-white text-egat-700 p-2 rounded-lg font-bold text-xl shadow">
-                    <i class="fa-solid fa-pills"></i>
+                <div class="bg-white text-emerald-900 p-2 rounded-xl font-bold text-xl shadow">
+                    <i class="fas fa-notes-medical"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold">Request Med</h1>
-                    <p class="text-xs text-egat-100">ระบบเบิกยาและเวชภัณฑ์ กฟผ. (แบบ กฟผ.-รพ.74)</p>
+                    <h1 class="font-bold text-lg leading-tight">Request Med - กฟผ.</h1>
+                    <p class="text-xs text-emerald-200">ระบบเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="switchTab('home')" class="px-3 py-1.5 rounded-lg hover:bg-egat-600 text-sm font-medium transition"><i class="fa-solid fa-house mr-1"></i> หน้าแรก</button>
-                <button onclick="switchTab('status')" class="px-3 py-1.5 rounded-lg hover:bg-egat-600 text-sm font-medium transition relative"><i class="fa-solid fa-list-check mr-1"></i> สถานะคำขอ <span id="badgeCount" class="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] px-1.5 rounded-full">0</span></button>
-                <button onclick="switchTab('settings')" class="px-3 py-1.5 rounded-lg hover:bg-egat-600 text-sm font-medium transition"><i class="fa-solid fa-gear mr-1"></i> ตั้งค่า</button>
-            </div>
+            <nav class="flex items-center space-x-1 md:space-x-2 mt-2 md:mt-0 text-sm">
+                <button onclick="switchTab('home')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-home"></i><span class="hidden sm:inline">หน้าหลัก</span>
+                </button>
+                <button onclick="switchTab('request')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-file-medical"></i><span class="hidden sm:inline">บันทึกขอเบิก</span>
+                </button>
+                <button onclick="switchTab('dispense')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1 relative">
+                    <i class="fas fa-pills"></i><span class="hidden sm:inline">สถานพยาบาล</span>
+                    <span id="badge-dispense" class="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
+                </button>
+                <button onclick="switchTab('approve')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1 relative">
+                    <i class="fas fa-signature"></i><span class="hidden sm:inline">ผู้อนุมัติ</span>
+                    <span id="badge-approve" class="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
+                </button>
+                <button onclick="switchTab('status')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-tasks"></i><span class="hidden sm:inline">สถานะรายการ</span>
+                </button>
+                <button onclick="switchTab('catalog')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1" title="รายการยา 11 รายการ">
+                    <i class="fas fa-box-open"></i><span class="hidden sm:inline">รายการยา</span>
+                </button>
+                <!-- Quick Link to Google Sheet DB -->
+                <a id="nav-sheet-link" href="#" target="_blank" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium hidden items-center space-x-1 bg-emerald-800/60 text-emerald-100" title="เปิด Google Sheet ฐานข้อมูล">
+                    <i class="fas fa-table text-emerald-300"></i><span class="hidden md:inline">ฐานข้อมูล</span>
+                </a>
+                <button onclick="switchTab('settings')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium" title="ตั้งค่าระบบ">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </nav>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6">
+    <!-- Main Container Content -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full">
 
-        <!-- TAB 1: HOME (Dashboard Cards) -->
-        <section id="tab-home" class="space-y-6">
-            <div class="bg-gradient-to-r from-egat-700 to-teal-800 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-                <div class="relative z-10 max-w-2xl">
-                    <span class="bg-emerald-500/30 text-emerald-100 text-xs px-3 py-1 rounded-full font-semibold">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</span>
-                    <h2 class="text-2xl sm:text-3xl font-bold mt-2">ระบบขอเบิกยาและเวชภัณฑ์ปฐมพยาบาล</h2>
-                    <p class="text-teal-100 text-sm mt-2">บันทึกคำขอเบิก ตรวจสอบสถานะ จ่ายยา และอนุมัติเอกสารฟอร์ม กฟผ.-รพ.74 แบบอิเล็กทรอนิกส์เต็มรูปแบบ</p>
+        <!-- TAB 1: HOME DASHBOARD -->
+        <section id="tab-home" class="tab-content space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-emerald-800 to-teal-700 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center">
+                <div class="space-y-3 mb-4 md:mb-0">
+                    <span class="bg-emerald-600/60 text-emerald-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (EGAT)</span>
+                    <h2 class="text-2xl md:text-3xl font-bold">ระบบขอเบิกยาและเวชภัณฑ์ปฐมพยาบาล</h2>
+                    <p class="text-emerald-100 text-sm max-w-2xl">
+                        แบบฟอร์มอิเล็กทรอนิกส์มาตรฐาน กฟผ.-รพ.74 สะดวก รวดเร็ว ตรวจสอบสถานะเรียลไทม์ และเชื่อมต่อฐานข้อมูล Google Sheets
+                    </p>
                 </div>
-                <div class="absolute right-0 bottom-0 opacity-10 transform translate-x-10 translate-y-10 text-9xl">
-                    <i class="fa-solid fa-kit-medical"></i>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="switchTab('request')" class="bg-white text-emerald-800 hover:bg-emerald-50 px-5 py-3 rounded-xl font-bold shadow-md transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-plus-circle text-emerald-600"></i>
+                        <span>สร้างใบขอเบิกใหม่</span>
+                    </button>
+                    <button onclick="switchTab('status')" class="bg-emerald-700/80 hover:bg-emerald-600 text-white border border-emerald-500 px-5 py-3 rounded-xl font-bold transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-list-alt"></i>
+                        <span>ติดตามสถานะ</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Card 1: Request -->
-                <div onclick="switchTab('request')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-200 cursor-pointer transition transform hover:-translate-y-1 group">
-                    <div class="w-12 h-12 bg-teal-50 text-egat-700 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-egat-700 group-hover:text-white transition">
-                        <i class="fa-solid fa-file-pen"></i>
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="bg-blue-50 text-blue-600 p-4 rounded-xl text-xl"><i class="fas fa-file-invoice"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-medium">คำขอทั้งหมด</p>
+                        <h3 id="stat-total" class="text-2xl font-bold text-slate-800">0</h3>
                     </div>
-                    <h3 class="font-bold text-lg text-slate-800">1. บันทึกขอเบิกยา</h3>
-                    <p class="text-xs text-slate-500 mt-1">สร้างใบขอเบิก เลือกรายการยา ระบุจำนวน และลงชื่อผู้ขอเบิก</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="bg-amber-50 text-amber-600 p-4 rounded-xl text-xl"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-medium">รออนุมัติ / รอจ่าย</p>
+                        <h3 id="stat-pending" class="text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-xl"><i class="fas fa-check-circle"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-medium">จ่ายยาเรียบร้อย</p>
+                        <h3 id="stat-completed" class="text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+                    <div class="bg-purple-50 text-purple-600 p-4 rounded-xl text-xl"><i class="fas fa-pills"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-xs font-medium">รายการยาในระบบ</p>
+                        <h3 class="text-2xl font-bold text-slate-800">11 รายการ</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Main Modules Cards -->
+            <h3 class="text-lg font-bold text-slate-800 mt-6 mb-4 flex items-center space-x-2">
+                <i class="fas fa-th-large text-emerald-600"></i>
+                <span>เมนูหลัก (Modules)</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1: Request -->
+                <div onclick="switchTab('request')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-100 hover:border-emerald-300 transition cursor-pointer group flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">บันทึกขอเบิกยา</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">กรอกฟอร์มขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74) พร้อมลายเซ็นอิเล็กทรอนิกส์</p>
+                    </div>
+                    <div class="mt-6 flex items-center text-emerald-600 text-sm font-semibold space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>เริ่มใช้งาน</span> <i class="fas fa-arrow-right"></i>
+                    </div>
                 </div>
 
                 <!-- Card 2: Dispense -->
-                <div onclick="switchTab('dispense')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-200 cursor-pointer transition transform hover:-translate-y-1 group">
-                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-blue-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-kit-medical"></i>
+                <div onclick="switchTab('dispense')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-100 hover:border-emerald-300 transition cursor-pointer group flex flex-col justify-between relative">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-pills"></i>
                     </div>
-                    <h3 class="font-bold text-lg text-slate-800">2. สถานพยาบาล (จ่ายยา)</h3>
-                    <p class="text-xs text-slate-500 mt-1">ตรวจสอบใบเบิก กดรับรายการ และบันทึกการจ่ายยาตามจริง</p>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">สถานพยาบาล (จ่ายยา)</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">ตรวจสอบรายการขอเบิกจากหน่วยงาน ตรวจนับ และทำการจ่ายยา/เวชภัณฑ์</p>
+                    </div>
+                    <div class="mt-6 flex items-center text-blue-600 text-sm font-semibold space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>ไปที่จ่ายยา</span> <i class="fas fa-arrow-right"></i>
+                    </div>
                 </div>
 
-                <!-- Card 3: Approver -->
-                <div onclick="switchTab('approver')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-200 cursor-pointer transition transform hover:-translate-y-1 group">
-                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-amber-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-signature"></i>
+                <!-- Card 3: Approval -->
+                <div onclick="switchTab('approve')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-100 hover:border-emerald-300 transition cursor-pointer group flex flex-col justify-between">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-stamp"></i>
                     </div>
-                    <h3 class="font-bold text-lg text-slate-800">3. ผู้อนุมัติ</h3>
-                    <p class="text-xs text-slate-500 mt-1">หัวหน้าแผนกตรวจสอบและเซ็นอนุมัติคำขอเบิกยา</p>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">ผู้อนุมัติ</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">หัวหน้าแผนกธุรการหรือผู้มีอำนาจตรวจสอบและลงนามอนุมัติคำขอเบิก</p>
+                    </div>
+                    <div class="mt-6 flex items-center text-amber-600 text-sm font-semibold space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>ตรวจสอบอนุมัติ</span> <i class="fas fa-arrow-right"></i>
+                    </div>
                 </div>
 
-                <!-- Card 4: Catalog & Settings -->
-                <div onclick="switchTab('catalog')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-200 cursor-pointer transition transform hover:-translate-y-1 group">
-                    <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4 group-hover:bg-purple-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-pills"></i>
+                <!-- Card 4: Status -->
+                <div onclick="switchTab('status')" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md border border-slate-100 hover:border-emerald-300 transition cursor-pointer group flex flex-col justify-between">
+                    <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-tasks"></i>
                     </div>
-                    <h3 class="font-bold text-lg text-slate-800">4. รายการยาที่เบิกได้</h3>
-                    <p class="text-xs text-slate-500 mt-1">จัดการรายการยาสามัญและโควต้าสูงสุดต่อครั้ง</p>
-                </div>
-            </div>
-
-            <!-- Quick Status Table -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-clock-rotate-left mr-2 text-egat-700"></i> รายการคำขอเบิกล่าสุด</h3>
-                    <button onclick="switchTab('status')" class="text-xs text-egat-700 font-semibold hover:underline">ดูทั้งหมด</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">เลขที่ใบเบิก</th>
-                                <th class="p-3">วันที่</th>
-                                <th class="p-3">ผู้ขอเบิก</th>
-                                <th class="p-3">หน่วยงาน</th>
-                                <th class="p-3">สถานะ</th>
-                                <th class="p-3 text-center">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="homeRecentTableBody" class="divide-y divide-slate-100">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">สถานะรายการ</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">ติดตามสถานะทุกขั้นตอน ดูรายละเอียด แก้ไข ลบ และพิมพ์ PDF ขนาด A4</p>
+                    </div>
+                    <div class="mt-6 flex items-center text-purple-600 text-sm font-semibold space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>ดูสถานะทั้งหมด</span> <i class="fas fa-arrow-right"></i>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 2: REQUEST FORM (บันทึกขอเบิกยา) -->
-        <section id="tab-request" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 max-w-4xl mx-auto">
-                <div class="flex justify-between items-center border-b pb-4 mb-6">
+        <!-- TAB 2: REQUEST FORM (แบบ กฟผ.-รพ.74) -->
+        <section id="tab-request" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
+                <div class="border-b border-slate-200 pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-file-pen mr-2 text-egat-700"></i> บันทึกขอเบิกยาและเวชภัณฑ์ (กฟผ.-รพ.74)</h2>
-                        <p class="text-xs text-slate-500">กรอกรายละเอียดคำขอเบิกยาสำหรับปฐมพยาบาลหรือกรณีเจ็บป่วยเบื้องต้น</p>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">แบบ กฟผ.-รพ.74</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">ใบเบิกยาและหรือเวชภัณฑ์ (Request Form)</h2>
+                        <p class="text-xs text-slate-500">ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</p>
                     </div>
-                    <button onclick="switchTab('home')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <button type="button" onclick="loadSampleData()" class="mt-3 md:mt-0 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-medium transition flex items-center space-x-1">
+                        <i class="fas fa-magic"></i><span>เติมข้อมูลตัวอย่าง</span>
+                    </button>
                 </div>
 
-                <form id="requestForm" onsubmit="handleSaveRequest(event)" class="space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <form id="requisition-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    <input type="hidden" id="edit-id" value="">
+                    
+                    <!-- Top Info Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">วันที่ขอเบิก</label>
-                            <input type="date" id="reqDate" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-egat-600 outline-none">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">วันที่ขอเบิก <span class="text-red-500">*</span></label>
+                            <input type="date" id="req-date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">เลขที่ใบเบิก</label>
-                            <input type="text" id="reqNo" readonly class="w-full p-2.5 text-sm bg-slate-100 border rounded-xl font-mono text-slate-600">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">เรียน (ผู้รับ/สถานพยาบาล) <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-recipient" value="หัวหน้าสถานพยาบาล กฟผ." required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">หน่วยงาน / แผนก</label>
-                            <select id="reqDept" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-egat-600 outline-none">
-                                <!-- Populated by JS -->
+                            <label class="block text-xs font-bold text-slate-700 mb-1">หน่วยงานผู้ขอเบิก <span class="text-red-500">*</span></label>
+                            <select id="req-department-group" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                <!-- Populated dynamically from settings -->
                             </select>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อ-นามสกุล ผู้ขอเบิก</label>
-                            <input type="text" id="reqName" required placeholder="ระบุชื่อ-นามสกุลผู้ขอเบิก" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-egat-600 outline-none">
+                    <!-- Personal Details -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้บันทึกขอเบิก <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-name" placeholder="ระบุชื่อ-นามสกุล" required class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">หมายเลขประจำตัวพนักงาน</label>
-                            <input type="text" id="reqEmpId" required placeholder="เช่น 123456" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-egat-600 outline-none">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">หมายเลขประจำตัว (13 หลัก) <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-idcard" maxlength="13" placeholder="ตัวอย่าง: 1234567890123" required class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+                            <input type="text" id="req-phone" placeholder="08XXXXXXXX" required class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">ตำแหน่ง</label>
+                            <input type="text" id="req-position" placeholder="ช่างไฟฟ้า / เจ้าหน้าที่ธุรการ" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">แผนก</label>
+                            <input type="text" id="req-section" placeholder="แผนกบำรุงรักษา" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">กอง / ฝ่าย</label>
+                            <input type="text" id="req-division" placeholder="กองระบบทดสอบ / ฝ่ายปฏิบัติการ" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ</label>
-                            <input type="text" id="reqPhone" required placeholder="08x-xxx-xxxx" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-egat-600 outline-none">
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">ตำแหน่ง</label>
-                            <input type="text" id="reqPosition" required placeholder="เช่น พยาบาลวิชาชีพ / หัวหน้าชุด" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-egat-600 outline-none">
-                        </div>
-                    </div>
-
-                    <!-- Purpose Options -->
-                    <div class="bg-slate-50 p-4 rounded-xl border space-y-3">
-                        <label class="block text-xs font-bold text-slate-700 uppercase">วัตถุประสงค์การเบิก</label>
+                    <!-- Purpose Selection -->
+                    <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">วัตถุประสงค์การขอเบิกยา <span class="text-red-500">*</span></label>
                         <div class="space-y-2">
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="reqPurposeType" value="สำรองประจำหน่วยงาน" checked onchange="togglePurposeInput()" class="text-egat-700 focus:ring-egat-600">
-                                <span class="text-sm font-medium text-slate-700">เพื่อสำรองไว้ใช้ประจำหน่วยงาน ซึ่งมีผู้ปฏิบัติงานจำนวน</span>
-                                <input type="number" id="reqStaffCount" min="1" value="5" class="w-20 p-1 text-sm border rounded-lg text-center">
-                                <span class="text-sm text-slate-700">คน</span>
+                            <label class="flex items-start space-x-3 cursor-pointer">
+                                <input type="radio" name="purpose" value="reserve" checked onchange="togglePurpose()" class="mt-1 text-emerald-600 focus:ring-emerald-500">
+                                <div class="text-sm">
+                                    <span class="font-medium text-slate-800">เพื่อสำรองไว้ใช้ประจำหน่วยงาน</span>
+                                    <div class="mt-1 flex items-center space-x-2 text-xs text-slate-600" id="purpose-reserve-box">
+                                        <span>ซึ่งมีผู้ปฏิบัติงานจำนวน</span>
+                                        <input type="number" id="purpose-workers" min="1" value="10" class="w-20 px-2 py-1 border border-slate-300 rounded text-center">
+                                        <span>คน</span>
+                                    </div>
+                                </div>
                             </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="reqPurposeType" value="เดินทางไปปฏิบัติงาน" onchange="togglePurposeInput()" class="text-egat-700 focus:ring-egat-600">
-                                <span class="text-sm font-medium text-slate-700">เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ</span>
-                                <input type="text" id="reqTravelLocation" placeholder="สถานที่ปฏิบัติงาน" disabled class="w-40 p-1 text-sm border rounded-lg">
-                                <span class="text-sm text-slate-700">ประมาณ</span>
-                                <input type="number" id="reqTravelDays" min="1" value="1" disabled class="w-16 p-1 text-sm border rounded-lg text-center">
-                                <span class="text-sm text-slate-700">วัน สำหรับผู้เดินทางจำนวน</span>
-                                <input type="number" id="reqTravelPersons" min="1" value="1" disabled class="w-16 p-1 text-sm border rounded-lg text-center">
-                                <span class="text-sm text-slate-700">คน</span>
+                            <label class="flex items-start space-x-3 cursor-pointer">
+                                <input type="radio" name="purpose" value="travel" onchange="togglePurpose()" class="mt-1 text-emerald-600 focus:ring-emerald-500">
+                                <div class="text-sm">
+                                    <span class="font-medium text-slate-800">เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ</span>
+                                    <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600" id="purpose-travel-box">
+                                        <input type="text" id="purpose-location" placeholder="ระบุสถานที่ปฏิบัติงาน" class="px-2 py-1 border border-slate-300 rounded w-48 bg-white">
+                                        <span>ประมาณ</span>
+                                        <input type="number" id="purpose-days" min="1" value="3" class="w-16 px-2 py-1 border border-slate-300 rounded text-center bg-white">
+                                        <span>วัน สำหรับผู้เดินทางจำนวน</span>
+                                        <input type="number" id="purpose-travelers" min="1" value="5" class="w-16 px-2 py-1 border border-slate-300 rounded text-center bg-white">
+                                        <span>คน</span>
+                                    </div>
+                                </div>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Medicine Checklist Table -->
+                    <!-- Drug Items Selection Table (11 items) -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">เลือกรายการยาและเวชภัณฑ์ที่ขอเบิก (พร้อมระบุจำนวน)</label>
-                        <div class="border rounded-xl overflow-hidden">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-slate-100 text-slate-700 text-xs uppercase">
-                                    <tr>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-bold text-slate-800">
+                                <i class="fas fa-pills text-emerald-600 mr-1"></i> รายการยาและเวชภัณฑ์ที่ขอเบิก (เลือกรายการและระบุจำนวน)
+                            </label>
+                            <span class="text-xs text-slate-500">จำกัดจำนวนสูงสุดตามมาตรฐาน กฟผ.</span>
+                        </div>
+                        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200">
                                         <th class="p-3 text-center w-12">เลือก</th>
-                                        <th class="p-3">รายการยาและเวชภัณฑ์</th>
+                                        <th class="p-3">ลำดับ / รายการยาและเวชภัณฑ์</th>
                                         <th class="p-3 text-center w-36">จำนวนที่ขอเบิก</th>
-                                        <th class="p-3 text-center w-28">หน่วย</th>
+                                        <th class="p-3 text-center w-24">หน่วย</th>
                                     </tr>
                                 </thead>
-                                <tbody id="requestItemsTable" class="divide-y divide-slate-100">
+                                <tbody id="drug-items-container" class="divide-y divide-slate-200 text-sm">
                                     <!-- Populated by JS -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Signature Requester -->
-                    <div class="border p-4 rounded-xl space-y-2 bg-slate-50">
-                        <div class="flex justify-between items-center">
-                            <label class="block text-xs font-bold text-slate-700 uppercase">ลายเซ็นอิเล็กทรอนิกส์ (ผู้ขอเบิก)</label>
-                            <button type="button" onclick="clearSignature('reqSigCanvas')" class="text-xs text-red-600 hover:underline"><i class="fa-solid fa-rotate-right mr-1"></i> ล้างลายเซ็น</button>
+                    <!-- Electronic Signature (Requestor) -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-bold text-slate-700">ลงชื่อ (ผู้ขอเบิก) <span class="text-red-500">*</span></label>
+                            <button type="button" onclick="clearSignature('req')" class="text-xs text-rose-600 hover:underline"><i class="fas fa-eraser"></i> ล้างลายเซ็น</button>
                         </div>
-                        <div class="border bg-white rounded-lg overflow-hidden h-36">
-                            <canvas id="reqSigCanvas" class="w-full h-full cursor-crosshair"></canvas>
+                        <div class="flex justify-center bg-white p-2 rounded-lg border border-slate-300">
+                            <canvas id="sig-canvas-req" width="400" height="150" class="signature-canvas w-full max-w-md h-36 cursor-crosshair"></canvas>
                         </div>
+                        <input type="hidden" id="req-signature-data">
+                        <p class="text-[11px] text-slate-400 text-center mt-1">ใช้นิ้วหรือเมาส์เซ็นชื่อในกรอบด้านบน</p>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-4 border-t">
-                        <button type="button" onclick="switchTab('home')" class="px-5 py-2.5 border rounded-xl text-sm font-medium hover:bg-slate-50">ยกเลิก</button>
-                        <button type="submit" class="px-6 py-2.5 bg-egat-700 text-white rounded-xl text-sm font-semibold hover:bg-egat-800 shadow transition"><i class="fa-solid fa-paper-plane mr-2"></i> บันทึกใบขอเบิกยา</button>
+                    <!-- Submit Button -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200">
+                        <button type="button" onclick="switchTab('home')" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-sm transition">ยกเลิก</button>
+                        <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center space-x-2">
+                            <i class="fas fa-save"></i>
+                            <span id="submit-btn-text">บันทึกใบขอเบิกยา</span>
+                        </button>
                     </div>
                 </form>
             </div>
         </section>
 
-        <!-- TAB 3: DISPENSE (สถานพยาบาล จ่ายยา) -->
-        <section id="tab-dispense" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center border-b pb-4 mb-6">
+        <!-- TAB 3: DISPENSING (สถานพยาบาล - จ่ายยา) -->
+        <section id="tab-dispense" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-kit-medical mr-2 text-blue-600"></i> เมนูสถานพยาบาล (จ่ายยา)</h2>
-                        <p class="text-xs text-slate-500">ตรวจสอบรายการขอเบิก กดรับ และบันทึกจ่ายยาตามรายการที่ขอ</p>
+                        <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">สถานพยาบาล กฟผ.</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">จัดการจ่ายยาและเวชภัณฑ์ (Dispensing)</h2>
+                        <p class="text-xs text-slate-500">ตรวจสอบคำขอเบิกจากหน่วยงานและทำการจ่ายยาตามรายการที่ขอ</p>
                     </div>
-                    <button onclick="switchTab('home')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold" id="dispense-pending-count">รอจ่าย 0 รายการ</span>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">เลขที่ใบเบิก</th>
-                                <th class="p-3">วันที่</th>
-                                <th class="p-3">ผู้ขอเบิก / หน่วยงาน</th>
-                                <th class="p-3">สถานะปัจจุบัน</th>
-                                <th class="p-3 text-center">ดำเนินการจ่ายยา</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dispenseTableBody" class="divide-y divide-slate-100">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+
+                <div id="dispense-list-container" class="space-y-6">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </section>
 
-        <!-- TAB 4: APPROVER (ผู้อนุมัติ) -->
-        <section id="tab-approver" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center border-b pb-4 mb-6">
+        <!-- TAB 4: APPROVAL (ผู้อนุมัติ) -->
+        <section id="tab-approve" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-signature mr-2 text-amber-600"></i> เมนูผู้อนุมัติ (หัวหน้าแผนกธุรการ / ผู้มีอำนาจ)</h2>
-                        <p class="text-xs text-slate-500">ตรวจสอบและลงนามอนุมัติคำขอเบิกยา</p>
+                        <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-3 py-1 rounded-full">ฝ่ายอนุมัติ</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">การอนุมัติคำขอเบิก (Approval Dashboard)</h2>
+                        <p class="text-xs text-slate-500">หัวหน้าแผนกธุรการหรือผู้มีอำนาจตรวจสอบและเซ็นอนุมัติคำขอเบิกยา</p>
                     </div>
-                    <button onclick="switchTab('home')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold" id="approve-pending-count">รออนุมัติ 0 รายการ</span>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">เลขที่ใบเบิก</th>
-                                <th class="p-3">วันที่</th>
-                                <th class="p-3">ผู้ขอเบิก / หน่วยงาน</th>
-                                <th class="p-3">สถานะ</th>
-                                <th class="p-3 text-center">พิจารณาอนุมัติ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="approverTableBody" class="divide-y divide-slate-100">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+
+                <div id="approve-list-container" class="space-y-6">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </section>
 
-        <!-- TAB 5: STATUS & PRINT (สถานะรายการขอเบิก) -->
-        <section id="tab-status" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center border-b pb-4 mb-6">
+        <!-- TAB 5: STATUS & MANAGEMENT (สถานะรายการขอเบิก) -->
+        <section id="tab-status" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-slate-200 pb-4 gap-4">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-list-check mr-2 text-egat-700"></i> สถานะรายการขอเบิกยา (ภาพรวมทั้งหมด)</h2>
-                        <p class="text-xs text-slate-500">ติดตาม แก้ไข ลบ และพิมพ์แบบฟอร์ม กฟผ.-รพ.74 ขนาด A4 ทุกขั้นตอน</p>
+                        <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">ติดตามสถานะ</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">สถานะรายการขอเบิกและจัดการ</h2>
+                        <p class="text-xs text-slate-500">ดูสถานะทุกขั้นตอน อนุมัติ จ่ายยา แก้ไข ลบ และพิมพ์เอกสาร A4</p>
                     </div>
-                    <button onclick="switchTab('home')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <!-- Filter Tabs -->
+                    <div class="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl text-xs font-medium">
+                        <button onclick="filterStatus('all')" id="filter-all" class="px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition">ทั้งหมด</button>
+                        <button onclick="filterStatus('pending_approve')" id="filter-pending_approve" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">รออนุมัติ</button>
+                        <button onclick="filterStatus('pending_dispense')" id="filter-pending_dispense" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">รอจ่ายยา</button>
+                        <button onclick="filterStatus('completed')" id="filter-completed" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">สมบูรณ์แล้ว</button>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">เลขที่ใบเบิก</th>
-                                <th class="p-3">วันที่</th>
-                                <th class="p-3">ผู้ขอเบิก</th>
-                                <th class="p-3">หน่วยงาน</th>
-                                <th class="p-3">สถานะ</th>
+
+                <!-- Search & Filters -->
+                <div class="mb-4 flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fas fa-search"></i></span>
+                        <input type="text" id="search-input" oninput="renderStatusTable()" placeholder="ค้นหาตามชื่อผู้ขอเบิก, หน่วยงาน, หรือเลขที่คำขอ..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Status Table -->
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200">
+                                <th class="p-3">เลขที่ / วันที่</th>
+                                <th class="p-3">ผู้ขอเบิก / หน่วยงาน</th>
+                                <th class="p-3">วัตถุประสงค์</th>
+                                <th class="p-3 text-center">สถานะการอนุมัติ</th>
+                                <th class="p-3 text-center">สถานะการจ่ายยา</th>
                                 <th class="p-3 text-center">จัดการ / พิมพ์ PDF</th>
                             </tr>
                         </thead>
-                        <tbody id="statusTableBody" class="divide-y divide-slate-100">
+                        <tbody id="status-table-body" class="divide-y divide-slate-200 text-sm">
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
@@ -343,633 +471,1204 @@
             </div>
         </section>
 
-        <!-- TAB 6: CATALOG MANAGEMENT (รายการยาที่เบิกได้) -->
-        <section id="tab-catalog" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center border-b pb-4 mb-6">
+        <!-- TAB 6: DRUG CATALOG (รายการยาที่เบิกได้ 11 รายการ) -->
+        <section id="tab-catalog" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-pills mr-2 text-purple-600"></i> รายการยาและเวชภัณฑ์มาตรฐาน (11 รายการ)</h2>
-                        <p class="text-xs text-slate-500">จัดการรายการยา โควต้าสูงสุดต่อการเบิก และหน่วยนับ</p>
+                        <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">คลังยา กฟผ.</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">รายการยาและเวชภัณฑ์ที่ขอเบิกได้ (11 รายการ)</h2>
+                        <p class="text-xs text-slate-500">รายการยามาตรฐานตามแบบ กฟผ.-รพ.74 พร้อมจำกัดจำนวนสูงสุดต่อครั้ง</p>
                     </div>
-                    <button onclick="switchTab('home')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
-                            <tr>
-                                <th class="p-3 text-center w-16">ลำดับ</th>
-                                <th class="p-3">ชื่อรายการยาและสรรพคุณ</th>
-                                <th class="p-3 text-center w-32">โควต้าสูงสุด</th>
-                                <th class="p-3 text-center w-28">หน่วย</th>
-                            </tr>
-                        </thead>
-                        <tbody id="catalogTableBody" class="divide-y divide-slate-100">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="drug-catalog-grid">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </section>
 
-        <!-- TAB 7: SETTINGS (ตั้งค่า) -->
-        <section id="tab-settings" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 max-w-2xl mx-auto space-y-6">
-                <div class="flex justify-between items-center border-b pb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-gear mr-2 text-slate-700"></i> ตั้งค่าระบบ & Google Sheets API</h2>
-                        <p class="text-xs text-slate-500">กำหนดค่าผู้อนุมัติ ผู้จ่ายยา และเชื่อมต่อฐานข้อมูล Google Apps Script</p>
-                    </div>
-                    <button onclick="switchTab('home')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <!-- TAB 7: SETTINGS & GOOGLE SHEETS (ตั้งค่า & ฐานข้อมูล) -->
+        <section id="tab-settings" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                <div class="border-b border-slate-200 pb-4">
+                    <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">ตั้งค่าระบบ</span>
+                    <h2 class="text-2xl font-bold text-slate-900 mt-1">ตั้งค่าหน่วยงาน, ผู้อนุมัติ และ Google Sheets</h2>
+                    <p class="text-xs text-slate-500">จัดการข้อมูลหน่วยงานใน dropdown และเชื่อมต่อฐานข้อมูลบน Cloud Google Sheets</p>
                 </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Google Apps Script Web App URL (สำหรับบันทึก Google Sheets)</label>
-                        <input type="text" id="settingScriptUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-egat-600 outline-none font-mono text-xs">
-                    </div>
-                    <hr>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อผู้อนุมัติ (หัวหน้าแผนกธุรการ)</label>
-                            <input type="text" id="settingApproverName" class="w-full p-2.5 text-sm border rounded-xl">
+                <!-- Departments Management -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                            <i class="fas fa-building text-emerald-600"></i>
+                            <span>จัดการหน่วยงาน (Dropdown)</span>
+                        </h3>
+                        <div class="flex space-x-2">
+                            <input type="text" id="new-dept-input" placeholder="ชื่อหน่วยงานใหม่..." class="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                            <button onclick="addDepartment()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition">เพิ่ม</button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">ตำแหน่งผู้อนุมัติ</label>
-                            <input type="text" id="settingApproverPos" class="w-full p-2.5 text-sm border rounded-xl">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อผู้สั่งจ่ายยา (พยาบาล/เจ้าหน้าที่)</label>
-                            <input type="text" id="settingDispenserName" class="w-full p-2.5 text-sm border rounded-xl">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">ตำแหน่งผู้สั่งจ่ายยา</label>
-                            <input type="text" id="settingDispenserPos" class="w-full p-2.5 text-sm border rounded-xl">
+                        <div id="dept-list-settings" class="space-y-2 max-h-48 overflow-y-auto">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
-                    <button onclick="saveSettings()" class="w-full py-3 bg-egat-700 text-white font-semibold rounded-xl hover:bg-egat-800 transition shadow">บันทึกการตั้งค่า</button>
+
+                    <!-- Approvers & Dispensers Management -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                            <i class="fas fa-user-shield text-emerald-600"></i>
+                            <span>ผู้มีอำนาจลงนามฝั่งสั่งจ่าย/อนุมัติ</span>
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อ-นามสกุล หัวหน้าแผนกธุรการ (ผู้อุมัติ)</label>
+                                <input type="text" id="setting-approver-name" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">ตำแหน่งหัวหน้าแผนก</label>
+                                <input type="text" id="setting-approver-pos" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อผู้รับผิดชอบสถานพยาบาล (ผู้จ่ายยา)</label>
+                                <input type="text" id="setting-dispenser-name" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                            </div>
+                            <button onclick="saveApproverSettings()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-sm font-bold shadow transition">บันทึกตั้งค่าผู้ลงนาม</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Google Sheets Web App & Spreadsheet URL Integration -->
+                <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 space-y-4">
+                    <h3 class="font-bold text-emerald-900 text-base flex items-center space-x-2">
+                        <i class="fas fa-database text-emerald-700"></i>
+                        <span>เชื่อมต่อ Google Sheets Database & ลิงก์ฐานข้อมูล</span>
+                    </h3>
+                    <p class="text-xs text-emerald-800 leading-relaxed">
+                        ตั้งค่า Web App URL สำหรับรับข้อมูลอัตโนมัติ และใส่ลิงก์ Google Sheet ของคุณเพื่อให้สามารถคลิกเปิดดูฐานข้อมูลได้ทันทีจากเมนูด้านบน:
+                    </p>
+                    
+                    <!-- Web App URL Input -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-emerald-900">Web App URL (สำหรับ Apps Script รับข้อมูล POST):</label>
+                        <input type="text" id="gss-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 bg-white border border-emerald-300 rounded-lg text-sm font-mono">
+                    </div>
+
+                    <!-- Google Sheet View/Edit URL Input -->
+                    <div class="space-y-1">
+                        <label class="block text-xs font-bold text-emerald-900">Google Sheet URL (ลิงก์สำหรับเปิดดู/แก้ไขไฟล์ Google Sheet ฐานข้อมูล):</label>
+                        <input type="text" id="gss-sheet-url-input" oninput="updateSheetLinkButton()" placeholder="https://docs.google.com/spreadsheets/d/.../edit" class="w-full px-3 py-2 bg-white border border-emerald-300 rounded-lg text-sm font-mono">
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <button onclick="saveGssUrl()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow transition flex items-center space-x-2">
+                            <i class="fas fa-save"></i><span>บันทึกการตั้งค่า Google Sheets</span>
+                        </button>
+                        <a id="open-sheet-btn" href="#" target="_blank" class="hidden bg-white text-emerald-700 border border-emerald-300 hover:bg-emerald-100 px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition items-center space-x-2">
+                            <i class="fas fa-external-link-alt"></i><span>เปิด Google Sheet ฐานข้อมูล</span>
+                        </a>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-emerald-200 text-xs text-slate-700 space-y-2 mt-3">
+                        <p class="font-bold text-emerald-900"><i class="fas fa-info-circle"></i> ขั้นตอนการสร้าง Google Apps Script Backend:</p>
+                        <ol class="list-decimal list-inside space-y-1 text-slate-600">
+                            <li>สร้าง Google Sheet ใหม่ ตั้งชื่อว่า <code class="bg-slate-100 px-1 rounded">RequestMed_DB</code> แล้วคัดลอกลิงก์มาใส่ช่อง "Google Sheet URL" ด้านบน</li>
+                            <li>ไปที่เมนู Extensions > Apps Script แล้ววางโค้ดสคริปต์ด้านล่างนี้</li>
+                            <li>กด Deploy > New deployment > เลือก Web app (Execute as: Me, Who has access: Anyone)</li>
+                            <li>คัดลอก Web App URL มาใส่ในช่อง "Web App URL" ด้านบน</li>
+                        </ol>
+                        <button onclick="showAppsScriptCode()" class="mt-2 text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-700 transition">
+                            <i class="fas fa-code"></i> แสดงโค้ด Google Apps Script
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- MODAL: PRINT PREVIEW FORM A4 (กฟผ.-รพ.74) -->
-    <div id="printModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl w-full max-w-4xl p-6 sm:p-8 shadow-2xl relative my-8">
-            <div class="flex justify-between items-center mb-4 no-print">
-                <h3 class="font-bold text-lg text-slate-800"><i class="fa-solid fa-print mr-2 text-egat-700"></i> แบบฟอร์ม กฟผ.-รพ.74 (ขนาด A4)</h3>
-                <div class="space-x-2">
-                    <button onclick="window.print()" class="px-4 py-2 bg-egat-700 text-white rounded-xl text-sm font-semibold hover:bg-egat-800"><i class="fa-solid fa-print mr-1"></i> พิมพ์เอกสาร</button>
-                    <button onclick="closePrintModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-300">ปิด</button>
+    <!-- MODAL: A4 PDF PREVIEW & PRINT -->
+    <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center no-print">
+                <h3 class="font-bold text-lg flex items-center space-x-2">
+                    <i class="fas fa-file-pdf text-rose-500"></i>
+                    <span>พิมพ์ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74) - ขนาด A4</span>
+                </h3>
+                <div class="flex items-center space-x-2">
+                    <button onclick="printA4()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-sm shadow transition flex items-center space-x-1">
+                        <i class="fas fa-print"></i><span>พิมพ์เอกสาร (Print)</span>
+                    </button>
+                    <button onclick="closePdfModal()" class="bg-slate-700 hover:bg-slate-600 text-white p-2 rounded-lg text-sm">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
-
-            <!-- PRINT SECTION A4 FORMAT 100% -->
-            <div id="printSection" class="bg-white p-8 font-sans text-xs sm:text-sm text-black border shadow-sm mx-auto" style="width: 210mm; min-height: 297mm; box-sizing: border-box;">
-                <!-- Header -->
-                <div class="flex justify-between items-start mb-2">
-                    <div></div>
-                    <div class="text-right">
-                        <p class="font-bold">แบบ กฟผ.-รพ.74</p>
-                    </div>
+            <!-- Modal Body (Printable A4 Area) -->
+            <div class="p-6 md:p-10 overflow-y-auto bg-slate-100 flex justify-center">
+                <div id="printable-area" class="bg-white w-[210mm] min-h-[297mm] p-[15mm] shadow-xl text-slate-900 text-[13px] leading-snug font-sans relative flex flex-col justify-between">
+                    <!-- Form Content Generated via JS -->
                 </div>
-                <div class="text-center mb-4">
-                    <h2 class="font-bold text-base">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</h2>
-                    <h1 class="font-bold text-lg mt-1">ใบเบิกยาและ/หรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h1>
-                </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="text-right mb-4">
-                    <span>วันที่..................เดือน......................................พ.ศ...................</span>
-                    <div id="pDateText" class="absolute -mt-6 right-24 font-medium"></div>
-                </div>
+    <!-- MODAL: DISPENSE ACTION -->
+    <div id="dispense-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="bg-blue-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-lg flex items-center space-x-2">
+                    <i class="fas fa-pills text-blue-300"></i>
+                    <span>บันทึกการจ่ายยาและเวชภัณฑ์ (สถานพยาบาล)</span>
+                </h3>
+                <button onclick="closeDispenseModal()" class="text-white hover:text-slate-200"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto" id="dispense-modal-content">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
 
-                <div class="space-y-3 mb-4">
-                    <div class="flex items-center space-x-2">
-                        <span>เรียน</span>
-                        <span class="border-b border-dotted border-black flex-grow px-2 font-medium" id="pToDept">แผนกสุขพอนอนามัย / สถานพยาบาล</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span>ข้าพเจ้า</span>
-                        <span class="border-b border-dotted border-black w-72 px-2 font-medium" id="pRequesterName"></span>
-                        <span>หมายเลขประจำตัว</span>
-                        <div class="flex space-x-1 border p-1" id="pEmpIdBoxes">
-                            <!-- 5 ID boxes -->
-                            <span class="w-4 h-5 border text-center font-mono"></span>
-                            <span class="w-4 h-5 border text-center font-mono"></span>
-                            <span class="w-4 h-5 border text-center font-mono"></span>
-                            <span class="w-4 h-5 border text-center font-mono"></span>
-                            <span class="w-4 h-5 border text-center font-mono"></span>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span>ตำแหน่ง</span>
-                        <span class="border-b border-dotted border-black flex-grow px-2 font-medium" id="pPosition"></span>
-                        <span>แผนก</span>
-                        <span class="border-b border-dotted border-black w-36 px-2 font-medium" id="pDept"></span>
-                        <span>กอง</span>
-                        <span class="border-b border-dotted border-black w-36 px-2 font-medium">--</span>
-                        <span>ฝ่าย</span>
-                        <span class="border-b border-dotted border-black w-36 px-2 font-medium">--</span>
-                        <span>โทรศัพท์</span>
-                        <span class="border-b border-dotted border-black w-28 px-2 font-medium" id="pPhone"></span>
-                    </div>
-                    <div>
-                        <p class="font-medium">ขอเบิกยาและเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</p>
-                        <div class="ml-4 mt-1 space-y-1">
-                            <div class="flex items-center space-x-2">
-                                <span class="w-4 h-4 border border-black inline-flex items-center justify-center font-bold" id="pPurpose1Check">✓</span>
-                                <span>เพื่อสำรองไว้ใช้ประจำหน่วยงาน</span>
-                                <span class="border-b border-dotted border-black px-4 font-medium" id="pPurpose1Text"></span>
-                                <span>ซึ่งมีผู้ปฏิบัติงานจำนวน</span>
-                                <span class="border-b border-dotted border-black w-16 text-center font-medium" id="pStaffCount"></span>
-                                <span>คน</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="w-4 h-4 border border-black inline-flex items-center justify-center font-bold" id="pPurpose2Check"></span>
-                                <span>เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ</span>
-                                <span class="border-b border-dotted border-black px-4 font-medium" id="pTravelLoc">..................</span>
-                                <span>ประมาณ</span>
-                                <span class="border-b border-dotted border-black w-12 text-center font-medium" id="pTravelDays">....</span>
-                                <span>วัน สำหรับผู้เดินทางจำนวน</span>
-                                <span class="border-b border-dotted border-black w-12 text-center font-medium" id="pTravelPersons">....</span>
-                                <span>คน</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- MODAL: APPROVAL ACTION -->
+    <div id="approve-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div class="bg-amber-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-lg flex items-center space-x-2">
+                    <i class="fas fa-stamp text-amber-300"></i>
+                    <span>ลงนามอนุมัติคำขอเบิกยา</span>
+                </h3>
+                <button onclick="closeApproveModal()" class="text-white hover:text-slate-200"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4" id="approve-modal-content">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
 
-                <!-- Main Two-Column Table -->
-                <table class="w-full border-collapse border border-black mb-6 text-xs">
-                    <thead>
-                        <tr class="bg-slate-100 text-center">
-                            <th class="border border-black p-2 w-1/2">รายการยาและเวชภัณฑ์ที่ขอเบิก</th>
-                            <th class="border border-black p-2 w-1/2">รายการยาและเวชภัณฑ์ที่สั่งจ่าย **</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="border border-black p-2 align-top h-64">
-                                <ol id="pRequestedList" class="list-decimal pl-4 space-y-1">
-                                    <!-- Populated by JS -->
-                                </ol>
-                            </td>
-                            <td class="border border-black p-2 align-top h-64">
-                                <ol id="pDispensedList" class="list-decimal pl-4 space-y-1">
-                                    <!-- Populated by JS -->
-                                </ol>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border border-black p-4 text-center">
-                                <div class="mb-1">**(ลงชื่อ).......................................................ผู้ขอเบิก</div>
-                                <div class="my-1 h-12 flex items-center justify-center">
-                                    <img id="pSignReqImg" class="max-h-12 hidden" alt="Signature">
-                                </div>
-                                <div class="text-xs" id="pSignReqName"></div>
-                            </td>
-                            <td class="border border-black p-4 text-center">
-                                <div class="mb-1">**(ลงชื่อ).......................................................</div>
-                                <div class="my-1 h-12 flex items-center justify-center">
-                                    <img id="pSignDispImg" class="max-h-12 hidden" alt="Signature">
-                                </div>
-                                <div>ตำแหน่ง <span id="pDispenserPosText">หัวหน้าสถานีไฟฟ้าแรงสูง / พยาบาล</span></div>
-                                <div class="text-xs mt-1" id="pSignDispName"></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border border-black p-4" colspan="2">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <p>ข้าพเจ้าได้รับยาและเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
-                                        <div class="mt-4 text-center inline-block">
-                                            (ลงชื่อ).......................................................ผู้ขอเบิก / ผู้รับยา<br>
-                                            <span class="text-xs" id="pReceiverName"></span>
-                                        </div>
-                                    </div>
-                                    <div class="text-left text-[11px] leading-tight border-l pl-4">
-                                        <p class="font-bold">หมายเหตุ</p>
-                                        <p>(1) * อพ. ผู้ที่ อพ. มอบหมาย กพอม-ฟ2. หัวหน้าแผนกสุขพอนอนามัยในส่วนภูมิภาค หรือผู้ปฏิบัติงานด้านแพทย์และอนามัยที่ ผู้อำนวยการฝ่ายหรือเทียบเท่าในส่วนภูมิภาคมอบหมาย</p>
-                                        <p>(2) ** หัวหน้าแผนกขึ้นไป หรือหัวหน้าสถานีไฟฟ้าแรงสูง</p>
-                                        <p>(3) แบบ กฟผ.-รพ.74 ให้จัดทำครั้งละ 2 ฉบับ<br>&nbsp;&nbsp;&nbsp;&nbsp;ต้นฉบับ - สถานพยาบาลของ กฟผ. ที่จ่ายยาและ/หรือเวชภัณฑ์<br>&nbsp;&nbsp;&nbsp;&nbsp;สำเนา - ผู้ขอเบิก</p>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- MODAL: APPS SCRIPT CODE -->
+    <div id="apps-script-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-emerald-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-lg flex items-center space-x-2">
+                    <i class="fas fa-code text-emerald-300"></i>
+                    <span>Google Apps Script Code สำหรับ Google Sheets</span>
+                </h3>
+                <button onclick="closeAppsScriptModal()" class="text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto bg-slate-900 text-emerald-400 font-mono text-xs">
+                <pre id="apps-script-code-text" class="whitespace-pre-wrap">
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  
+  // If sheet is empty, add header
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["ID", "Date", "Recipient", "Name", "IDCard", "Department", "Purpose", "Status", "Timestamp"]);
+  }
+  
+  sheet.appendRow([
+    data.id,
+    data.date,
+    data.recipient,
+    data.name,
+    data.idCard,
+    data.department,
+    data.purposeText,
+    data.status,
+    new Date()
+  ]);
+  
+  return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
+}
+                </pre>
+                <button onclick="copyAppsScriptCode()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-sans font-bold text-xs">
+                    <i class="fas fa-copy mr-1"></i> คัดลอกโค้ดทั้งหมด
+                </button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript Application Logic -->
     <script>
-        // Default Catalog Data (11 items)
-        const DEFAULT_CATALOG = [
-            { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", quota: 50, unit: "เม็ด" },
-            { id: 2, name: "Chlorpheniramine 4 mg. (ยาแก้แพ้ ลดผื่นคัน ลดน้ำมูก)", quota: 30, unit: "เม็ด" },
-            { id: 3, name: "Antacil tabs (ยาลดกรด เคลือบแผลในกระเพาะอาหาร)", quota: 30, unit: "เม็ด" },
-            { id: 4, name: "ORS (ผงเกลือแร่ สำหรับท้องเสีย)", quota: 5, unit: "ซอง" },
-            { id: 5, name: "Brown Mixture 60 ml. (ยาจิบแก้ไอ)", quota: 2, unit: "ขวด" },
-            { id: 6, name: "Mix Carminative 180 ml. (มิกเซอร์ คาร์มิเนทีฟ ยาขับลม)", quota: 2, unit: "ขวด" },
-            { id: 7, name: "Whitfield's ointment 15 g. (ยารักษากลากเกลื้อน น้ำกัดเท้า)", quota: 1, unit: "หลอด" },
-            { id: 8, name: "GPO Analgesic Balm 30 g. (บาล์มนวดแก้ปวด)", quota: 2, unit: "หลอด" },
-            { id: 9, name: "BETAMED solution 15 ml. (เบต้าเมด โซลูชั่น ยาทาแผลสด)", quota: 1, unit: "ขวด" },
-            { id: 10, name: "Tigerplast (พลาสเตอร์ผ้าปิดแผล)", quota: 10, unit: "แผ่น" },
-            { id: 11, name: "Gauze Sterile Cotton balls (สำลีก้อน สำหรับเช็ดแผล)", quota: 2, unit: "แพ็ก" }
+        // --- DRUG CATALOG DATA (11 Items) ---
+        const DRUG_CATALOG = [
+            { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด" },
+            { id: 2, name: "Chlorpheniramine 4 mg. (ยาแก้แพ้ ลดผื่นคัน ลดน้ำมูก)", maxQty: 30, unit: "เม็ด" },
+            { id: 3, name: "Antacil tabs (ยาลดกรด เคลือบแผลในกระเพาะอาหาร)", maxQty: 30, unit: "เม็ด" },
+            { id: 4, name: "ORS (ผงเกลือแร่ สำหรับท้องเสีย)", maxQty: 5, unit: "ซอง" },
+            { id: 5, name: "Brown Mixture 60 ml. (ยาจิบแก้ไอ)", maxQty: 2, unit: "ขวด" },
+            { id: 6, name: "Mix Carminative 180 ml. (มิกซ์เจอร์ คามินีทีฟ ยาขับลม บรรเทาอาการท้องอืด)", maxQty: 2, unit: "ขวด" },
+            { id: 7, name: "Whitfield's ointment 15 g. (ยารักษากลากเกลื้อน น้ำกัดเท้า)", maxQty: 1, unit: "หลอด" },
+            { id: 8, name: "GPO Analgesic Balm 30 g. (บาล์มนวดแก้ปวด)", maxQty: 2, unit: "หลอด" },
+            { id: 9, name: "BETAMED solution 15 ml. (เบต้าเมด โซลูชั่น ยาทาแผลสด)", maxQty: 1, unit: "ขวด" },
+            { id: 10, name: "Tigerplast (พลาสเตอร์ผ้าปิดแผล)", maxQty: 10, unit: "แผ่น" },
+            { id: 11, name: "Gauze Sterile Cotton balls (สำลีก้อน สำหรับเช็ดทำความสะอาดแผล)", maxQty: 2, unit: "แพ็ก" }
         ];
 
-        const DEFAULT_DEPT = ["แผนกธุรการ", "แผนกเดินเครื่อง", "แผนกบำรุงรักษา", "กองบริหาร", "ฝ่ายปฏิบัติการภาค"];
-
-        // State Management
-        let appData = {
+        // --- APP STATE ---
+        let appState = {
             requests: JSON.parse(localStorage.getItem('egat_req_meds') || '[]'),
-            catalog: JSON.parse(localStorage.getItem('egat_med_catalog') || JSON.stringify(DEFAULT_CATALOG)),
-            departments: JSON.parse(localStorage.getItem('egat_departments') || JSON.stringify(DEFAULT_DEPT)),
+            departments: JSON.parse(localStorage.getItem('egat_departments') || JSON.stringify([
+                "แผนกบำรุงรักษาไฟฟ้า ฝ่ายปฏิบัติการภาคตะวันออกเฉียงเหนือ",
+                "แผนกวิศวกรรมระบบควบคุม สถานีไฟฟ้าแรงสูงขอนแก่น",
+                "แผนกความปลอดภัย อาชีวอนามัยและสิ่งแวดล้อม",
+                "แผนกเดินเครื่อง โรงไฟฟ้าพลังน้ำภาคตะวันออกเฉียงเหนือ",
+                "แผนกธุรการและบริการ กองบริหารงานทั่วไป"
+            ])),
             settings: JSON.parse(localStorage.getItem('egat_settings') || JSON.stringify({
-                scriptUrl: 'https://script.google.com/macros/s/AKfycbxqhQ7Mx6ebPrqnXFZeJ5k5I0cyfzjKvzxeSl3Gre3iAunNHqV5D8q5trkKy-w6B5wt/exec',
-                approverName: 'นายสมศักดิ์ ผู้ทรงคุณ',
-                approverPos: 'หัวหน้าแผนกธุรการ',
-                dispenserName: 'นางสาววรรณภา รักษาดี',
-                dispenserPos: 'พยาบาลวิชาชีพ สถานพยาบาล'
+                approverName: "นายสุชาติ มั่นคง",
+                approverPos: "หัวหน้าแผนกธุรการ",
+                dispenserName: "นางสาวพิมพา พยาบาลสุข",
+                gssUrl: "",
+                sheetUrl: ""
             }))
         };
 
-        let reqSignaturePad = null;
+        let currentFilterStatus = 'all';
+        let activeModalId = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initTabs();
-            initRequestForm();
-            renderAllTables();
-            updateBadgeCount();
+        // Signature Pad Instances using canvas
+        let sigPads = {
+            req: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
+            dispense: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
+            receive: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
+            approve: { canvas: null, ctx: null, drawing: false, hasDrawn: false }
+        };
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initDate();
+            renderDrugItemsForm();
+            renderDrugCatalog();
+            renderDepartmentsSettings();
+            loadSettingsToForm();
+            renderDashboardStats();
+            renderStatusTable();
+            renderDispenseList();
+            renderApproveList();
+            initSignaturePad('req');
+            updateSheetLinkButton();
+            
+            // Default tab
+            switchTab('home');
         });
 
-        function switchTab(tabId) {
-            ['home', 'request', 'dispense', 'approver', 'status', 'catalog', 'settings'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-            });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            renderAllTables();
+        function initDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('req-date').value = today;
         }
 
-        function initRequestForm() {
-            // Set Date
-            document.getElementById('reqDate').valueAsDate = new Date();
-            // Set Request No
-            const runningNo = 'REQ-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 9000) + 1000);
-            document.getElementById('reqNo').value = runningNo;
+        // --- TAB NAVIGATION ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Populate Dept Dropdown
-            const deptSelect = document.getElementById('reqDept');
-            deptSelect.innerHTML = appData.departments.map(d => `<option value="${d}">${d}</option>`).join('');
+            if (tabId === 'dispense') renderDispenseList();
+            if (tabId === 'approve') renderApproveList();
+            if (tabId === 'status') renderStatusTable();
+            if (tabId === 'home') renderDashboardStats();
+        }
 
-            // Populate Catalog Checklist
-            const tbody = document.getElementById('requestItemsTable');
-            tbody.innerHTML = appData.catalog.map((item, idx) => `
-                <tr class="hover:bg-slate-50">
+        // --- TOAST NOTIFICATION ---
+        function showToast(title, msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-x-full');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3500);
+        }
+
+        // --- RENDER DRUG ITEMS IN REQUEST FORM ---
+        function renderDrugItemsForm() {
+            const container = document.getElementById('drug-items-container');
+            container.innerHTML = DRUG_CATALOG.map((drug, index) => `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                     <td class="p-3 text-center">
-                        <input type="checkbox" name="itemCheck" value="${item.id}" onchange="toggleItemInput(${item.id})" class="w-4 h-4 text-egat-700 rounded">
+                        <input type="checkbox" id="drug-chk-${drug.id}" onchange="toggleDrugQty(${drug.id})" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500">
                     </td>
                     <td class="p-3">
-                        <span class="font-medium text-slate-800">${item.name}</span>
-                        <div class="text-xs text-slate-400">สูงสุดไม่เกิน: ${item.quota} ${item.unit}</div>
+                        <span class="font-bold text-slate-700 mr-2">${index + 1}.</span>
+                        <span class="text-slate-800">${drug.name}</span>
+                        <span class="block text-[11px] text-slate-400">ขอได้สูงสุด: ${drug.maxQty} ${drug.unit}</span>
                     </td>
                     <td class="p-3 text-center">
-                        <input type="number" id="itemQty_${item.id}" min="1" max="${item.quota}" value="${item.quota}" disabled class="w-24 p-1.5 text-sm border rounded-lg text-center bg-slate-100">
+                        <input type="number" id="drug-qty-${drug.id}" min="1" max="${drug.maxQty}" value="1" disabled class="w-24 px-2 py-1 border border-slate-300 rounded text-center bg-slate-100 text-sm font-bold focus:ring-2 focus:ring-emerald-500">
                     </td>
-                    <td class="p-3 text-center text-slate-600">${item.unit}</td>
+                    <td class="p-3 text-center text-slate-600 text-xs">${drug.unit}</td>
                 </tr>
             `).join('');
-
-            // Init Signature Pad
-            const canvas = document.getElementById('reqSigCanvas');
-            reqSignaturePad = new SignaturePad(canvas, { backgroundColor: 'rgb(255, 255, 255)' });
-            resizeCanvas(canvas);
         }
 
-        function resizeCanvas(canvas) {
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-            if (reqSignaturePad) reqSignaturePad.clear();
-        }
-
-        function toggleItemInput(id) {
-            const chk = document.querySelector(`input[value="${id}"]`);
-            const input = document.getElementById(`itemQty_${id}`);
-            input.disabled = !chk.checked;
-            input.className = chk.checked ? "w-24 p-1.5 text-sm border border-egat-700 rounded-lg text-center bg-white font-bold" : "w-24 p-1.5 text-sm border rounded-lg text-center bg-slate-100";
-        }
-
-        function togglePurposeInput() {
-            const isTravel = document.querySelector('input[name="reqPurposeType"]:checked').value === 'เดินทางไปปฏิบัติงาน';
-            document.getElementById('reqStaffCount').disabled = isTravel;
-            document.getElementById('reqTravelLocation').disabled = !isTravel;
-            document.getElementById('reqTravelDays').disabled = !isTravel;
-            document.getElementById('reqTravelPersons').disabled = !isTravel;
-        }
-
-        function clearSignature(canvasId) {
-            if (canvasId === 'reqSigCanvas' && reqSignaturePad) reqSignaturePad.clear();
-        }
-
-        function handleSaveRequest(e) {
-            e.preventDefault();
-            if (reqSignaturePad.isEmpty()) {
-                alert('กรุณาลายเซ็นอิเล็กทรอนิกส์ผู้ขอเบิกก่อนบันทึก');
-                return;
+        function toggleDrugQty(id) {
+            const chk = document.getElementById(`drug-chk-${id}`);
+            const input = document.getElementById(`drug-qty-${id}`);
+            if (chk.checked) {
+                input.disabled = false;
+                input.classList.remove('bg-slate-100');
+                input.classList.add('bg-white');
+            } else {
+                input.disabled = true;
+                input.classList.add('bg-slate-100');
+                input.classList.remove('bg-white');
             }
+        }
 
-            const checkedItems = [];
-            appData.catalog.forEach(item => {
-                const chk = document.querySelector(`input[value="${item.id}"]:checked`);
-                if (chk) {
-                    const qty = parseInt(document.getElementById(`itemQty_${item.id}`).value) || 1;
-                    checkedItems.push({ id: item.id, name: item.name, qty: qty, unit: item.unit });
+        function togglePurpose() {
+            const val = document.querySelector('input[name="purpose"]:checked').value;
+        }
+
+        // --- SIGNATURE PAD LOGIC ---
+        function initSignaturePad(key) {
+            const canvas = document.getElementById(`sig-canvas-${key}`);
+            if (!canvas) return;
+            sigPads[key].canvas = canvas;
+            sigPads[key].ctx = canvas.getContext('2d');
+            const ctx = sigPads[key].ctx;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#0f172a';
+
+            // Mouse events
+            canvas.addEventListener('mousedown', (e) => startDraw(e, key));
+            canvas.addEventListener('mousemove', (e) => draw(e, key));
+            canvas.addEventListener('mouseup', () => stopDraw(key));
+            canvas.addEventListener('mouseleave', () => stopDraw(key));
+
+            // Touch events
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0], key); });
+            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0], key); });
+            canvas.addEventListener('touchend', (e) => { e.preventDefault(); stopDraw(key); });
+        }
+
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX - rect.left) * (canvas.width / rect.width),
+                y: (evt.clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function startDraw(evt, key) {
+            sigPads[key].drawing = true;
+            sigPads[key].hasDrawn = true;
+            const pos = getMousePos(sigPads[key].canvas, evt);
+            sigPads[key].ctx.beginPath();
+            sigPads[key].ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(evt, key) {
+            if (!sigPads[key].drawing) return;
+            const pos = getMousePos(sigPads[key].canvas, evt);
+            sigPads[key].ctx.lineTo(pos.x, pos.y);
+            sigPads[key].ctx.stroke();
+        }
+
+        function stopDraw(key) {
+            sigPads[key].drawing = false;
+            if (sigPads[key].canvas) {
+                document.getElementById(`${key}-signature-data`)?.setAttribute('value', sigPads[key].canvas.toDataURL());
+            }
+        }
+
+        function clearSignature(key) {
+            const canvas = sigPads[key].canvas;
+            if (!canvas) return;
+            const ctx = sigPads[key].ctx;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            sigPads[key].hasDrawn = false;
+            document.getElementById(`${key}-signature-data`)?.setAttribute('value', '');
+        }
+
+        // --- LOAD SAMPLE DATA ---
+        function loadSampleData() {
+            document.getElementById('req-name').value = "นายวิชัย ใจดี";
+            document.getElementById('req-idcard').value = "3401200567891";
+            document.getElementById('req-phone').value = "0891234567";
+            document.getElementById('req-position').value = "ช่างไฟฟ้าอาวุโส";
+            document.getElementById('req-section').value = "แผนกบำรุงรักษา";
+            document.getElementById('req-division').value = "กองระบบส่งไฟฟ้า";
+            document.getElementById('purpose-workers').value = "15";
+            
+            [1, 2, 4].forEach(id => {
+                document.getElementById(`drug-chk-${id}`).checked = true;
+                toggleDrugQty(id);
+                document.getElementById(`drug-qty-${id}`).value = id === 1 ? 30 : (id === 2 ? 20 : 3);
+            });
+            showToast("สำเร็จ", "เติมข้อมูลตัวอย่างเรียบร้อยแล้ว");
+        }
+
+        // --- FORM SUBMIT (SAVE REQUISITION) ---
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-id').value;
+            
+            let selectedItems = [];
+            DRUG_CATALOG.forEach(drug => {
+                const chk = document.getElementById(`drug-chk-${drug.id}`);
+                if (chk && chk.checked) {
+                    const qty = parseInt(document.getElementById(`drug-qty-${drug.id}`).value) || 1;
+                    selectedItems.push({
+                        id: drug.id,
+                        name: drug.name,
+                        qty: qty,
+                        maxQty: drug.maxQty,
+                        unit: drug.unit
+                    });
                 }
             });
 
-            if (checkedItems.length === 0) {
-                alert('กรุณาเลือกรายการยาและเวชภัณฑ์อย่างน้อย 1 รายการ');
+            if (selectedItems.length === 0) {
+                showToast("ข้อผิดพลาด", "กรุณาเลือกรายการยาและเวชภัณฑ์อย่างน้อย 1 รายการ", "error");
                 return;
             }
 
-            const purposeType = document.querySelector('input[name="reqPurposeType"]:checked').value;
-            const newReq = {
-                no: document.getElementById('reqNo').value,
-                date: document.getElementById('reqDate').value,
-                dept: document.getElementById('reqDept').value,
-                name: document.getElementById('reqName').value,
-                empId: document.getElementById('reqEmpId').value,
-                phone: document.getElementById('reqPhone').value,
-                position: document.getElementById('reqPosition').value,
-                purposeType: purposeType,
-                staffCount: document.getElementById('reqStaffCount').value,
-                travelLoc: document.getElementById('reqTravelLocation').value,
-                travelDays: document.getElementById('reqTravelDays').value,
-                travelPersons: document.getElementById('reqTravelPersons').value,
-                items: checkedItems,
-                status: 'รออนุมัติ',
-                signReq: reqSignaturePad.toDataURL(),
-                signApprover: '',
-                signDispenser: '',
-                updatedAt: new Date().toISOString()
+            const purposeType = document.querySelector('input[name="purpose"]:checked').value;
+            const purposeData = purposeType === 'reserve' ? {
+                type: 'reserve',
+                text: `เพื่อสำรองไว้ใช้ประจำหน่วยงาน ซึ่งมีผู้ปฏิบัติงานจำนวน ${document.getElementById('purpose-workers').value} คน`,
+                workers: document.getElementById('purpose-workers').value
+            } : {
+                type: 'travel',
+                text: `เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ ${document.getElementById('purpose-location').value} ประมาณ ${document.getElementById('purpose-days').value} วัน สำหรับผู้เดินทางจำนวน ${document.getElementById('purpose-travelers').value} คน`,
+                location: document.getElementById('purpose-location').value,
+                days: document.getElementById('purpose-days').value,
+                travelers: document.getElementById('purpose-travelers').value
             };
 
-            appData.requests.unshift(newReq);
-            saveAndSync();
-            alert('บันทึกคำขอเบิกยาเรียบร้อยแล้ว');
+            const reqData = {
+                id: editId ? editId : 'EGAT-' + Math.floor(100000 + Math.random() * 900000),
+                date: document.getElementById('req-date').value,
+                recipient: document.getElementById('req-recipient').value,
+                departmentGroup: document.getElementById('req-department-group').value,
+                name: document.getElementById('req-name').value,
+                idCard: document.getElementById('req-idcard').value,
+                phone: document.getElementById('req-phone').value,
+                position: document.getElementById('req-position').value,
+                section: document.getElementById('req-section').value,
+                division: document.getElementById('req-division').value,
+                purpose: purposeData,
+                items: selectedItems,
+                signatures: {
+                    requestor: sigPads.req.canvas.toDataURL(),
+                    dispenser: editId ? (appState.requests.find(r => r.id === editId)?.signatures?.dispenser || '') : '',
+                    receiver: editId ? (appState.requests.find(r => r.id === editId)?.signatures?.receiver || '') : '',
+                    approver: editId ? (appState.requests.find(r => r.id === editId)?.signatures?.approver || '') : ''
+                },
+                dispensedItems: [],
+                status: editId ? (appState.requests.find(r => r.id === editId)?.status || 'pending_approve') : 'pending_approve',
+                approvedAt: editId ? (appState.requests.find(r => r.id === editId)?.approvedAt || null) : null,
+                dispensedAt: editId ? (appState.requests.find(r => r.id === editId)?.dispensedAt || null) : null,
+                createdAt: editId ? (appState.requests.find(r => r.id === editId)?.createdAt || new Date().toISOString()) : new Date().toISOString()
+            };
+
+            if (editId) {
+                const index = appState.requests.findIndex(r => r.id === editId);
+                if (index !== -1) appState.requests[index] = reqData;
+                document.getElementById('edit-id').value = '';
+                showToast("สำเร็จ", "แก้ไขข้อมูลคำขอเบิกเรียบร้อยแล้ว");
+            } else {
+                appState.requests.unshift(reqData);
+                showToast("สำเร็จ", "บันทึกใบขอเบิกยาเรียบร้อยแล้ว");
+                syncToGoogleSheets(reqData);
+            }
+
+            saveToLocalStorage();
+            document.getElementById('requisition-form').reset();
+            clearSignature('req');
+            initDate();
+            renderDrugItemsForm();
             switchTab('status');
         }
 
-        function renderAllTables() {
-            localStorage.setItem('egat_req_meds', JSON.stringify(appData.requests));
-            localStorage.setItem('egat_med_catalog', JSON.stringify(appData.catalog));
-            localStorage.setItem('egat_departments', JSON.stringify(appData.departments));
-            localStorage.setItem('egat_settings', JSON.stringify(appData.settings));
+        // --- SAVE TO LOCALSTORAGE ---
+        function saveToLocalStorage() {
+            localStorage.setItem('egat_req_meds', JSON.stringify(appState.requests));
+            localStorage.setItem('egat_departments', JSON.stringify(appState.departments));
+            localStorage.setItem('egat_settings', JSON.stringify(appState.settings));
+        }
 
-            updateBadgeCount();
+        // --- DASHBOARD STATS & STATUS RENDER ---
+        function renderDashboardStats() {
+            const total = appState.requests.length;
+            const pending = appState.requests.filter(r => r.status !== 'completed').length;
+            const completed = appState.requests.filter(r => r.status === 'completed').length;
 
-            // Home Recent Table
-            const homeBody = document.getElementById('homeRecentTableBody');
-            homeBody.innerHTML = appData.requests.slice(0, 5).map(r => renderRowHTML(r, false)).join('') || `<tr><td colspan="6" class="p-4 text-center text-slate-400">ยังไม่มีรายการขอเบิกยา</td></tr>`;
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-completed').innerText = completed;
 
-            // Dispense Table
-            const dispenseBody = document.getElementById('dispenseTableBody');
-            dispenseBody.innerHTML = appData.requests.map(r => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-mono font-medium">${r.no}</td>
-                    <td class="p-3">${r.date}</td>
-                    <td class="p-3">${r.name}<br><span class="text-xs text-slate-400">${r.dept}</span></td>
-                    <td class="p-3">${getStatusBadge(r.status)}</td>
-                    <td class="p-3 text-center">
-                        ${r.status === 'จ่ายยาแล้ว' ? '<span class="text-xs text-emerald-600 font-semibold"><i class="fa-solid fa-check-circle"></i> จ่ายยาเรียบร้อย</span>' : `<button onclick="actionDispense('${r.no}')" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700"><i class="fa-solid fa-kit-medical mr-1"></i> กดจ่ายยา</button>`}
-                    </td>
-                </tr>
-            `).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">ไม่มีรายการรอดำเนินการจ่ายยา</td></tr>`;
+            const badgeDispense = document.getElementById('badge-dispense');
+            const pendingDispense = appState.requests.filter(r => r.status === 'pending_dispense').length;
+            if (pendingDispense > 0) {
+                badgeDispense.innerText = pendingDispense;
+                badgeDispense.classList.remove('hidden');
+            } else {
+                badgeDispense.classList.add('hidden');
+            }
 
-            // Approver Table
-            const approverBody = document.getElementById('approverTableBody');
-            approverBody.innerHTML = appData.requests.map(r => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-mono font-medium">${r.no}</td>
-                    <td class="p-3">${r.date}</td>
-                    <td class="p-3">${r.name}<br><span class="text-xs text-slate-400">${r.dept}</span></td>
-                    <td class="p-3">${getStatusBadge(r.status)}</td>
-                    <td class="p-3 text-center">
-                        ${r.status !== 'รออนุมัติ' ? '<span class="text-xs text-emerald-600 font-semibold"><i class="fa-solid fa-check-circle"></i> อนุมัติแล้ว</span>' : `<button onclick="actionApprove('${r.no}')" class="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700"><i class="fa-solid fa-signature mr-1"></i> เซ็นอนุมัติ</button>`}
-                    </td>
-                </tr>
-            `).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">ไม่มีรายการรออนุมัติ</td></tr>`;
+            const badgeApprove = document.getElementById('badge-approve');
+            const pendingApprove = appState.requests.filter(r => r.status === 'pending_approve').length;
+            if (pendingApprove > 0) {
+                badgeApprove.innerText = pendingApprove;
+                badgeApprove.classList.remove('hidden');
+            } else {
+                badgeApprove.classList.add('hidden');
+            }
+        }
 
-            // Status Table
-            const statusBody = document.getElementById('statusTableBody');
-            statusBody.innerHTML = appData.requests.map(r => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-mono font-medium">${r.no}</td>
-                    <td class="p-3">${r.date}</td>
-                    <td class="p-3">${r.name}</td>
-                    <td class="p-3">${r.dept}</td>
-                    <td class="p-3">${getStatusBadge(r.status)}</td>
-                    <td class="p-3 text-center space-x-1">
-                        <button onclick="openPrintModal('${r.no}')" class="px-2.5 py-1 bg-egat-700 text-white rounded-lg text-xs font-medium hover:bg-egat-800" title="พิมพ์ PDF"><i class="fa-solid fa-print"></i></button>
-                        <button onclick="deleteRequest('${r.no}')" class="px-2.5 py-1 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700" title="ลบ"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('') || `<tr><td colspan="6" class="p-4 text-center text-slate-400">ยังไม่มีข้อมูลคำขอเบิกยาในระบบ</td></tr>`;
+        // --- STATUS & MANAGEMENT TAB ---
+        function filterStatus(status) {
+            currentFilterStatus = status;
+            ['all', 'pending_approve', 'pending_dispense', 'completed'].forEach(s => {
+                const btn = document.getElementById(`filter-${s}`);
+                if (s === status) {
+                    btn.className = "px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+                }
+            });
+            renderStatusTable();
+        }
 
-            // Catalog Table
-            const catalogBody = document.getElementById('catalogTableBody');
-            catalogBody.innerHTML = appData.catalog.map(c => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3 text-center font-mono">${c.id}</td>
-                    <td class="p-3 font-medium text-slate-800">${c.name}</td>
-                    <td class="p-3 text-center"><input type="number" value="${c.quota}" onchange="updateCatalogQuota(${c.id}, this.value)" class="w-20 p-1 text-center border rounded-lg"></td>
-                    <td class="p-3 text-center text-slate-600">${c.unit}</td>
-                </tr>
+        function renderStatusTable() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const tbody = document.getElementById('status-table-body');
+            
+            let filtered = appState.requests.filter(r => {
+                const matchQuery = r.name.toLowerCase().includes(query) || r.departmentGroup.toLowerCase().includes(query) || r.id.toLowerCase().includes(query);
+                if (currentFilterStatus === 'all') return matchQuery;
+                if (currentFilterStatus === 'pending_approve') return matchQuery && r.status === 'pending_approve';
+                if (currentFilterStatus === 'pending_dispense') return matchQuery && r.status === 'pending_dispense';
+                if (currentFilterStatus === 'completed') return matchQuery && r.status === 'completed';
+                return matchQuery;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">ไม่พบรายการคำขอเบิกในระบบ</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(r => {
+                let statusApproveBadge = r.status === 'pending_approve' 
+                    ? `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold">รออนุมัติ</span>`
+                    : `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-bold"><i class="fas fa-check mr-1"></i>อนุมัติแล้ว</span>`;
+                
+                let statusDispenseBadge = r.status === 'completed'
+                    ? `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-bold"><i class="fas fa-check-circle mr-1"></i>จ่ายยาแล้ว</span>`
+                    : (r.status === 'pending_dispense'
+                        ? `<span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-xs font-bold">รอจ่ายยา</span>`
+                        : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-bold">รอขั้นตอนก่อนหน้า</span>`);
+
+                return `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-3">
+                            <span class="font-bold text-slate-900 block">${r.id}</span>
+                            <span class="text-xs text-slate-500">${r.date}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="font-medium text-slate-800 block">${r.name}</span>
+                            <span class="text-xs text-slate-500">${r.departmentGroup}</span>
+                        </td>
+                        <td class="p-3 text-xs text-slate-600 max-w-xs truncate">${r.purpose.text}</td>
+                        <td class="p-3 text-center">${statusApproveBadge}</td>
+                        <td class="p-3 text-center">${statusDispenseBadge}</td>
+                        <td class="p-3 text-center space-x-1">
+                            <button onclick="openPdfModal('${r.id}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-medium" title="พิมพ์ A4 PDF"><i class="fas fa-print"></i></button>
+                            <button onclick="editRequest('${r.id}')" class="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-medium" title="แก้ไข"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteRequest('${r.id}')" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium" title="ลบ"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            renderDashboardStats();
+        }
+
+        // --- APPROVAL TAB ---
+        function renderApproveList() {
+            const container = document.getElementById('approve-list-container');
+            const pending = appState.requests.filter(r => r.status === 'pending_approve');
+            document.getElementById('approve-pending-count').innerText = `รออนุมัติ ${pending.length} รายการ`;
+
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400"><i class="fas fa-clipboard-check text-4xl mb-2 text-slate-300"></i><p>ไม่มีรายการรออนุมัติในขณะนี้</p></div>`;
+                return;
+            }
+
+            container.innerHTML = pending.map(r => `
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">${r.id}</span>
+                            <span class="text-xs text-slate-500">วันที่ขอเบิก: ${r.date}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mt-1">${r.name} (${r.departmentGroup})</h4>
+                        <p class="text-xs text-slate-600 mt-1"><strong class="text-slate-700">วัตถุประสงค์:</strong> ${r.purpose.text}</p>
+                        <p class="text-xs text-slate-600 mt-0.5"><strong class="text-slate-700">จำนวนรายการยา:</strong> ${r.items.length} รายการ</p>
+                    </div>
+                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                        <button onclick="openPdfModal('${r.id}')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition">ตรวจสอบฟอร์ม</button>
+                        <button onclick="openApproveModalHandler('${r.id}')" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center space-x-1">
+                            <i class="fas fa-stamp"></i><span>ลงนามอนุมัติ</span>
+                        </button>
+                    </div>
+                </div>
             `).join('');
-
-            // Settings Fields
-            document.getElementById('settingScriptUrl').value = appData.settings.scriptUrl || '';
-            document.getElementById('settingApproverName').value = appData.settings.approverName;
-            document.getElementById('settingApproverPos').value = appData.settings.approverPos;
-            document.getElementById('settingDispenserName').value = appData.settings.dispenserName;
-            document.getElementById('settingDispenserPos').value = appData.settings.dispenserPos;
         }
 
-        function renderRowHTML(r) {
-            return `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-mono font-medium">${r.no}</td>
-                    <td class="p-3">${r.date}</td>
-                    <td class="p-3">${r.name}</td>
-                    <td class="p-3">${r.dept}</td>
-                    <td class="p-3">${getStatusBadge(r.status)}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="openPrintModal('${r.no}')" class="px-2 py-1 bg-egat-700 text-white rounded-lg text-xs"><i class="fa-solid fa-print"></i></button>
-                    </td>
-                </tr>
-            `;
-        }
-
-        function getStatusBadge(status) {
-            if (status === 'รออนุมัติ') return '<span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">รออนุมัติ</span>';
-            if (status === 'อนุมัติแล้ว') return '<span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">อนุมัติแล้ว (รอจ่ายยา)</span>';
-            if (status === 'จ่ายยาแล้ว') return '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold">จ่ายยาแล้ว (สมบูรณ์)</span>';
-            return `<span class="px-2.5 py-1 bg-slate-100 text-slate-800 rounded-full text-xs font-semibold">${status}</span>`;
-        }
-
-        function updateBadgeCount() {
-            const pendingCount = appData.requests.filter(r => r.status === 'รออนุมัติ' || r.status === 'อนุมัติแล้ว').length;
-            document.getElementById('badgeCount').innerText = pendingCount;
-        }
-
-        function actionApprove(no) {
-            const req = appData.requests.find(r => r.no === no);
-            if (req) {
-                req.status = 'อนุมัติแล้ว';
-                req.signApprover = appData.settings.approverName;
-                saveAndSync();
-                alert(`อนุมัติคำขอ ${no} เรียบร้อยแล้ว`);
-                renderAllTables();
-            }
-        }
-
-        function actionDispense(no) {
-            const req = appData.requests.find(r => r.no === no);
-            if (req) {
-                req.status = 'จ่ายยาแล้ว';
-                req.signDispenser = appData.settings.dispenserName;
-                saveAndSync();
-                alert(`บันทึกจ่ายยาสำหรับใบเบิก ${no} เรียบร้อยแล้ว`);
-                renderAllTables();
-            }
-        }
-
-        function deleteRequest(no) {
-            if (confirm(`คุณต้องการลบใบเบิกเลขที่ ${no} ใช่หรือไม่?`)) {
-                appData.requests = appData.requests.filter(r => r.no !== no);
-                saveAndSync();
-                renderAllTables();
-            }
-        }
-
-        function updateCatalogQuota(id, val) {
-            const item = appData.catalog.find(c => c.id === id);
-            if (item) {
-                item.quota = parseInt(val) || 1;
-                saveAndSync();
-            }
-        }
-
-        function saveSettings() {
-            appData.settings.scriptUrl = document.getElementById('settingScriptUrl').value;
-            appData.settings.approverName = document.getElementById('settingApproverName').value;
-            appData.settings.approverPos = document.getElementById('settingApproverPos').value;
-            appData.settings.dispenserName = document.getElementById('settingDispenserName').value;
-            appData.settings.dispenserPos = document.getElementById('settingDispenserPos').value;
-            saveAndSync();
-            alert('บันทึกการตั้งค่าเรียบร้อยแล้ว');
-        }
-
-        function saveAndSync() {
-            localStorage.setItem('egat_req_meds', JSON.stringify(appData.requests));
-            localStorage.setItem('egat_med_catalog', JSON.stringify(appData.catalog));
-            localStorage.setItem('egat_departments', JSON.stringify(appData.departments));
-            localStorage.setItem('egat_settings', JSON.stringify(appData.settings));
-
-            // Sync to Google Sheets if Web App URL is provided
-            const url = appData.settings.scriptUrl;
-            if (url && url.startsWith('http')) {
-                fetch(url, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'syncData', data: appData })
-                }).catch(err => console.log('Google Sheets Sync background note:', err));
-            }
-        }
-
-        function openPrintModal(no) {
-            const r = appData.requests.find(req => req.no === no);
+        let currentApprovingId = null;
+        function openApproveModalHandler(id) {
+            currentApprovingId = id;
+            const r = appState.requests.find(item => item.id === id);
             if (!r) return;
 
-            document.getElementById('pDateText').innerText = r.date;
-            document.getElementById('pRequesterName').innerText = r.name;
-            document.getElementById('pPosition').innerText = r.position || '-';
-            document.getElementById('pDept').innerText = r.dept;
-            document.getElementById('pPhone').innerText = r.phone;
-
-            // Emp ID 5 boxes
-            const empBoxes = document.getElementById('pEmpIdBoxes').children;
-            const empStr = String(r.empId || '').padStart(5, '0');
-            for(let i=0; i<5; i++) {
-                empBoxes[i].innerText = empStr[i] || '';
-            }
-
-            // Purpose checkboxes
-            if (r.purposeType === 'สำรองประจำหน่วยงาน') {
-                document.getElementById('pPurpose1Check').innerText = '✓';
-                document.getElementById('pPurpose2Check').innerText = '';
-                document.getElementById('pStaffCount').innerText = r.staffCount || '5';
-                document.getElementById('pPurpose1Text').innerText = r.dept;
-            } else {
-                document.getElementById('pPurpose1Check').innerText = '';
-                document.getElementById('pPurpose2Check').innerText = '✓';
-                document.getElementById('pTravelLoc').innerText = r.travelLoc || '-';
-                document.getElementById('pTravelDays').innerText = r.travelDays || '1';
-                document.getElementById('pTravelPersons').innerText = r.travelPersons || '1';
-            }
-
-            // Requested Items List
-            document.getElementById('pRequestedList').innerHTML = r.items.map(item => `
-                <li class="flex justify-between pr-2">
-                    <span>${item.name}</span>
-                    <span class="font-bold">${item.qty} ${item.unit}</span>
-                </li>
-            `).join('');
-
-            // Dispensed Items List (matches requested items when dispensed)
-            const dispensedList = document.getElementById('pDispensedList');
-            if (r.status === 'จ่ายยาแล้ว' || r.status === 'อนุมัติแล้ว') {
-                dispensedList.innerHTML = r.items.map(item => `
-                    <li class="flex justify-between pr-2">
-                        <span>${item.name}</span>
-                        <span class="font-bold">${item.qty} ${item.unit}</span>
-                    </li>
-                `).join('');
-            } else {
-                dispensedList.innerHTML = '<span class="text-slate-400 italic">รอดำเนินการจ่ายยา...</span>';
-            }
-
-            // Signatures
-            const reqImg = document.getElementById('pSignReqImg');
-            if (r.signReq) {
-                reqImg.src = r.signReq;
-                reqImg.classList.remove('hidden');
-            } else {
-                reqImg.classList.add('hidden');
-            }
-            document.getElementById('pSignReqName').innerText = `(${r.name})`;
-
-            const dispImg = document.getElementById('pSignDispImg');
-            if (r.status === 'จ่ายยาแล้ว') {
-                dispImg.classList.remove('hidden');
-                // placeholder or signature if available
-            } else {
-                dispImg.classList.add('hidden');
-            }
-            document.getElementById('pDispenserPosText').innerText = appData.settings.dispenserPos;
-            document.getElementById('pSignDispName').innerText = `(${appData.settings.dispenserName})`;
-            document.getElementById('pReceiverName').innerText = `(${r.name})`;
-
-            document.getElementById('printModal').classList.remove('hidden');
+            document.getElementById('approve-modal-content').innerHTML = `
+                <div>
+                    <p class="text-xs text-slate-500">คำขอเบิกเลขที่: <strong>${r.id}</strong></p>
+                    <p class="text-xs text-slate-500">ผู้ขอเบิก: <strong>${r.name} (${r.departmentGroup})</strong></p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">ชื่อ-นามสกุล ผู้อนุมัติ</label>
+                    <input type="text" id="modal-approver-name" value="${appState.settings.approverName}" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                    <label class="block text-xs font-bold text-slate-700">ตำแหน่ง</label>
+                    <input type="text" id="modal-approver-pos" value="${appState.settings.approverPos}" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-bold text-slate-700">ลายเซ็นอิเล็กทรอนิกส์ (ผู้อนุมัติ)</label>
+                        <button type="button" onclick="clearSignature('approve')" class="text-xs text-rose-600 hover:underline">ล้าง</button>
+                    </div>
+                    <div class="flex justify-center bg-white p-2 rounded-lg border border-slate-300">
+                        <canvas id="sig-canvas-approve" width="350" height="120" class="signature-canvas w-full h-28 cursor-crosshair"></canvas>
+                    </div>
+                    <input type="hidden" id="approve-signature-data">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button onclick="closeApproveModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">ยกเลิก</button>
+                    <button onclick="confirmApproval()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow">ยืนยันอนุมัติ</button>
+                </div>
+            `;
+            document.getElementById('approve-modal').classList.remove('hidden');
+            setTimeout(() => initSignaturePad('approve'), 100);
         }
 
-        function closePrintModal() {
-            document.getElementById('printModal').classList.add('hidden');
+        function closeApproveModal() {
+            document.getElementById('approve-modal').classList.add('hidden');
+            currentApprovingId = null;
+        }
+
+        function confirmApproval() {
+            const r = appState.requests.find(item => item.id === currentApprovingId);
+            if (!r) return;
+
+            const sigData = document.getElementById('approve-signature-data').value;
+            if (!sigData || !sigPads.approve.hasDrawn) {
+                showToast("ข้อผิดพลาด", "กรุณาลงลายเซ็นอนุมัติก่อนบันทึก", "error");
+                return;
+            }
+
+            r.status = 'pending_dispense';
+            r.approvedAt = new Date().toISOString();
+            r.signatures.approver = sigData;
+            r.approverInfo = {
+                name: document.getElementById('modal-approver-name').value,
+                position: document.getElementById('modal-approver-pos').value
+            };
+
+            saveToLocalStorage();
+            closeApproveModal();
+            showToast("สำเร็จ", "อนุมัติคำขอเบิกยาเรียบร้อยแล้ว ส่งต่อไปยังสถานพยาบาล");
+            renderApproveList();
+            renderStatusTable();
+        }
+
+        // --- DISPENSING TAB ---
+        function renderDispenseList() {
+            const container = document.getElementById('dispense-list-container');
+            const pending = appState.requests.filter(r => r.status === 'pending_dispense');
+            document.getElementById('dispense-pending-count').innerText = `รอจ่าย ${pending.length} รายการ`;
+
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400"><i class="fas fa-pills text-4xl mb-2 text-slate-300"></i><p>ไม่มีรายการรอจ่ายยาในสถานพยาบาล</p></div>`;
+                return;
+            }
+
+            container.innerHTML = pending.map(r => `
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold">${r.id}</span>
+                            <span class="text-xs text-emerald-600 font-bold"><i class="fas fa-check mr-1"></i>ผ่านการอนุมัติแล้ว</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mt-1">${r.name} (${r.departmentGroup})</h4>
+                        <p class="text-xs text-slate-600 mt-1"><strong class="text-slate-700">วัตถุประสงค์:</strong> ${r.purpose.text}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                        <button onclick="openPdfModal('${r.id}')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition">ตรวจสอบฟอร์ม</button>
+                        <button onclick="openDispenseModalHandler('${r.id}')" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center space-x-1">
+                            <i class="fas fa-pills"></i><span>ดำเนินการจ่ายยา</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let currentDispensingId = null;
+        function openDispenseModalHandler(id) {
+            currentDispensingId = id;
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
+
+            let itemsHtml = r.items.map((item, idx) => `
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="font-bold text-slate-800 text-sm">${idx + 1}. ${item.name}</span>
+                        <span class="block text-xs text-slate-500">ขอเบิก: ${item.qty} ${item.unit} (สูงสุด ${item.maxQty})</span>
+                    </div>
+                    <div>
+                        <input type="number" id="dispense-item-qty-${item.id}" min="0" max="${item.maxQty}" value="${item.qty}" class="w-20 px-2 py-1 border border-slate-300 rounded text-center text-sm font-bold">
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('dispense-modal-content').innerHTML = `
+                <div>
+                    <p class="text-xs text-slate-500">คำขอเบิกเลขที่: <strong>${r.id}</strong></p>
+                    <p class="text-xs text-slate-500">หน่วยงาน: <strong>${r.departmentGroup}</strong></p>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase">รายการจ่ายยา (ตรวจสอบและปรับจำนวนตามจริง)</label>
+                    <div class="space-y-2">${itemsHtml}</div>
+                </div>
+                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900 font-medium">
+                    "ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว"
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[11px] font-bold text-slate-700">ลงชื่อผู้รับยา (ผู้ขอเบิก)</label>
+                            <button type="button" onclick="clearSignature('receive')" class="text-[10px] text-rose-600">ล้าง</button>
+                        </div>
+                        <canvas id="sig-canvas-receive" width="250" height="100" class="signature-canvas w-full h-24 cursor-crosshair"></canvas>
+                        <input type="hidden" id="receive-signature-data">
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[11px] font-bold text-slate-700">ลงชื่อผู้จ่ายยา (สถานพยาบาล)</label>
+                            <button type="button" onclick="clearSignature('dispense')" class="text-[10px] text-rose-600">ล้าง</button>
+                        </div>
+                        <canvas id="sig-canvas-dispense" width="250" height="100" class="signature-canvas w-full h-24 cursor-crosshair"></canvas>
+                        <input type="hidden" id="dispense-signature-data">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button onclick="closeDispenseModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">ยกเลิก</button>
+                    <button onclick="confirmDispense()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow">ยืนยันจ่ายยา (สมบูรณ์ทันที)</button>
+                </div>
+            `;
+            document.getElementById('dispense-modal').classList.remove('hidden');
+            setTimeout(() => {
+                initSignaturePad('receive');
+                initSignaturePad('dispense');
+            }, 100);
+        }
+
+        function closeDispenseModal() {
+            document.getElementById('dispense-modal').classList.add('hidden');
+            currentDispensingId = null;
+        }
+
+        function confirmDispense() {
+            const r = appState.requests.find(item => item.id === currentDispensingId);
+            if (!r) return;
+
+            const receiveSig = document.getElementById('receive-signature-data').value;
+            const dispenseSig = document.getElementById('dispense-signature-data').value;
+
+            if (!receiveSig || !sigPads.receive.hasDrawn || !dispenseSig || !sigPads.dispense.hasDrawn) {
+                showToast("ข้อผิดพลาด", "กรุณาลงลายเซ็นทั้งผู้รับยาและผู้จ่ายยาให้ครบถ้วน", "error");
+                return;
+            }
+
+            let dispensedItems = r.items.map(item => {
+                const qtyInput = document.getElementById(`dispense-item-qty-${item.id}`);
+                return {
+                    ...item,
+                    dispensedQty: qtyInput ? parseInt(qtyInput.value) || 0 : item.qty
+                };
+            });
+
+            r.status = 'completed';
+            r.dispensedAt = new Date().toISOString();
+            r.dispensedItems = dispensedItems;
+            r.signatures.receiver = receiveSig;
+            r.signatures.dispenser = dispenseSig;
+            r.dispenserInfo = {
+                name: appState.settings.dispenserName
+            };
+
+            saveToLocalStorage();
+            closeDispenseModal();
+            showToast("สำเร็จ", "บันทึกการจ่ายยาและเวชภัณฑ์สมบูรณ์เรียบร้อยแล้ว");
+            renderDispenseList();
+            renderStatusTable();
+        }
+
+        // --- EDIT & DELETE REQUEST ---
+        function editRequest(id) {
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
+
+            switchTab('request');
+            document.getElementById('edit-id').value = r.id;
+            document.getElementById('req-date').value = r.date;
+            document.getElementById('req-recipient').value = r.recipient;
+            document.getElementById('req-department-group').value = r.departmentGroup;
+            document.getElementById('req-name').value = r.name;
+            document.getElementById('req-idcard').value = r.idCard;
+            document.getElementById('req-phone').value = r.phone;
+            document.getElementById('req-position').value = r.position || '';
+            document.getElementById('req-section').value = r.section || '';
+            document.getElementById('req-division').value = r.division || '';
+
+            if (r.purpose.type === 'reserve') {
+                document.querySelector('input[name="purpose"][value="reserve"]').checked = true;
+                document.getElementById('purpose-workers').value = r.purpose.workers || 10;
+            } else {
+                document.querySelector('input[name="purpose"][value="travel"]').checked = true;
+                document.getElementById('purpose-location').value = r.purpose.location || '';
+                document.getElementById('purpose-days').value = r.purpose.days || 3;
+                document.getElementById('purpose-travelers').value = r.purpose.travelers || 5;
+            }
+
+            renderDrugItemsForm();
+            r.items.forEach(item => {
+                const chk = document.getElementById(`drug-chk-${item.id}`);
+                const qtyInput = document.getElementById(`drug-qty-${item.id}`);
+                if (chk && qtyInput) {
+                    chk.checked = true;
+                    toggleDrugQty(item.id);
+                    qtyInput.value = item.qty;
+                }
+            });
+
+            document.getElementById('submit-btn-text').innerText = "บันทึกการแก้ไขใบขอเบิก";
+            showToast("แก้ไขข้อมูล", `กำลังแก้ไขคำขอเบิกเลขที่ ${r.id}`);
+        }
+
+        function deleteRequest(id) {
+            if (confirm(`คุณต้องการลบคำขอเบิกเลขที่ ${id} ใช่หรือไม่?`)) {
+                appState.requests = appState.requests.filter(item => item.id !== id);
+                saveToLocalStorage();
+                renderStatusTable();
+                renderDashboardStats();
+                showToast("สำเร็จ", "ลบรายการเรียบร้อยแล้ว");
+            }
+        }
+
+        // --- DRUG CATALOG RENDER ---
+        function renderDrugCatalog() {
+            const grid = document.getElementById('drug-catalog-grid');
+            grid.innerHTML = DRUG_CATALOG.map((d, i) => `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2.5 py-0.5 rounded-full">รายการที่ ${i + 1}</span>
+                        <h4 class="font-bold text-slate-800 text-sm mt-2">${d.name}</h4>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">ขอเบิกได้สูงสุด:</span>
+                        <span class="font-bold text-emerald-700">${d.maxQty} ${d.unit}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- SETTINGS & DEPARTMENTS ---
+        function renderDepartmentsSettings() {
+            const select = document.getElementById('req-department-group');
+            select.innerHTML = appState.departments.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            const listDiv = document.getElementById('dept-list-settings');
+            listDiv.innerHTML = appState.departments.map((d, idx) => `
+                <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200 text-xs">
+                    <span class="text-slate-800 truncate mr-2">${d}</span>
+                    <button onclick="removeDepartment(${idx})" class="text-rose-600 hover:text-rose-800"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function addDepartment() {
+            const input = document.getElementById('new-dept-input');
+            const val = input.value.trim();
+            if (!val) return;
+            appState.departments.push(val);
+            input.value = '';
+            saveToLocalStorage();
+            renderDepartmentsSettings();
+            showToast("สำเร็จ", "เพิ่มหน่วยงานเรียบร้อยแล้ว");
+        }
+
+        function removeDepartment(idx) {
+            if (appState.departments.length <= 1) {
+                showToast("ข้อผิดพลาด", "ต้องมีหน่วยงานในระบบอย่างน้อย 1 หน่วยงาน", "error");
+                return;
+            }
+            appState.departments.splice(idx, 1);
+            saveToLocalStorage();
+            renderDepartmentsSettings();
+            showToast("สำเร็จ", "ลบหน่วยงานเรียบร้อยแล้ว");
+        }
+
+        function loadSettingsToForm() {
+            document.getElementById('setting-approver-name').value = appState.settings.approverName;
+            document.getElementById('setting-approver-pos').value = appState.settings.approverPos;
+            document.getElementById('setting-dispenser-name').value = appState.settings.dispenserName;
+            document.getElementById('gss-url-input').value = appState.settings.gssUrl;
+            document.getElementById('gss-sheet-url-input').value = appState.settings.sheetUrl || '';
+            updateSheetLinkButton();
+        }
+
+        function saveApproverSettings() {
+            appState.settings.approverName = document.getElementById('setting-approver-name').value;
+            appState.settings.approverPos = document.getElementById('setting-approver-pos').value;
+            appState.settings.dispenserName = document.getElementById('setting-dispenser-name').value;
+            saveToLocalStorage();
+            showToast("สำเร็จ", "บันทึกข้อมูลผู้ลงนามเรียบร้อยแล้ว");
+        }
+
+        function updateSheetLinkButton() {
+            const url = document.getElementById('gss-sheet-url-input').value.trim() || (appState.settings ? appState.settings.sheetUrl : '');
+            const btn = document.getElementById('open-sheet-btn');
+            const navBtn = document.getElementById('nav-sheet-link');
+            
+            if (btn && url) {
+                btn.href = url;
+                btn.classList.remove('hidden');
+                btn.classList.add('inline-flex');
+            } else if (btn) {
+                btn.classList.add('hidden');
+                btn.classList.remove('inline-flex');
+            }
+
+            if (navBtn && url) {
+                navBtn.href = url;
+                navBtn.classList.remove('hidden');
+                navBtn.classList.add('flex');
+            } else if (navBtn) {
+                navBtn.classList.add('hidden');
+                navBtn.classList.remove('flex');
+            }
+        }
+
+        function saveGssUrl() {
+            appState.settings.gssUrl = document.getElementById('gss-url-input').value.trim();
+            appState.settings.sheetUrl = document.getElementById('gss-sheet-url-input').value.trim();
+            saveToLocalStorage();
+            updateSheetLinkButton();
+            showToast("สำเร็จ", "บันทึก Google Sheets และลิงก์ฐานข้อมูลเรียบร้อยแล้ว");
+        }
+
+        function showAppsScriptCode() {
+            document.getElementById('apps-script-modal').classList.remove('hidden');
+        }
+
+        function closeAppsScriptModal() {
+            document.getElementById('apps-script-modal').classList.add('hidden');
+        }
+
+        function copyAppsScriptCode() {
+            const code = document.getElementById('apps-script-code-text').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast("สำเร็จ", "คัดลอกโค้ด Apps Script ไปยังคลิปบอร์ดแล้ว");
+            });
+        }
+
+        function syncToGoogleSheets(data) {
+            const url = appState.settings.gssUrl;
+            if (!url) return;
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: data.id,
+                    date: data.date,
+                    recipient: data.recipient,
+                    name: data.name,
+                    idCard: data.idCard,
+                    department: data.departmentGroup,
+                    purposeText: data.purpose.text,
+                    status: data.status
+                })
+            }).catch(err => console.log('Google Sheets Sync note:', err));
+        }
+
+        // --- PDF A4 MODAL PREVIEW ---
+        function openPdfModal(id) {
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
+
+            const dateObj = new Date(r.date);
+            const thaiDays = dateObj.getDate();
+            const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"][dateObj.getMonth()];
+            const thaiYears = dateObj.getFullYear() + 543;
+
+            const idCardChars = (r.idCard || "             ").padStart(13, ' ').split('');
+            const isReserve = r.purpose.type === 'reserve';
+            const workersCount = r.purpose.workers || '___';
+            const travelLoc = r.purpose.location || '_______________';
+            const travelDays = r.purpose.days || '___';
+            const travelTravelers = r.purpose.travelers || '___';
+
+            const printableArea = document.getElementById('printable-area');
+            printableArea.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-start text-xs font-bold mb-2">
+                        <div></div>
+                        <div class="text-right">
+                            <p class="text-sm">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
+                            <p class="text-[11px] font-normal text-slate-600">แบบ กฟผ.-รพ.74</p>
+                        </div>
+                    </div>
+                    <h2 class="text-center font-bold text-base mb-4 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
+                    
+                    <div class="flex justify-end text-xs mb-3">
+                        <span>วันที่ <strong>${thaiDays}</strong> เดือน <strong>${thaiMonths}</strong> พ.ศ. <strong>${thaiYears}</strong></span>
+                    </div>
+
+                    <div class="space-y-2 text-xs mb-3">
+                        <p>เรียน <strong>${r.recipient}</strong></p>
+                        <div class="flex flex-wrap items-center gap-1">
+                            <span>ข้าพเจ้า <strong>${r.name}</strong></span>
+                            <span class="ml-4">หมายเลขประจำตัว</span>
+                            <div class="inline-flex border border-slate-400 bg-white">
+                                ${idCardChars.map(c => `<div class="w-5 h-6 border-r border-slate-400 flex items-center justify-center font-mono font-bold">${c}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-4">
+                            <span>ตำแหน่ง <strong>${r.position || '..........................'}</strong></span>
+                            <span>แผนก <strong>${r.section || '..........................'}</strong></span>
+                            <span>กอง <strong>${r.division || '..........................'}</strong></span>
+                            <span>ฝ่าย <strong>${r.departmentGroup || '..........................'}</strong></span>
+                            <span>โทรศัพท์ <strong>${r.phone}</strong></span>
+                        </div>
+                        <p class="mt-1">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
+                        
+                        <div class="space-y-1.5 pl-4 mt-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-4 h-4 rounded-full border border-slate-800 flex items-center justify-center text-[10px]">${isReserve ? '●' : ''}</span>
+                                <span>เพื่อสำรองไว้ใช้ประจำหน่วยงาน <strong>${r.departmentGroup}</strong> ซึ่งมีผู้ปฏิบัติงาน <strong>${workersCount}</strong> คน</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="w-4 h-4 rounded-full border border-slate-800 flex items-center justify-center text-[10px]">${!isReserve ? '●' : ''}</span>
+                                <span>เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ <strong>${travelLoc}</strong> ประมาณ <strong>${travelDays}</strong> วัน สำหรับผู้เดินทางจำนวน <strong>${travelTravelers}</strong> คน</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="my-3 flex-1">
+                    <table class="w-full border-collapse border border-slate-400 text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-400">
+                                <th colspan="4" class="border-r border-slate-400 p-1.5 text-center font-bold">รายการยาและเวชภัณฑ์ที่ขอเบิก</th>
+                                <th colspan="4" class="p-1.5 text-center font-bold">รายการยาและเวชภัณฑ์ที่สั่งจ่าย **</th>
+                            </tr>
+                            <tr class="bg-slate-50 border-b border-slate-400 text-[11px]">
+                                <th class="border-r border-slate-400 p-1 w-8">ที่</th>
+                                <th class="border-r border-slate-400 p-1">รายการ</th>
+                                <th class="border-r border-slate-400 p-1 w-12">จำนวน</th>
+                                <th class="border-r border-slate-400 p-1 w-12">หน่วย</th>
+                                <th class="border-r border-slate-400 p-1 w-8">ที่</th>
+                                <th class="border-r border-slate-400 p-1">รายการ</th>
+                                <th class="border-r border-slate-400 p-1 w-12">จ่าย</th>
+                                <th class="p-1 w-12">หน่วย</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${generateCombinedRowsHtml(r)}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="space-y-4 mt-2">
+                    <div class="grid grid-cols-2 gap-6 text-xs">
+                        <div class="border border-slate-400 p-3 rounded flex flex-col justify-between h-32 relative">
+                            <div class="text-center">
+                                <p>**(ลงชื่อ)...................................................ผู้ขอเบิก</p>
+                                <p class="mt-1">(${r.name})</p>
+                            </div>
+                            ${r.signatures && r.signatures.requestor ? `<div class="absolute inset-0 flex items-center justify-center opacity-80 pointer-events-none pt-4"><img src="${r.signatures.requestor}" class="h-20 object-contain"></div>` : ''}
+                            <div class="text-right text-[10px] text-slate-500">
+                                วันที่ ${thaiDays}/${dateObj.getMonth() + 1}/${thaiYears}
+                            </div>
+                        </div>
+
+                        <div class="border border-slate-400 p-3 rounded flex flex-col justify-between h-32 relative">
+                            <div class="text-center">
+                                <p>**(ลงชื่อ)...................................................</p>
+                                <p class="mt-1">(${r.approverInfo ? r.approverInfo.name : (appState.settings.approverName)})</p>
+                                <p class="text-[11px] text-slate-600">${r.approverInfo ? r.approverInfo.position : (appState.settings.approverPos)}</p>
+                            </div>
+                            ${r.signatures && r.signatures.approver ? `<div class="absolute inset-0 flex items-center justify-center opacity-80 pointer-events-none pt-2"><img src="${r.signatures.approver}" class="h-16 object-contain"></div>` : ''}
+                            <div class="text-right text-[10px] text-slate-500">
+                                วันที่ ${r.approvedAt ? new Date(r.approvedAt).toLocaleDateString('th-TH') : '.../.../......'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-2">
+                        <div class="border border-slate-400 p-3 rounded flex flex-col justify-between h-28 relative">
+                            <p class="font-medium text-[11px]">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
+                            <div class="text-center">
+                                <p>(ลงชื่อ)...................................................ผู้ขอเบิก / ผู้รับยา</p>
+                                <p class="text-[11px]">(${r.name})</p>
+                            </div>
+                            ${r.signatures && r.signatures.receiver ? `<div class="absolute inset-0 flex items-center justify-center opacity-80 pointer-events-none"><img src="${r.signatures.receiver}" class="h-14 object-contain"></div>` : ''}
+                        </div>
+
+                        <div class="text-[10px] text-slate-700 space-y-1 border border-slate-300 p-2 rounded bg-slate-50">
+                            <p class="font-bold">หมายเหตุ</p>
+                            <p>(1) * อพอ. ผู้ที่ อพอ. มอบหมาย กพอม-ฟ2. หัวหน้าแผนกสุขภาพอนามัยในส่วนภูมิภาค หรือผู้ปฏิบัติงานด้านการแพทย์และอนามัยที่ผู้อำนวยการฝ่ายหรือเทียบเท่าในส่วนภูมิภาคมอบหมาย</p>
+                            <p>(2) ** หัวหน้าแผนกขึ้นไป หรือหัวหน้าสถานีไฟฟ้าแรงสูง</p>
+                            <p>(3) แบบ กฟผ.-รพ.74 ให้จัดทำครั้งละ 2 ฉบับ ต้นฉบับ - สถานพยาบาล กฟผ. ที่จ่ายยาและหรือเวชภัณฑ์ / สำเนา - ผู้ขอเบิก</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('pdf-modal').classList.remove('hidden');
+        }
+
+        function generateCombinedRowsHtml(r) {
+            let html = '';
+            for (let i = 0; i < 11; i++) {
+                const item = r.items[i];
+                const dispItem = r.dispensedItems ? r.dispensedItems[i] : null;
+
+                html += `
+                    <tr class="h-7 border-b border-slate-300 text-xs">
+                        <td class="border-r border-slate-300 p-1 text-center w-8">${item ? (i + 1) : ''}</td>
+                        <td class="border-r border-slate-300 p-1">${item ? item.name : ''}</td>
+                        <td class="border-r border-slate-300 p-1 text-center font-bold w-12">${item ? item.qty : ''}</td>
+                        <td class="border-r border-slate-300 p-1 text-center w-12">${item ? item.unit : ''}</td>
+                        <td class="border-r border-slate-300 p-1 text-center w-8">${item ? (i + 1) : ''}</td>
+                        <td class="border-r border-slate-300 p-1">${dispItem ? dispItem.name : (item ? item.name : '')}</td>
+                        <td class="border-r border-slate-300 p-1 text-center font-bold text-emerald-800 w-12">${dispItem ? dispItem.dispensedQty : (r.status === 'completed' && item ? item.qty : '')}</td>
+                        <td class="p-1 text-center w-12">${item ? item.unit : ''}</td>
+                    </tr>
+                `;
+            }
+            return html;
+        }
+
+        function closePdfModal() {
+            document.getElementById('pdf-modal').classList.add('hidden');
+        }
+
+        function printA4() {
+            window.print();
         }
     </script>
 </body>
