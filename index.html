@@ -479,7 +479,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const DRUG_CATALOG = [
             { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด" },
@@ -509,18 +509,22 @@
                 approverName: "นายสมศักดิ์ ผู้ทรงคุณ",
                 approverPos: "หัวหน้าแผนกธุรการ",
                 dispenserName: "นางสาววรรณภา รักษาดี",
-                gssUrl: "https://script.google.com/macros/s/AKfycbwfsdNi1FaAq0Bm3-zY4a_R13CQcJX1qYuzkCsUfuexIDLHwejiLMw1YioYFGcYuC95/exec" // <-- วาง Web App URL ของคุณที่นี่
+                gssUrl: "https://script.google.com/macros/s/AKfycbwfsdNi1FaAq0Bm3-zY4a_R13CQcJX1qYuzkCsUfuexIDLHwejiLMw1YioYFGcYuC95/exec"
             }
         };
 
         let currentFilterStatus = 'all';
-        let sigPads = { req: { canvas: null, ctx: null, drawing: false, hasDrawn: false } };
+        let sigPads = {
+            req: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
+            approve: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
+            dispense: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
+            receive: { canvas: null, ctx: null, drawing: false, hasDrawn: false }
+        };
 
         window.addEventListener('DOMContentLoaded', () => {
-            // โหลดตั้งค่า URL ที่เคยบันทึกไว้ (ถ้ามี)
             const savedUrl = localStorage.getItem('egat_gss_url');
             if (savedUrl) appState.settings.gssUrl = savedUrl;
-            document.getElementById('setting-gss-url').value = appState.settings.gssUrl === "วาง_Web_App_URL_ที่นี่" ? "" : appState.settings.gssUrl;
+            document.getElementById('setting-gss-url').value = appState.settings.gssUrl;
 
             initDate();
             renderDrugItemsForm();
@@ -528,7 +532,6 @@
             renderDepartmentsSettings();
             initSignaturePad('req');
             
-            // ดึงข้อมูลจาก Google Sheet ทันทีที่เปิดเว็บ
             fetchDataFromSheet();
             switchTab('home');
         });
@@ -573,7 +576,6 @@
             fetchDataFromSheet();
         }
 
-        // ดึงข้อมูลแบบเรียลไทม์จาก Google Sheet ผ่าน doGet (?action=getData)
         async function fetchDataFromSheet() {
             const url = appState.settings.gssUrl;
             if (!url || url.includes("วาง_Web_App_URL")) return;
@@ -583,41 +585,48 @@
                 const res = await fetch(`${url}?action=getData`, { method: 'GET' });
                 const data = await res.json();
                 if (data && data.requests) {
-                    // แปลงข้อมูล requests จาก sheet มาเป็นรูปแบบของแอป
-                    appState.requests = data.requests.map(r => ({
-                        id: r.RequestNo || r.id,
-                        date: r.RequestDate || r.date,
-                        recipient: r.recipient || "หัวหน้าสถานพยาบาล กฟผ.",
-                        departmentGroup: r.Dept || r.departmentGroup,
-                        name: r.RequesterName || r.name,
-                        idCard: r.EmpId || r.idCard,
-                        phone: r.Phone || r.phone,
-                        position: r.position || "",
-                        section: r.section || "",
-                        division: r.division || "",
-                        purpose: { text: r.Purpose || "" },
-                        items: typeof r.Items === 'string' ? JSON.parse(r.Items || '[]') : (r.Items || []),
-                        status: r.Status || "pending_approve",
-                        signatures: {
-                            requestor: r.SignRequester ? "มีลายเซ็น" : "",
-                            approver: r.SignApprover ? "มีลายเซ็น" : "",
-                            dispenser: r.SignDispenser ? "มีลายเซ็น" : "",
-                            receiver: r.SignReceiver ? "มีลายเซ็น" : ""
-                        }
-                    }));
+                    appState.requests = data.requests.map(r => {
+                        let parsedStatus = r.Status || r.status || "pending_approve";
+                        if (parsedStatus === "รออนุมัติ") parsedStatus = "pending_approve";
+                        if (parsedStatus === "รอจ่ายยา") parsedStatus = "pending_dispense";
+                        if (parsedStatus === "สมบูรณ์แล้ว" || parsedStatus === "จ่ายยาแล้ว") parsedStatus = "completed";
+
+                        return {
+                            id: r.RequestNo || r.id,
+                            date: r.RequestDate || r.date,
+                            recipient: r.recipient || "หัวหน้าสถานพยาบาล กฟผ.",
+                            departmentGroup: r.Dept || r.departmentGroup,
+                            name: r.RequesterName || r.name,
+                            idCard: r.EmpId || r.idCard,
+                            phone: r.Phone || r.phone,
+                            position: r.position || "",
+                            section: r.section || "",
+                            division: r.division || "",
+                            purpose: { text: r.Purpose || "" },
+                            items: typeof r.Items === 'string' ? JSON.parse(r.Items || '[]') : (r.Items || []),
+                            status: parsedStatus,
+                            signatures: {
+                                requestor: r.SignRequester || "",
+                                approver: r.SignApprover || "",
+                                dispenser: r.SignDispenser || "",
+                                receiver: r.SignReceiver || ""
+                            }
+                        };
+                    });
                 }
                 renderDashboardStats();
-                if (!document.getElementById('tab-status').classList.contains('hidden')) renderStatusTable();
-                showToast("สำเร็จ", "ซิงค์ข้อมูลจาก Google Sheet เรียบร้อยแล้ว");
+                renderStatusTable();
+                renderApproveList();
+                renderDispenseList();
+                showToast("สำเร็จ", "ซิงค์ข้อมูลล่าสุดเรียบร้อยแล้ว");
             } catch (err) {
                 console.error("Fetch error:", err);
-                showToast("แจ้งเตือน", "ไม่สามารถดึงข้อมูลจาก Google Sheet ได้ (ตรวจสอบ URL)", "error");
+                showToast("แจ้งเตือน", "ไม่สามารถดึงข้อมูลจาก Google Sheet ได้", "error");
             } finally {
                 showLoading(false);
             }
         }
 
-        // ส่งข้อมูลไปบันทึกที่ Google Sheet ผ่าน doPost
         async function syncToGoogleSheets(reqData) {
             const url = appState.settings.gssUrl;
             if (!url || url.includes("วาง_Web_App_URL")) return;
@@ -635,10 +644,10 @@
                     StaffCount: 1,
                     Items: reqData.items,
                     Status: reqData.status,
-                    SignRequester: "มีลายเซ็น",
-                    SignApprover: "",
-                    SignDispenser: "",
-                    SignReceiver: "",
+                    SignRequester: reqData.signatures.requestor || "มีลายเซ็น",
+                    SignApprover: reqData.signatures.approver || "",
+                    SignDispenser: reqData.signatures.dispenser || "",
+                    SignReceiver: reqData.signatures.receiver || "",
                     Note: ""
                 }
             };
@@ -792,6 +801,12 @@
                 division: document.getElementById('req-division').value,
                 purpose: { text: "เพื่อสำรองไว้ใช้ประจำหน่วยงาน" },
                 items: selectedItems,
+                signatures: {
+                    requestor: sigPads.req.canvas.toDataURL(),
+                    approver: "",
+                    dispenser: "",
+                    receiver: ""
+                },
                 status: 'pending_approve'
             };
 
@@ -806,9 +821,27 @@
         }
 
         function renderDashboardStats() {
-            document.getElementById('stat-total').innerText = appState.requests.length;
-            document.getElementById('stat-pending').innerText = appState.requests.filter(r => r.status !== 'completed').length;
-            document.getElementById('stat-completed').innerText = appState.requests.filter(r => r.status === 'completed').length;
+            const total = appState.requests.length;
+            const pending = appState.requests.filter(r => r.status !== 'completed').length;
+            const completed = appState.requests.filter(r => r.status === 'completed').length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-completed').innerText = completed;
+
+            const badgeDispense = document.getElementById('badge-dispense');
+            const pendingDispenseCount = appState.requests.filter(r => r.status === 'pending_dispense').length;
+            if (pendingDispenseCount > 0) {
+                badgeDispense.innerText = pendingDispenseCount;
+                badgeDispense.classList.remove('hidden');
+            } else badgeDispense.classList.add('hidden');
+
+            const badgeApprove = document.getElementById('badge-approve');
+            const pendingApproveCount = appState.requests.filter(r => r.status === 'pending_approve').length;
+            if (pendingApproveCount > 0) {
+                badgeApprove.innerText = pendingApproveCount;
+                badgeApprove.classList.remove('hidden');
+            } else badgeApprove.classList.add('hidden');
         }
 
         function filterStatus(status) {
@@ -823,28 +856,227 @@
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">ยังไม่มีข้อมูล (ลองกดรีเฟรชข้อมูลด้านบน)</td></tr>`;
                 return;
             }
-            tbody.innerHTML = appState.requests.map(r => `
-                <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="p-3"><span class="font-bold block">${r.id}</span><span class="text-xs text-slate-500">${r.date}</span></td>
-                    <td class="p-3"><span class="font-medium block">${r.name}</span><span class="text-xs text-slate-500">${r.departmentGroup}</span></td>
-                    <td class="p-3 text-xs text-slate-600">${r.purpose.text}</td>
-                    <td class="p-3 text-center"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold">รออนุมัติ</span></td>
-                    <td class="p-3 text-center"><span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-bold">รอจ่ายยา</span></td>
-                    <td class="p-3 text-center">
-                        <button onclick="openPdfModal('${r.id}')" class="p-1.5 bg-rose-50 text-rose-600 rounded text-xs" title="พิมพ์ A4"><i class="fas fa-print"></i></button>
-                    </td>
-                </tr>
+
+            let filtered = appState.requests.filter(r => {
+                if (currentFilterStatus === 'all') return true;
+                return r.status === currentFilterStatus;
+            });
+
+            tbody.innerHTML = filtered.map(r => {
+                let isApproved = r.status === 'pending_dispense' || r.status === 'completed';
+                let isDispensed = r.status === 'completed';
+
+                let statusApproveBadge = isApproved 
+                    ? `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-bold"><i class="fas fa-check mr-1"></i>อนุมัติแล้ว</span>`
+                    : `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold">รออนุมัติ</span>`;
+
+                let statusDispenseBadge = isDispensed
+                    ? `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-bold"><i class="fas fa-check-circle mr-1"></i>จ่ายยาแล้ว</span>`
+                    : (isApproved 
+                        ? `<span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-xs font-bold">รอจ่ายยา</span>`
+                        : `<span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-bold">รอขั้นตอนก่อนหน้า</span>`);
+
+                return `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-3"><span class="font-bold block text-slate-900">${r.id}</span><span class="text-xs text-slate-500">${r.date}</span></td>
+                        <td class="p-3"><span class="font-medium block text-slate-800">${r.name}</span><span class="text-xs text-slate-500">${r.departmentGroup}</span></td>
+                        <td class="p-3 text-xs text-slate-600">${r.purpose.text}</td>
+                        <td class="p-3 text-center">${statusApproveBadge}</td>
+                        <td class="p-3 text-center">${statusDispenseBadge}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="openPdfModal('${r.id}')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs" title="พิมพ์ A4"><i class="fas fa-print"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // แสดงรายการรออนุมัติ
+        function renderApproveList() {
+            const container = document.getElementById('approve-list-container');
+            const pending = appState.requests.filter(r => r.status === 'pending_approve');
+            document.getElementById('approve-pending-count').innerText = `รออนุมัติ ${pending.length} รายการ`;
+
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400"><i class="fas fa-clipboard-check text-4xl mb-2 text-slate-300"></i><p>ไม่มีรายการรออนุมัติในขณะนี้</p></div>`;
+                return;
+            }
+
+            container.innerHTML = pending.map(r => `
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">${r.id}</span>
+                            <span class="text-xs text-slate-500">วันที่: ${r.date}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mt-1">${r.name} (${r.departmentGroup})</h4>
+                        <p class="text-xs text-slate-600 mt-1"><strong>วัตถุประสงค์:</strong> ${r.purpose.text}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                        <button onclick="openApproveModalHandler('${r.id}')" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1">
+                            <i class="fas fa-stamp"></i><span>ลงนามอนุมัติ</span>
+                        </button>
+                    </div>
+                </div>
             `).join('');
         }
 
-        function renderApproveList() {
-            document.getElementById('approve-pending-count').innerText = `รออนุมัติ 0 รายการ`;
-            document.getElementById('approve-list-container').innerHTML = `<div class="text-center py-12 text-slate-400">ไม่มีรายการรออนุมัติ</div>`;
+        let currentApprovingId = null;
+        function openApproveModalHandler(id) {
+            currentApprovingId = id;
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
+
+            document.getElementById('approve-modal-content').innerHTML = `
+                <div>
+                    <p class="text-xs text-slate-500">คำขอเบิกเลขที่: <strong>${r.id}</strong></p>
+                    <p class="text-xs text-slate-500">ผู้ขอเบิก: <strong>${r.name} (${r.departmentGroup})</strong></p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">ชื่อ-นามสกุล ผู้อนุมัติ</label>
+                    <input type="text" id="modal-approver-name" value="${appState.settings.approverName}" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-bold text-slate-700">ลายเซ็นอนุมัติ</label>
+                        <button type="button" onclick="clearSignature('approve')" class="text-xs text-rose-600 hover:underline">ล้าง</button>
+                    </div>
+                    <div class="flex justify-center bg-white p-2 rounded-lg border border-slate-300">
+                        <canvas id="sig-canvas-approve" width="350" height="120" class="signature-canvas w-full h-28 cursor-crosshair"></canvas>
+                    </div>
+                    <input type="hidden" id="approve-signature-data">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button onclick="closeApproveModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">ยกเลิก</button>
+                    <button onclick="confirmApproval()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow">ยืนยันอนุมัติ</button>
+                </div>
+            `;
+            document.getElementById('approve-modal').classList.remove('hidden');
+            setTimeout(() => initSignaturePad('approve'), 100);
         }
 
+        function closeApproveModal() {
+            document.getElementById('approve-modal').classList.add('hidden');
+            currentApprovingId = null;
+        }
+
+        function confirmApproval() {
+            const r = appState.requests.find(item => item.id === currentApprovingId);
+            if (!r) return;
+
+            const sigData = document.getElementById('approve-signature-data').value;
+            r.status = 'pending_dispense';
+            r.signatures.approver = sigData || "อนุมัติแล้ว";
+
+            syncToGoogleSheets(r);
+            closeApproveModal();
+            showToast("สำเร็จ", "อนุมัติคำขอเบิกยาเรียบร้อยแล้ว ส่งต่อไปยังสถานพยาบาล");
+            renderApproveList();
+            renderStatusTable();
+            renderDashboardStats();
+        }
+
+        // แสดงรายการรอจ่ายยา
         function renderDispenseList() {
-            document.getElementById('dispense-pending-count').innerText = `รอจ่าย 0 รายการ`;
-            document.getElementById('dispense-list-container').innerHTML = `<div class="text-center py-12 text-slate-400">ไม่มีรายการรอจ่ายยา</div>`;
+            const container = document.getElementById('dispense-list-container');
+            const pending = appState.requests.filter(r => r.status === 'pending_dispense');
+            document.getElementById('dispense-pending-count').innerText = `รอจ่าย ${pending.length} รายการ`;
+
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400"><i class="fas fa-pills text-4xl mb-2 text-slate-300"></i><p>ไม่มีรายการรอจ่ายยาในสถานพยาบาล</p></div>`;
+                return;
+            }
+
+            container.innerHTML = pending.map(r => `
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold">${r.id}</span>
+                            <span class="text-xs text-emerald-600 font-bold"><i class="fas fa-check mr-1"></i>อนุมัติแล้ว</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-lg mt-1">${r.name} (${r.departmentGroup})</h4>
+                        <p class="text-xs text-slate-600 mt-1"><strong>วัตถุประสงค์:</strong> ${r.purpose.text}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                        <button onclick="openDispenseModalHandler('${r.id}')" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1">
+                            <i class="fas fa-pills"></i><span>ดำเนินการจ่ายยา</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let currentDispensingId = null;
+        function openDispenseModalHandler(id) {
+            currentDispensingId = id;
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
+
+            let itemsHtml = r.items.map((item, idx) => `
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
+                    <div>
+                        <span class="font-bold text-slate-800 text-sm">${idx + 1}. ${item.name}</span>
+                        <span class="block text-xs text-slate-500">ขอเบิก: ${item.qty} ${item.unit}</span>
+                    </div>
+                    <span class="font-bold text-emerald-600">${item.qty} ${item.unit}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('dispense-modal-content').innerHTML = `
+                <div>
+                    <p class="text-xs text-slate-500">คำขอเบิกเลขที่: <strong>${r.id}</strong></p>
+                    <p class="text-xs text-slate-500">หน่วยงาน: <strong>${r.departmentGroup}</strong></p>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-700 uppercase">รายการยาที่สั่งจ่าย</label>
+                    <div class="space-y-2">${itemsHtml}</div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                        <label class="text-[11px] font-bold text-slate-700 block mb-1">ลงชื่อผู้รับยา (ผู้ขอเบิก)</label>
+                        <canvas id="sig-canvas-receive" width="250" height="100" class="signature-canvas w-full h-24 cursor-crosshair"></canvas>
+                        <input type="hidden" id="receive-signature-data">
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                        <label class="text-[11px] font-bold text-slate-700 block mb-1">ลงชื่อผู้จ่ายยา (สถานพยาบาล)</label>
+                        <canvas id="sig-canvas-dispense" width="250" height="100" class="signature-canvas w-full h-24 cursor-crosshair"></canvas>
+                        <input type="hidden" id="dispense-signature-data">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button onclick="closeDispenseModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">ยกเลิก</button>
+                    <button onclick="confirmDispense()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow">ยืนยันการจ่ายยา</button>
+                </div>
+            `;
+            document.getElementById('dispense-modal').classList.remove('hidden');
+            setTimeout(() => {
+                initSignaturePad('receive');
+                initSignaturePad('dispense');
+            }, 100);
+        }
+
+        function closeDispenseModal() {
+            document.getElementById('dispense-modal').classList.add('hidden');
+            currentDispensingId = null;
+        }
+
+        function confirmDispense() {
+            const r = appState.requests.find(item => item.id === currentDispensingId);
+            if (!r) return;
+
+            const recSig = document.getElementById('receive-signature-data').value;
+            const disSig = document.getElementById('dispense-signature-data').value;
+
+            r.status = 'completed';
+            r.signatures.receiver = recSig || "รับแล้ว";
+            r.signatures.dispenser = disSig || "จ่ายแล้ว";
+
+            syncToGoogleSheets(r);
+            closeDispenseModal();
+            showToast("สำเร็จ", "บันทึกการจ่ายยาเรียบร้อยแล้ว");
+            renderDispenseList();
+            renderStatusTable();
+            renderDashboardStats();
         }
 
         function renderDrugCatalog() {
@@ -867,7 +1099,7 @@
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
-            document.getElementById('printable-area').innerHTML = `<h2 class="font-bold text-lg">ใบขอเบิกยาเลขที่: ${r.id}</h2><p>ผู้ขอเบิก: ${r.name}</p>`;
+            document.getElementById('printable-area').innerHTML = `<h2 class="font-bold text-lg">ใบขอเบิกยาเลขที่: ${r.id}</h2><p>ผู้ขอเบิก: ${r.name}</p><p>หน่วยงาน: ${r.departmentGroup}</p>`;
             document.getElementById('pdf-modal').classList.remove('hidden');
         }
         function closePdfModal() { document.getElementById('pdf-modal').classList.add('hidden'); }
