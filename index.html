@@ -25,7 +25,7 @@
         }
     </script>
     <style>
-        body { font-family: 'Prompt', 'Kanit', sans-serif; }
+        body { font-family: 'Prompt', 'Kanit', sans-serif; -webkit-tap-highlight-color: transparent; }
         .sarabun-font { font-family: 'Sarabun', sans-serif !important; }
         @media print {
             body * { visibility: hidden; }
@@ -36,7 +36,7 @@
         .signature-canvas { touch-action: none; border: 2px dashed #cbd5e1; border-radius: 0.5rem; background-color: #f8fafc; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-full flex flex-col">
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col antialiased">
 
     <!-- Notification Toast -->
     <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 max-w-md bg-white border-l-4 border-emerald-500 shadow-xl rounded-r-xl p-4 flex items-center space-x-3">
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Main Navigation Bar (Desktop & Top Header) -->
-    <header class="bg-emerald-900 text-white shadow-md no-print">
+    <header class="bg-emerald-900 text-white shadow-md no-print sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
                 <div class="bg-white text-emerald-900 p-2 rounded-xl font-bold text-xl shadow flex items-center justify-center">
@@ -101,32 +101,32 @@
         </div>
     </header>
 
-    <!-- Mobile Bottom Navigation Bar (Feature 4) -->
+    <!-- Mobile Bottom Navigation Bar (Fixed & Stable) -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-emerald-900 text-white z-40 flex justify-around items-center py-2 px-1 border-t border-emerald-800 shadow-2xl text-[11px] no-print">
-        <button onclick="switchTab('home')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300">
+        <button onclick="switchTab('home')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 transition">
             <i class="fas fa-home text-base mb-0.5"></i><span>หน้าหลัก</span>
         </button>
-        <button onclick="switchTab('request')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300">
+        <button onclick="switchTab('request')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 transition">
             <i class="fas fa-file-medical text-base mb-0.5"></i><span>ขอเบิก</span>
         </button>
-        <button onclick="switchTab('dispense')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 relative">
+        <button onclick="switchTab('dispense')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 transition relative">
             <i class="fas fa-pills text-base mb-0.5"></i><span>จ่ายยา</span>
             <span id="mob-badge-dispense" class="absolute top-0 right-1 bg-amber-500 text-white text-[9px] px-1 rounded-full hidden">0</span>
         </button>
-        <button onclick="switchTab('approve')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 relative">
+        <button onclick="switchTab('approve')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 transition relative">
             <i class="fas fa-signature text-base mb-0.5"></i><span>อนุมัติ</span>
             <span id="mob-badge-approve" class="absolute top-0 right-1 bg-amber-500 text-white text-[9px] px-1 rounded-full hidden">0</span>
         </button>
-        <button onclick="switchTab('status')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300">
+        <button onclick="switchTab('status')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 transition">
             <i class="fas fa-tasks text-base mb-0.5"></i><span>สถานะ</span>
         </button>
-        <button onclick="switchTab('settings')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300">
+        <button onclick="switchTab('settings')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-300 transition">
             <i class="fas fa-cog text-base mb-0.5"></i><span>ตั้งค่า</span>
         </button>
     </nav>
 
-    <!-- Main Container Content (Add bottom padding for mobile navbar) -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full pb-20 md:pb-6">
+    <!-- Main Container Content -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full pb-24 md:pb-6">
 
         <!-- TAB 1: HOME DASHBOARD -->
         <section id="tab-home" class="tab-content space-y-6">
@@ -335,7 +335,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-bold text-slate-800">
-                                <i class="fas fa-pills text-emerald-600 mr-1"></i> รายการยาและเวชภัณฑ์ที่ขอเบิก
+                                <i class="fas fa-pills text-emerald-600 mr-1"></i> รายการยาและเวชภัณฑ์ที่ขอเบิก (จำกัดไม่เกินจำนวนสูงสุด)
                             </label>
                         </div>
                         <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -480,20 +480,22 @@
             </div>
         </section>
 
-        <!-- TAB 6: CATALOG -->
+        <!-- TAB 6: CATALOG (Feature 5: Drug Image Customization) -->
         <section id="tab-catalog" class="tab-content hidden space-y-6">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div class="border-b border-slate-200 pb-4 mb-6">
-                    <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">คลังยา สถานพยาบาลเขื่อนจุฬาภรณ์</span>
-                    <h2 class="text-2xl font-bold text-slate-900 mt-1">รายการยาและเวชภัณฑ์ (11 รายการ)</h2>
+                <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">คลังยา สถานพยาบาลเขื่อนจุฬาภรณ์</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-1">รายการยาและเวชภัณฑ์ (11 รายการ)</h2>
+                    </div>
+                    <span class="text-xs text-slate-500">สามารถคลิกแก้ไขรูปภาพยาแต่ละรายการได้</span>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="drug-catalog-grid"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="drug-catalog-grid"></div>
             </div>
         </section>
 
         <!-- TAB 7: SETTINGS -->
         <section id="tab-settings" class="tab-content hidden space-y-6">
-            <!-- MAIN VIEW (Feature 2: Access automatically if dispensary logged in) -->
             <div id="content-settings" class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-8">
                 <div class="flex justify-between items-center border-b border-slate-200 pb-4">
                     <div>
@@ -595,7 +597,7 @@
 
     </main>
 
-    <!-- MODAL: REGISTRATION (Feature 3) -->
+    <!-- MODAL: REGISTRATION -->
     <div id="register-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
@@ -682,7 +684,7 @@
         </div>
     </div>
 
-    <!-- HIDDEN RECEIPT TEMPLATE WITH LOGO (Feature 5) -->
+    <!-- HIDDEN RECEIPT TEMPLATE WITH LOGO -->
     <div id="receipt-capture-container" style="position: absolute; left: -9999px; top: -9999px;">
         <div id="receipt-card" style="width: 600px; background: #ffffff; padding: 30px; font-family: 'Prompt', 'Kanit', sans-serif; border: 2px solid #10b981; border-radius: 16px; color: #1e293b;">
             <div style="text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
@@ -712,18 +714,18 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const DRUG_CATALOG = [
-            { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด" },
-            { id: 2, name: "Chlorpheniramine 4 mg. (ยาแก้แพ้ ลดผื่นคัน ลดน้ำมูก)", maxQty: 30, unit: "เม็ด" },
-            { id: 3, name: "Antacil tabs (ยาลดกรด เคลือบแผลในกระเพาะอาหาร)", maxQty: 30, unit: "เม็ด" },
-            { id: 4, name: "ORS (ผงเกลือแร่ สำหรับท้องเสีย)", maxQty: 5, unit: "ซอง" },
-            { id: 5, name: "Brown Mixture 60 ml. (ยาจิบแก้ไอ)", maxQty: 2, unit: "ขวด" },
-            { id: 6, name: "Mix Carminative 180 ml. (ยาขับลม ท้องอืด)", maxQty: 2, unit: "ขวด" },
-            { id: 7, name: "Whitfield's ointment 15 g. (ยารักษากลากเกลื้อน)", maxQty: 1, unit: "หลอด" },
-            { id: 8, name: "GPO Analgesic Balm 30 g. (บาล์มนวดแก้ปวด)", maxQty: 2, unit: "หลอด" },
-            { id: 9, name: "BETAMED solution 15 ml. (ยาทาแผลสด)", maxQty: 1, unit: "ขวด" },
-            { id: 10, name: "Tigerplast (พลาสเตอร์ผ้าปิดแผล)", maxQty: 10, unit: "แผ่น" },
-            { id: 11, name: "Gauze Sterile Cotton balls (สำลีก้อนทำแผล)", maxQty: 2, unit: "แพ็ก" }
+        let DRUG_CATALOG = [
+            { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด", image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80" },
+            { id: 2, name: "Chlorpheniramine 4 mg. (ยาแก้แพ้ ลดผื่นคัน ลดน้ำมูก)", maxQty: 30, unit: "เม็ด", image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&auto=format&fit=crop&q=80" },
+            { id: 3, name: "Antacil tabs (ยาลดกรด เคลือบแผลในกระเพาะอาหาร)", maxQty: 30, unit: "เม็ด", image: "https://images.unsplash.com/photo-1550572017-edd951b55104?w=300&auto=format&fit=crop&q=80" },
+            { id: 4, name: "ORS (ผงเกลือแร่ สำหรับท้องเสีย)", maxQty: 5, unit: "ซอง", image: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=300&auto=format&fit=crop&q=80" },
+            { id: 5, name: "Brown Mixture 60 ml. (ยาจิบแก้ไอ)", maxQty: 2, unit: "ขวด", image: "https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?w=300&auto=format&fit=crop&q=80" },
+            { id: 6, name: "Mix Carminative 180 ml. (ยาขับลม ท้องอืด)", maxQty: 2, unit: "ขวด", image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&auto=format&fit=crop&q=80" },
+            { id: 7, name: "Whitfield's ointment 15 g. (ยารักษากลากเกลื้อน)", maxQty: 1, unit: "หลอด", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&auto=format&fit=crop&q=80" },
+            { id: 8, name: "GPO Analgesic Balm 30 g. (บาล์มนวดแก้ปวด)", maxQty: 2, unit: "หลอด", image: "https://images.unsplash.com/photo-1608248597359-97424e65b75b?w=300&auto=format&fit=crop&q=80" },
+            { id: 9, name: "BETAMED solution 15 ml. (ยาทาแผลสด)", maxQty: 1, unit: "ขวด", image: "https://images.unsplash.com/photo-1583912267670-6677cbd5c7cc?w=300&auto=format&fit=crop&q=80" },
+            { id: 10, name: "Tigerplast (พลาสเตอร์ผ้าปิดแผล)", maxQty: 10, unit: "แผ่น", image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=300&auto=format&fit=crop&q=80" },
+            { id: 11, name: "Gauze Sterile Cotton balls (สำลีก้อนทำแผล)", maxQty: 2, unit: "แพ็ก", image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=300&auto=format&fit=crop&q=80" }
         ];
 
         let appState = {
@@ -749,9 +751,10 @@
                 approve: false,
                 settings: false
             },
+            // Feature 3: Multi-user auth list supporting approved registrations
             users: {
-                dispense: { user: "nurse01", pass: "1234" },
-                approve: { user: "approver01", pass: "1234" }
+                dispense: [{ user: "nurse01", pass: "1234" }],
+                approve: [{ user: "approver01", pass: "1234" }]
             },
             pendingUsers: []
         };
@@ -779,17 +782,23 @@
         });
 
         function loadSavedSettings() {
-            // Feature 1: Load requests from localStorage to prevent refresh data loss
             const savedReqs = localStorage.getItem('egat_requests');
             if (savedReqs) {
                 try { appState.requests = JSON.parse(savedReqs); } catch(e){}
+            }
+
+            const savedCatalog = localStorage.getItem('egat_drug_catalog');
+            if (savedCatalog) {
+                try { DRUG_CATALOG = JSON.parse(savedCatalog); } catch(e){}
             }
 
             const savedDepts = localStorage.getItem('egat_depts');
             if (savedDepts) appState.departments = JSON.parse(savedDepts);
 
             const savedUsers = localStorage.getItem('egat_custom_users');
-            if (savedUsers) appState.users = JSON.parse(savedUsers);
+            if (savedUsers) {
+                try { appState.users = JSON.parse(savedUsers); } catch(e){}
+            }
 
             const savedPending = localStorage.getItem('egat_pending_users');
             if (savedPending) appState.pendingUsers = JSON.parse(savedPending);
@@ -825,12 +834,15 @@
             localStorage.setItem('egat_requests', JSON.stringify(appState.requests));
         }
 
+        // Feature 3: Multi-account login validation
         function checkAuth(module) {
             const userInput = document.getElementById(`user-${module}`).value.trim();
             const passInput = document.getElementById(`pass-${module}`).value.trim();
-            const targetUser = appState.users[module];
+            const allowedList = appState.users[module] || [];
 
-            if (targetUser && targetUser.user === userInput && targetUser.pass === passInput) {
+            const isValid = allowedList.some(u => u.user === userInput && u.pass === passInput);
+
+            if (isValid) {
                 appState.auth[module] = true;
                 document.getElementById(`login-${module}`).classList.add('hidden');
                 document.getElementById(`content-${module}`).classList.remove('hidden');
@@ -865,7 +877,6 @@
             document.getElementById('reg-fullname').value = '';
         }
 
-        // Feature 3: Register and push to pending admin approval queue
         function submitRegistration() {
             const role = document.getElementById('reg-role').value;
             const user = document.getElementById('reg-user').value.trim();
@@ -881,7 +892,7 @@
             localStorage.setItem('egat_pending_users', JSON.stringify(appState.pendingUsers));
 
             closeRegisterModal();
-            showToast("สำเร็จ", "ส่งคำขอลงทะเบียนแล้ว รอผู้ดูแลระบบ (สถานพยาบาล) ออนุมัติ");
+            showToast("สำเร็จ", "ส่งคำขอลงทะเบียนแล้ว รอผู้ดูแลระบบ (สถานพยาบาล) อนุมัติ");
         }
 
         function renderPendingUsersTable() {
@@ -910,7 +921,10 @@
 
         function approveRegistration(index) {
             const target = appState.pendingUsers[index];
-            appState.users[target.role] = { user: target.user, pass: target.pass };
+            if (!appState.users[target.role]) appState.users[target.role] = [];
+            
+            // Push to approved user list
+            appState.users[target.role].push({ user: target.user, pass: target.pass });
             localStorage.setItem('egat_custom_users', JSON.stringify(appState.users));
 
             if (target.role === 'dispense' && target.fullname) {
@@ -924,7 +938,7 @@
             localStorage.setItem('egat_pending_users', JSON.stringify(appState.pendingUsers));
 
             renderPendingUsersTable();
-            showToast("สำเร็จ", `อนุมัติบัญชี ${target.user} เรียบร้อยแล้ว`);
+            showToast("สำเร็จ", `อนุมัติบัญชี ${target.user} เรียบร้อยแล้ว สามารถเข้าสู่ระบบได้ทันที`);
         }
 
         function rejectRegistration(index) {
@@ -950,7 +964,6 @@
             setTimeout(() => toast.classList.add('translate-x-full'), 3500);
         }
 
-        // Feature 2: Settings uses login session from dispensary
         function switchTab(tabId) {
             if (tabId === 'settings' && !appState.auth.dispense) {
                 showToast("แจ้งเตือน", "กรุณาเข้าสู่ระบบ 'สถานพยาบาล' ก่อนเข้าใช้งานหน้าตั้งค่า");
@@ -971,6 +984,7 @@
             }
             if (tabId === 'status') renderStatusTable();
             if (tabId === 'home') renderDashboardStats();
+            if (tabId === 'catalog') renderDrugCatalog();
             updateMobileNavBadges();
         }
 
@@ -1109,17 +1123,31 @@
                     <td class="p-3 text-center">
                         <input type="checkbox" id="drug-chk-${drug.id}" onchange="toggleDrugQty(${drug.id})" class="w-4 h-4 text-emerald-600 rounded">
                     </td>
-                    <td class="p-3">
-                        <span class="font-bold text-slate-700 mr-2">${index + 1}.</span>
-                        <span class="text-slate-800">${drug.name}</span>
-                        <span class="block text-[11px] text-slate-400">สูงสุด: ${drug.maxQty} ${drug.unit}</span>
+                    <td class="p-3 flex items-center space-x-3">
+                        <img src="${drug.image || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=100&auto=format&fit=crop&q=80'}" class="w-10 h-10 object-cover rounded-lg border border-slate-200" alt="">
+                        <div>
+                            <span class="font-bold text-slate-700 mr-1">${index + 1}.</span>
+                            <span class="text-slate-800 font-medium">${drug.name}</span>
+                            <span class="block text-[11px] text-slate-400">สูงสุด: ${drug.maxQty} ${drug.unit}</span>
+                        </div>
                     </td>
                     <td class="p-3 text-center">
-                        <input type="number" id="drug-qty-${drug.id}" min="1" max="${drug.maxQty}" value="1" disabled class="w-24 px-2 py-1 border border-slate-300 rounded text-center bg-slate-100 text-sm font-bold">
+                        <input type="number" id="drug-qty-${drug.id}" min="1" max="${drug.maxQty}" value="1" oninput="validateDrugQty(this, ${drug.maxQty})" disabled class="w-24 px-2 py-1 border border-slate-300 rounded text-center bg-slate-100 text-sm font-bold">
                     </td>
                     <td class="p-3 text-center text-slate-600 text-xs">${drug.unit}</td>
                 </tr>
             `).join('');
+        }
+
+        // Feature 4: Strict Max Quantity validation
+        function validateDrugQty(input, max) {
+            let val = parseInt(input.value);
+            if (val > max) {
+                input.value = max;
+                showToast("แจ้งเตือน", `จำกัดจำนวนขอเบิกสูงสุดไม่เกิน ${max} หน่วย`);
+            } else if (val < 1 || isNaN(val)) {
+                input.value = 1;
+            }
         }
 
         function toggleDrugQty(id) {
@@ -1217,7 +1245,8 @@
             DRUG_CATALOG.forEach(drug => {
                 const chk = document.getElementById(`drug-chk-${drug.id}`);
                 if (chk && chk.checked) {
-                    const qty = parseInt(document.getElementById(`drug-qty-${drug.id}`).value) || 1;
+                    let qty = parseInt(document.getElementById(`drug-qty-${drug.id}`).value) || 1;
+                    if (qty > drug.maxQty) qty = drug.maxQty; // Safeguard
                     selectedItems.push({ id: drug.id, name: drug.name, qty: qty, maxQty: drug.maxQty, unit: drug.unit });
                 }
             });
@@ -1649,16 +1678,40 @@
             renderDashboardStats();
         }
 
+        // Feature 5: Drug Catalog & Image Customization
         function renderDrugCatalog() {
             const grid = document.getElementById('drug-catalog-grid');
             if (!grid) return;
             grid.innerHTML = DRUG_CATALOG.map((d, i) => `
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">รายการที่ ${i + 1}</span>
-                    <h4 class="font-bold text-slate-800 text-sm mt-2">${d.name}</h4>
-                    <p class="text-xs text-slate-500 mt-2">สูงสุด: ${d.maxQty} ${d.unit}</p>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center space-x-3 mb-3">
+                            <img src="${d.image || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80'}" class="w-16 h-16 object-cover rounded-xl border border-slate-300 shadow-sm" alt="Drug">
+                            <div>
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded">รายการที่ ${i + 1}</span>
+                                <h4 class="font-bold text-slate-800 text-sm mt-1">${d.name}</h4>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500">จำนวนสูงสุดที่ขอเบิกได้: <strong class="text-slate-700">${d.maxQty} ${d.unit}</strong></p>
+                    </div>
+                    <button onclick="editDrugImage(${d.id})" class="w-full py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1">
+                        <i class="fas fa-image text-emerald-600"></i><span>แก้ไขรูปภาพตัวอย่างยา</span>
+                    </button>
                 </div>
             `).join('');
+        }
+
+        function editDrugImage(id) {
+            const drug = DRUG_CATALOG.find(d => d.id === id);
+            if (!drug) return;
+            const newUrl = prompt(`ระบุลิงก์รูปภาพ (Image URL) สำหรับ: ${drug.name}`, drug.image || '');
+            if (newUrl !== null) {
+                drug.image = newUrl.trim() || drug.image;
+                localStorage.setItem('egat_drug_catalog', JSON.stringify(DRUG_CATALOG));
+                renderDrugCatalog();
+                renderDrugItemsForm();
+                showToast("สำเร็จ", "อัปเดตภาพตัวอย่างยาเรียบร้อยแล้ว");
+            }
         }
 
         function savePeopleSettings() {
@@ -1738,6 +1791,7 @@
             localStorage.setItem('egat_depts', JSON.stringify(appState.departments));
         }
 
+        // Feature 2: Robust PDF Generation displaying requested & dispensed items
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
@@ -1750,6 +1804,7 @@
             let rowsHtml = '';
             for (let i = 0; i < 11; i++) {
                 const item = r.items[i];
+                let isDispensed = r.status === 'completed' || r.status === 'pending_dispense';
                 rowsHtml += `
                     <tr class="h-8 border-b border-slate-300 text-sm">
                         <td class="border-r border-slate-300 p-1 text-center w-8">${item ? (i + 1) : ''}</td>
@@ -1758,7 +1813,7 @@
                         <td class="border-r border-slate-300 p-1 text-center w-14">${item ? item.unit : ''}</td>
                         <td class="border-r border-slate-300 p-1 text-center w-8">${item ? (i + 1) : ''}</td>
                         <td class="border-r border-slate-300 p-1 px-2">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-300 p-1 text-center font-bold text-emerald-800 w-14">${(r.status === 'completed' || r.status === 'pending_dispense') && item ? item.qty : ''}</td>
+                        <td class="border-r border-slate-300 p-1 text-center font-bold text-emerald-800 w-14">${isDispensed && item ? item.qty : ''}</td>
                         <td class="p-1 text-center w-14">${item ? item.unit : ''}</td>
                     </tr>
                 `;
