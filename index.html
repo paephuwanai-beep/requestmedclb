@@ -6,15 +6,17 @@
     <title>Request MED + สถานพยาบาลเขื่อนจุฬาภรณ์</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Prompt & Kanit -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: TH Sarabun PSK, Prompt & Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas for generating JPEG receipt -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Prompt', 'Kanit', 'sans-serif'] },
+                    fontFamily: { sans: ['Prompt', 'Kanit', 'sans-serif'], sarabun: ['Sarabun', 'sans-serif'] },
                     colors: {
                         egat: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#16a34a', 600: '#15803d', 700: '#166534', 800: '#14532d', 900: '#064e3b' }
                     }
@@ -24,6 +26,7 @@
     </script>
     <style>
         body { font-family: 'Prompt', 'Kanit', sans-serif; }
+        .sarabun-font { font-family: 'Sarabun', sans-serif !important; }
         @media print {
             body * { visibility: hidden; }
             #printable-area, #printable-area * { visibility: visible; }
@@ -48,7 +51,7 @@
     <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center">
         <div class="bg-white px-6 py-4 rounded-2xl shadow-xl flex items-center space-x-3">
             <i class="fas fa-circle-notch fa-spin text-emerald-600 text-2xl"></i>
-            <span class="font-bold text-slate-700 text-sm">กำลังซิงค์ข้อมูลกับ Google Sheet...</span>
+            <span class="font-bold text-slate-700 text-sm">กำลังเชื่อมต่อ กรุณารอสักครู่</span>
         </div>
     </div>
 
@@ -86,7 +89,7 @@
                     <i class="fas fa-box-open"></i><span class="hidden sm:inline">รายการยา</span>
                 </button>
                 <button onclick="fetchDataFromSheet()" class="px-3 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-700 transition font-medium flex items-center space-x-1 text-emerald-100" title="ซิงค์ข้อมูลล่าสุด">
-                    <i class="fas fa-sync-alt"></i><span class="hidden md:inline">รีเฟรชข้อมูล</span>
+                    <i class="fas fa-sync-alt"></i><span class="hidden md:inline">รีเฟรช</span>
                 </button>
                 <button onclick="switchTab('settings')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium" title="ตั้งค่าระบบ">
                     <i class="fas fa-cog"></i>
@@ -105,7 +108,7 @@
                     <span class="bg-emerald-600/60 text-emerald-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
                     <h2 class="text-2xl md:text-3xl font-bold">Request MED + ระบบขอเบิกยาและเวชภัณฑ์</h2>
                     <p class="text-emerald-100 text-sm max-w-2xl">
-                        เชื่อมต่อฐานข้อมูล Google Sheet แบบเรียลไทม์ ปลอดภัยด้วยระบบล็อกอินแยกส่วนปฏิบัติงาน
+                        เชื่อมต่อฐานข้อมูลแบบเรียลไทม์ ปลอดภัยด้วยระบบล็อกอินแยกส่วนปฏิบัติงาน หากมีข้อสงสัยติดต่อสถานพยาบาล
                     </p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -275,7 +278,7 @@
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">วัตถุประสงค์การขอเบิกยา <span class="text-red-500">*</span></label>
                         <div class="space-y-3">
                             <label class="flex items-start space-x-3 cursor-pointer">
-                                <input type="radio" name="purpose" value="reserve" checked class="mt-1 text-emerald-600 focus:ring-emerald-500" onchange="togglePurposeInput()">
+                                <input type="radio" name="purpose" value="reserve" checked class="mt-1 text-emerald-600 focus:ring-emerald-500">
                                 <div class="text-sm">
                                     <span class="font-medium text-slate-800">เพื่อสำรองไว้ใช้ประจำหน่วยงาน</span>
                                     <div class="mt-1 flex items-center space-x-2 text-xs text-slate-600">
@@ -286,7 +289,7 @@
                                 </div>
                             </label>
                             <label class="flex items-start space-x-3 cursor-pointer">
-                                <input type="radio" name="purpose" value="travel" class="mt-1 text-emerald-600 focus:ring-emerald-500" onchange="togglePurposeInput()">
+                                <input type="radio" name="purpose" value="travel" class="mt-1 text-emerald-600 focus:ring-emerald-500">
                                 <div class="text-sm">
                                     <span class="font-medium text-slate-800">เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ</span>
                                     <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600">
@@ -355,10 +358,15 @@
                 </div>
                 <div>
                     <h3 class="font-bold text-xl text-slate-900">ระบบเข้าสู่ระบบ: สถานพยาบาล</h3>
-                    <p class="text-xs text-slate-500 mt-1">กรุณากรอกรหัสผ่านเพื่อเข้าใช้งานส่วนจ่ายยา (รหัสเดิม: 1234)</p>
+                    <p class="text-xs text-slate-500 mt-1">กรุณากรอก Username และ Password ของท่าน</p>
                 </div>
-                <input type="password" id="pass-dispense" placeholder="กรอกรหัสผ่าน..." class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-center text-lg font-bold focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                <button onclick="checkAuth('dispense')" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบจ่ายยา</button>
+                <input type="text" id="user-dispense" placeholder="Username..." class="w-full px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="password" id="pass-dispense" placeholder="Password..." class="w-full px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <button onclick="checkAuth('dispense')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบ</button>
+                <div class="text-xs pt-2">
+                    <span class="text-slate-500">ยังไม่มีบัญชีผู้ใช้งาน?</span> 
+                    <button onclick="openRegisterModal('dispense')" class="text-blue-600 font-bold hover:underline">ลงทะเบียนสถานพยาบาล</button>
+                </div>
             </div>
 
             <!-- MAIN VIEW (After Login) -->
@@ -386,10 +394,15 @@
                 </div>
                 <div>
                     <h3 class="font-bold text-xl text-slate-900">ระบบเข้าสู่ระบบ: ผู้อนุมัติ</h3>
-                    <p class="text-xs text-slate-500 mt-1">กรุณากรอกรหัสผ่านเพื่อเข้าใช้งานส่วนอนุมัติ (รหัสเดิม: 1234)</p>
+                    <p class="text-xs text-slate-500 mt-1">กรุณากรอก Username และ Password ของท่าน</p>
                 </div>
-                <input type="password" id="pass-approve" placeholder="กรอกรหัสผ่าน..." class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-center text-lg font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                <button onclick="checkAuth('approve')" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบอนุมัติ</button>
+                <input type="text" id="user-approve" placeholder="Username..." class="w-full px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                <input type="password" id="pass-approve" placeholder="Password..." class="w-full px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                <button onclick="checkAuth('approve')" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบ</button>
+                <div class="text-xs pt-2">
+                    <span class="text-slate-500">ยังไม่มีบัญชีผู้อนุมัติ?</span> 
+                    <button onclick="openRegisterModal('approve')" class="text-amber-600 font-bold hover:underline">ลงทะเบียนผู้อนุมัติ</button>
+                </div>
             </div>
 
             <!-- MAIN VIEW (After Login) -->
@@ -482,7 +495,6 @@
 
                 <!-- 1. ตั้งค่าผู้อนุมัติ & ผู้จ่ายยา -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- ผู้อนุมัติ -->
                     <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                         <h3 class="font-bold text-slate-800 text-sm flex items-center"><i class="fas fa-user-check text-amber-600 mr-2"></i> ข้อมูลผู้อนุมัติ</h3>
                         <div>
@@ -495,7 +507,6 @@
                         </div>
                     </div>
 
-                    <!-- ผู้จ่ายยา -->
                     <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                         <h3 class="font-bold text-slate-800 text-sm flex items-center"><i class="fas fa-user-nurse text-blue-600 mr-2"></i> ข้อมูลผู้จ่ายยา (สถานพยาบาล)</h3>
                         <div>
@@ -504,7 +515,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">ตำแหน่ง</label>
-                            <input type="text" id="setting-dispenser-pos" value="เจ้าหน้าที่สถานพยาบาล" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                            <input type="text" id="setting-dispenser-pos" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
                         </div>
                     </div>
                 </div>
@@ -543,6 +554,46 @@
         </section>
 
     </main>
+
+    <!-- MODAL: REGISTRATION (Feature 4) -->
+    <div id="register-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <h3 class="font-bold text-lg text-slate-900" id="reg-modal-title">ลงทะเบียนผู้ใช้งาน</h3>
+                <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <input type="hidden" id="reg-role" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Username</label>
+                    <input type="text" id="reg-user" placeholder="กำหนดชื่อผู้ใช้งาน" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                    <input type="password" id="reg-pass" placeholder="กำหนดรหัสผ่าน" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">ชื่อ-นามสกุล / สังกัด</label>
+                    <input type="text" id="reg-fullname" placeholder="ระบุชื่อเจ้าหน้าที่" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-3">
+                <button onclick="closeRegisterModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">ยกเลิก</button>
+                <button onclick="submitRegistration()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow">บันทึกการลงทะเบียน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PRE-APPROVAL INSPECTION (Feature 5) -->
+    <div id="inspect-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-amber-800 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-lg"><i class="fas fa-search-plus mr-2"></i>ตรวจสอบรายการขอก่อนอนุมัติ</h3>
+                <button onclick="closeInspectModal()" class="text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4" id="inspect-modal-content"></div>
+        </div>
+    </div>
 
     <!-- MODAL: PDF -->
     <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
@@ -584,6 +635,30 @@
         </div>
     </div>
 
+    <!-- HIDDEN RECEIPT TEMPLATE FOR JPEG GENERATION (Feature 6) -->
+    <div id="receipt-capture-container" style="position: absolute; left: -9999px; top: -9999px;">
+        <div id="receipt-card" style="width: 600px; background: #ffffff; padding: 30px; font-family: 'Prompt', 'Kanit', sans-serif; border: 2px solid #10b981; border-radius: 16px; color: #1e293b;">
+            <div style="text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: bold; color: #064e3b; margin: 0;">สถานพยาบาลเขื่อนจุฬาภรณ์</h2>
+                <p style="font-size: 14px; color: #059669; font-weight: 600; margin: 5px 0 0 0;">ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์</p>
+            </div>
+            <div style="font-size: 13px; line-height: 1.6; space-y: 8px;">
+                <p><strong>เลขที่คำขอ:</strong> <span id="rc-id"></span></p>
+                <p><strong>วันที่ขอเบิก:</strong> <span id="rc-date"></span></p>
+                <p><strong>หน่วยงานผู้ขอเบิก:</strong> <span id="rc-dept"></span></p>
+                <p><strong>ผู้ขอเบิก:</strong> <span id="rc-name"></span> (รหัสพนักงาน: <span id="rc-idcard"></span>)</p>
+                <p><strong>วัตถุประสงค์:</strong> <span id="rc-purpose"></span></p>
+                <div style="margin-top: 15px;">
+                    <strong>รายการยาและเวชภัณฑ์ที่ขอเบิก:</strong>
+                    <div id="rc-items-list" style="background: #f8fafc; padding: 10px; border-radius: 8px; margin-top: 5px; font-size: 12px;"></div>
+                </div>
+            </div>
+            <div style="margin-top: 25px; padding: 15px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 0 8px 8px 0; font-size: 12px; color: #065f46; line-height: 1.5;">
+                <strong>ประกาศจากสถานพยาบาล:</strong> สถานพยาบาลเขื่อนจุฬาภรณ์ จะดำเนินการจัดเตรียมยาและเวชภัณฑ์ที่ท่านขอหลังจากได้รับการอนุมัติแล้ว ติดตามได้ที่สถานะรายการ
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT LOGIC -->
     <script>
         const DRUG_CATALOG = [
@@ -621,13 +696,11 @@
                 dispense: false,
                 approve: false,
                 settings: false
+            },
+            users: {
+                dispense: { user: "nurse01", pass: "1234" },
+                approve: { user: "approver01", pass: "1234" }
             }
-        };
-
-        const PASSWORDS = {
-            dispense: "1234",
-            approve: "1234",
-            settings: "9999"
         };
 
         let currentFilterStatus = 'all';
@@ -654,6 +727,9 @@
             const savedDepts = localStorage.getItem('egat_depts');
             if (savedDepts) appState.departments = JSON.parse(savedDepts);
 
+            const savedUsers = localStorage.getItem('egat_custom_users');
+            if (savedUsers) appState.users = JSON.parse(savedUsers);
+
             const savedPeople = localStorage.getItem('egat_people');
             if (savedPeople) {
                 const parsed = JSON.parse(savedPeople);
@@ -669,20 +745,39 @@
             document.getElementById('setting-dispenser-pos').value = appState.settings.dispenserPos;
         }
 
+        // --- Feature 4: Login & Registration System ---
         function checkAuth(module) {
-            const input = document.getElementById(`pass-${module}`).value;
-            if (input === PASSWORDS[module]) {
+            const userInput = document.getElementById(`user-${module}`).value.trim();
+            const passInput = document.getElementById(`pass-${module}`).value.trim();
+
+            if (module === 'settings') {
+                if (passInput === "9999") {
+                    appState.auth.settings = true;
+                    document.getElementById('login-settings').classList.add('hidden');
+                    document.getElementById('content-settings').classList.remove('hidden');
+                    document.getElementById('pass-settings').value = '';
+                    showToast("สำเร็จ", "เข้าสู่ระบบตั้งค่าเรียบร้อยแล้ว");
+                    renderDepartmentTable();
+                    return;
+                } else {
+                    showToast("ข้อผิดพลาด", "รหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
+                    return;
+                }
+            }
+
+            const targetUser = appState.users[module];
+            if (targetUser && targetUser.user === userInput && targetUser.pass === passInput) {
                 appState.auth[module] = true;
                 document.getElementById(`login-${module}`).classList.add('hidden');
                 document.getElementById(`content-${module}`).classList.remove('hidden');
+                document.getElementById(`user-${module}`).value = '';
                 document.getElementById(`pass-${module}`).value = '';
                 showToast("สำเร็จ", "เข้าสู่ระบบเรียบร้อยแล้ว");
 
                 if (module === 'dispense') renderDispenseList();
                 if (module === 'approve') renderApproveList();
-                if (module === 'settings') renderDepartmentTable();
             } else {
-                showToast("ข้อผิดพลาด", "รหัสผ่านไม่ถูกต้อง");
+                showToast("ข้อผิดพลาด", "Username หรือ Password ไม่ถูกต้อง");
             }
         }
 
@@ -691,6 +786,43 @@
             document.getElementById(`content-${module}`).classList.add('hidden');
             document.getElementById(`login-${module}`).classList.remove('hidden');
             showToast("ออกจากระบบ", "ออกจากระบบเรียบร้อยแล้ว");
+        }
+
+        function openRegisterModal(role) {
+            document.getElementById('reg-role').value = role;
+            document.getElementById('reg-modal-title').innerText = role === 'dispense' ? 'ลงทะเบียน: สถานพยาบาล' : 'ลงทะเบียน: ผู้อนุมัติ';
+            document.getElementById('register-modal').classList.remove('hidden');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('register-modal').classList.add('hidden');
+            document.getElementById('reg-user').value = '';
+            document.getElementById('reg-pass').value = '';
+            document.getElementById('reg-fullname').value = '';
+        }
+
+        function submitRegistration() {
+            const role = document.getElementById('reg-role').value;
+            const user = document.getElementById('reg-user').value.trim();
+            const pass = document.getElementById('reg-pass').value.trim();
+            const fullname = document.getElementById('reg-fullname').value.trim();
+
+            if (!user || !pass) {
+                showToast("ข้อผิดพลาด", "กรุณากรอก Username และ Password");
+                return;
+            }
+
+            appState.users[role] = { user, pass };
+            localStorage.setItem('egat_custom_users', JSON.stringify(appState.users));
+
+            if (role === 'dispense' && fullname) {
+                appState.settings.dispenserName = fullname;
+            } else if (role === 'approve' && fullname) {
+                appState.settings.approverName = fullname;
+            }
+
+            closeRegisterModal();
+            showToast("สำเร็จ", "ลงทะเบียนผู้ใช้งานสำเร็จ! กรุณาเข้าสู่ระบบด้วย Username ใหม่");
         }
 
         function showLoading(show) {
@@ -999,6 +1131,8 @@
             } else {
                 appState.requests.unshift(reqData);
                 showToast("สำเร็จ", "บันทึกใบขอเบิกไปยัง Google Sheet แล้ว");
+                // Feature 6: Generate and download JPEG receipt automatically
+                generateAndDownloadReceipt(reqData);
             }
 
             syncToGoogleSheets(reqData);
@@ -1007,6 +1141,27 @@
             initDate();
             renderDrugItemsForm();
             switchTab('status');
+        }
+
+        // --- Feature 6: Generate JPEG Receipt ---
+        function generateAndDownloadReceipt(r) {
+            document.getElementById('rc-id').innerText = r.id;
+            document.getElementById('rc-date').innerText = r.date;
+            document.getElementById('rc-dept').innerText = r.departmentGroup;
+            document.getElementById('rc-name').innerText = r.name;
+            document.getElementById('rc-idcard').innerText = r.idCard;
+            document.getElementById('rc-purpose').innerText = r.purpose.text;
+
+            let itemsHtml = r.items.map((item, idx) => `<div>${idx + 1}. ${item.name} - จำนวน: ${item.qty} ${item.unit}</div>`).join('');
+            document.getElementById('rc-items-list').innerHTML = itemsHtml;
+
+            const container = document.getElementById('receipt-card');
+            html2canvas(container, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์_${r.id}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            });
         }
 
         function renderDashboardStats() {
@@ -1130,7 +1285,7 @@
             }
         }
 
-        // แสดงรายการรออนุมัติ
+        // --- Feature 5: Pre-Approval Inspection ---
         function renderApproveList() {
             const container = document.getElementById('approve-list-container');
             const pending = appState.requests.filter(r => r.status === 'pending_approve');
@@ -1153,13 +1308,48 @@
                         <p class="text-xs text-slate-600 mt-0.5"><strong>จำนวนรายการยา:</strong> ${r.items.length} รายการ</p>
                     </div>
                     <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
-                        <button onclick="openPdfModal('${r.id}')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold">ตรวจสอบฟอร์ม</button>
+                        <button onclick="openInspectModal('${r.id}')" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-xs font-bold"><i class="fas fa-search mr-1"></i>ตรวจสอบรายการ</button>
                         <button onclick="openApproveModalHandler('${r.id}')" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1">
                             <i class="fas fa-stamp"></i><span>ลงนามอนุมัติ</span>
                         </button>
                     </div>
                 </div>
             `).join('');
+        }
+
+        function openInspectModal(id) {
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
+
+            let itemsHtml = r.items.map((item, idx) => `
+                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 text-sm">
+                    <span>${idx + 1}. ${item.name}</span>
+                    <span class="font-bold text-emerald-600">${item.qty} ${item.unit}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('inspect-modal-content').innerHTML = `
+                <div class="space-y-3">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-1">
+                        <p><strong>เลขที่คำขอ:</strong> ${r.id}</p>
+                        <p><strong>ผู้ขอเบิก:</strong> ${r.name} (รหัส: ${r.idCard}, โทร: ${r.phone})</p>
+                        <p><strong>ตำแหน่ง/แผนก:</strong> ${r.position} / ${r.section} (${r.departmentGroup})</p>
+                        <p><strong>วัตถุประสงค์:</strong> ${r.purpose.text}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-xs uppercase mb-2">รายการยาที่ขอเบิกทั้งหมด (${r.items.length} รายการ)</h4>
+                        <div class="space-y-2">${itemsHtml}</div>
+                    </div>
+                </div>
+                <div class="flex justify-end pt-3">
+                    <button onclick="closeInspectModal()" class="px-5 py-2 bg-slate-700 text-white rounded-xl text-xs font-bold">ปิดหน้าต่าง</button>
+                </div>
+            `;
+            document.getElementById('inspect-modal').classList.remove('hidden');
+        }
+
+        function closeInspectModal() {
+            document.getElementById('inspect-modal').classList.add('hidden');
         }
 
         let currentApprovingId = null;
@@ -1334,7 +1524,6 @@
             `).join('');
         }
 
-        // --- ระบบตั้งค่าเจ้าหน้าที่ & หน่วยงาน ---
         function savePeopleSettings() {
             appState.settings.approverName = document.getElementById('setting-approver-name').value;
             appState.settings.approverPos = document.getElementById('setting-approver-pos').value;
@@ -1410,7 +1599,7 @@
             localStorage.setItem('egat_depts', JSON.stringify(appState.departments));
         }
 
-        // --- พรีวิว PDF A4 สมบูรณ์แบบ (แบบ กฟผ.-รพ.74) ---
+        // --- Feature 1: PDF Preview with TH Sarabun PSK Font & Fixed Item Rendering ---
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
@@ -1424,41 +1613,41 @@
             for (let i = 0; i < 11; i++) {
                 const item = r.items[i];
                 rowsHtml += `
-                    <tr class="h-7 border-b border-slate-300 text-xs">
+                    <tr class="h-8 border-b border-slate-300 text-sm">
                         <td class="border-r border-slate-300 p-1 text-center w-8">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-300 p-1">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-300 p-1 text-center font-bold w-12">${item ? item.qty : ''}</td>
-                        <td class="border-r border-slate-300 p-1 text-center w-12">${item ? item.unit : ''}</td>
+                        <td class="border-r border-slate-300 p-1 px-2">${item ? item.name : ''}</td>
+                        <td class="border-r border-slate-300 p-1 text-center font-bold w-14">${item ? item.qty : ''}</td>
+                        <td class="border-r border-slate-300 p-1 text-center w-14">${item ? item.unit : ''}</td>
                         <td class="border-r border-slate-300 p-1 text-center w-8">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-300 p-1">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-300 p-1 text-center font-bold text-emerald-800 w-12">${r.status === 'completed' && item ? item.qty : ''}</td>
-                        <td class="p-1 text-center w-12">${item ? item.unit : ''}</td>
+                        <td class="border-r border-slate-300 p-1 px-2">${item ? item.name : ''}</td>
+                        <td class="border-r border-slate-300 p-1 text-center font-bold text-emerald-800 w-14">${(r.status === 'completed' || r.status === 'pending_dispense') && item ? item.qty : ''}</td>
+                        <td class="p-1 text-center w-14">${item ? item.unit : ''}</td>
                     </tr>
                 `;
             }
 
             const printableArea = document.getElementById('printable-area');
             printableArea.innerHTML = `
-                <div>
-                    <div class="flex justify-between items-start text-xs font-bold mb-2">
+                <div class="sarabun-font text-[16px] leading-relaxed">
+                    <div class="flex justify-between items-start font-bold mb-2">
                         <div></div>
                         <div class="text-right">
-                            <p class="text-sm">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
-                            <p class="text-[11px] font-normal text-slate-600">แบบ กฟผ.-รพ.74</p>
+                            <p class="text-lg">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
+                            <p class="text-sm font-normal text-slate-600">แบบ กฟผ.-รพ.74</p>
                         </div>
                     </div>
-                    <h2 class="text-center font-bold text-base mb-4 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
+                    <h2 class="text-center font-bold text-xl mb-4 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
                     
-                    <div class="flex justify-between text-xs mb-3">
+                    <div class="flex justify-between text-sm mb-3">
                         <span>เลขที่ใบเบิก: <strong>${r.id}</strong></span>
                         <span>วันที่ <strong>${thaiDays}</strong> เดือน <strong>${thaiMonths}</strong> พ.ศ. <strong>${thaiYears}</strong></span>
                     </div>
 
-                    <div class="space-y-2 text-xs mb-3">
+                    <div class="space-y-1.5 text-sm mb-3">
                         <p>เรียน <strong>${r.recipient || 'หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์'}</strong></p>
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-4">
                             <span>ข้าพเจ้า <strong>${r.name}</strong></span>
-                            <span class="ml-4">รหัสพนักงาน <strong>${r.idCard}</strong></span>
+                            <span>รหัสพนักงาน <strong>${r.idCard}</strong></span>
                         </div>
                         <div class="flex flex-wrap gap-4">
                             <span>ตำแหน่ง <strong>${r.position}</strong></span>
@@ -1469,7 +1658,7 @@
                         </div>
                         <p class="mt-1">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
                         
-                        <div class="space-y-1.5 pl-4 mt-2">
+                        <div class="space-y-1 pl-4 mt-1">
                             <div class="flex items-center space-x-2">
                                 <span class="w-4 h-4 rounded-full border border-slate-800 flex items-center justify-center text-[10px]">●</span>
                                 <span><strong>${r.purpose.text}</strong></span>
@@ -1478,22 +1667,22 @@
                     </div>
                 </div>
 
-                <div class="my-3 flex-1">
-                    <table class="w-full border-collapse border border-slate-400 text-xs">
+                <div class="my-3 flex-1 sarabun-font">
+                    <table class="w-full border-collapse border border-slate-400 text-sm">
                         <thead>
                             <tr class="bg-slate-100 border-b border-slate-400">
                                 <th colspan="4" class="border-r border-slate-400 p-1.5 text-center font-bold">รายการยาและเวชภัณฑ์ที่ขอเบิก</th>
                                 <th colspan="4" class="p-1.5 text-center font-bold">รายการยาและเวชภัณฑ์ที่สั่งจ่าย</th>
                             </tr>
-                            <tr class="bg-slate-50 border-b border-slate-400 text-[11px]">
+                            <tr class="bg-slate-50 border-b border-slate-400 text-xs">
                                 <th class="border-r border-slate-400 p-1 w-8">ที่</th>
                                 <th class="border-r border-slate-400 p-1">รายการ</th>
-                                <th class="border-r border-slate-400 p-1 w-12">จำนวน</th>
-                                <th class="border-r border-slate-400 p-1 w-12">หน่วย</th>
+                                <th class="border-r border-slate-400 p-1 w-14">จำนวน</th>
+                                <th class="border-r border-slate-400 p-1 w-14">หน่วย</th>
                                 <th class="border-r border-slate-400 p-1 w-8">ที่</th>
                                 <th class="border-r border-slate-400 p-1">รายการ</th>
-                                <th class="border-r border-slate-400 p-1 w-12">จ่าย</th>
-                                <th class="p-1 w-12">หน่วย</th>
+                                <th class="border-r border-slate-400 p-1 w-14">จ่าย</th>
+                                <th class="p-1 w-14">หน่วย</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1503,15 +1692,15 @@
                 </div>
 
                 <!-- Signatures Section -->
-                <div class="space-y-4 mt-2">
-                    <div class="grid grid-cols-2 gap-6 text-xs">
+                <div class="space-y-4 mt-2 sarabun-font text-sm">
+                    <div class="grid grid-cols-2 gap-6">
                         <!-- Requestor -->
                         <div class="border border-slate-400 p-3 rounded flex flex-col justify-between h-32 relative">
                             <div class="text-center relative h-16 flex items-end justify-center">
-                                ${r.signatures && r.signatures.requestor && r.signatures.requestor !== "มีลายเซ็น" ? `<img src="${r.signatures.requestor}" class="h-12 object-contain">` : '<span class="text-slate-400 text-[11px]">(ลงชื่อแล้ว)</span>'}
+                                ${r.signatures && r.signatures.requestor && r.signatures.requestor !== "มีลายเซ็น" ? `<img src="${r.signatures.requestor}" class="h-12 object-contain">` : '<span class="text-slate-400 text-xs">(ลงชื่อแล้ว)</span>'}
                             </div>
                             <div class="text-center">
-                                <p>**(ลงชื่อ)...................................................ผู้ขอเบิก</p>
+                                <p>(ลงชื่อ)...................................................ผู้ขอเบิก</p>
                                 <p class="mt-0.5">(${r.name})</p>
                             </div>
                         </div>
@@ -1519,25 +1708,25 @@
                         <!-- Approver -->
                         <div class="border border-slate-400 p-3 rounded flex flex-col justify-between h-32 relative">
                             <div class="text-center relative h-16 flex items-end justify-center">
-                                ${r.signatures && r.signatures.approver && r.signatures.approver !== "มีลายเซ็น" ? `<img src="${r.signatures.approver}" class="h-12 object-contain">` : ''}
+                                ${r.signatures && r.signatures.approver && r.signatures.approver !== "มีลายเซ็น" ? `<img src="${r.signatures.approver}" class="h-12 object-contain">` : (r.status !== 'pending_approve' ? '<span class="text-emerald-700 font-bold text-xs">อนุมัติแล้ว</span>' : '')}
                             </div>
                             <div class="text-center">
-                                <p>**(ลงชื่อ)...................................................</p>
+                                <p>(ลงชื่อ)...................................................</p>
                                 <p class="mt-0.5">(${appState.settings.approverName})</p>
-                                <p class="text-[11px] text-slate-600">${appState.settings.approverPos}</p>
+                                <p class="text-xs text-slate-600">${appState.settings.approverPos}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         <div class="border border-slate-400 p-3 rounded flex flex-col justify-between h-28">
-                            <p class="font-medium text-[11px]">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
+                            <p class="font-medium text-xs">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
                             <div class="text-center">
                                 <p>(ลงชื่อ)...................................................ผู้รับยา</p>
-                                <p class="text-[11px]">(${r.name})</p>
+                                <p class="text-xs">(${r.name})</p>
                             </div>
                         </div>
-                        <div class="text-[10px] text-slate-700 space-y-1 border border-slate-300 p-2 rounded bg-slate-50">
+                        <div class="text-xs text-slate-700 space-y-1 border border-slate-300 p-2 rounded bg-slate-50">
                             <p class="font-bold">หมายเหตุ</p>
                             <p>(1) แบบ กฟผ.-รพ.74 ให้จัดทำครั้งละ 2 ฉบับ ต้นฉบับ - สถานพยาบาล / สำเนา - ผู้ขอเบิก</p>
                         </div>
