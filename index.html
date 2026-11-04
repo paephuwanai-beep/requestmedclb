@@ -32,6 +32,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-full flex flex-col antialiased">
 
+    <!-- Toast Notification -->
     <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 max-w-md bg-white border-l-4 border-emerald-500 shadow-xl rounded-r-xl p-4 flex items-center space-x-3">
         <div id="toast-icon" class="text-emerald-500 text-xl"><i class="fas fa-check-circle"></i></div>
         <div>
@@ -40,13 +41,15 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center">
         <div class="bg-white px-6 py-4 rounded-2xl shadow-xl flex items-center space-x-3">
             <i class="fas fa-circle-notch fa-spin text-emerald-600 text-2xl"></i>
-            <span class="font-bold text-slate-700 text-sm">กำลังซิงค์ข้อมูลกับ Google Sheets...</span>
+            <span class="font-bold text-slate-700 text-sm">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</span>
         </div>
     </div>
 
+    <!-- Top Navigation Header -->
     <header class="bg-emerald-900 text-white shadow-md no-print sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
@@ -56,32 +59,47 @@
                 <div>
                     <h1 class="font-bold text-base md:text-lg leading-tight flex items-center space-x-2">
                         <span>Request MED+</span>
-                        <span class="text-xs bg-emerald-700 px-2 py-0.5 rounded-full text-emerald-100">PRO CLOUD</span>
+                        <span class="text-xs bg-emerald-700 px-2 py-0.5 rounded-full text-emerald-100">PRO</span>
                     </h1>
                     <p class="text-[11px] text-emerald-200">สถานพยาบาลเขื่อนจุฬาภรณ์ (แบบ กฟผ.-รพ.74)</p>
                 </div>
             </div>
             <nav class="hidden md:flex items-center space-x-1 text-sm">
-                <button onclick="switchTab('home')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium"><i class="fas fa-home"></i> หน้าหลัก</button>
-                <button onclick="switchTab('request')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium"><i class="fas fa-file-medical"></i> ขอเบิกยา</button>
-                <button onclick="switchTab('dispense')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium"><i class="fas fa-pills"></i> สถานพยาบาล</button>
-                <button onclick="switchTab('approve')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium"><i class="fas fa-signature"></i> ผู้อนุมัติ</button>
-                <button onclick="switchTab('status')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium"><i class="fas fa-tasks"></i> สถานะ</button>
-                <button onclick="fetchDataFromSheet()" class="px-3 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-emerald-100" title="รีเฟรช"><i class="fas fa-sync-alt"></i></button>
-                <button onclick="switchTab('settings')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition" title="ตั้งค่า"><i class="fas fa-cog"></i></button>
+                <button onclick="switchTab('home')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-home"></i><span>หน้าหลัก</span>
+                </button>
+                <button onclick="switchTab('request')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-file-medical"></i><span>บันทึกขอเบิก</span>
+                </button>
+                <button onclick="switchTab('dispense')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-pills"></i><span>สถานพยาบาล</span>
+                </button>
+                <button onclick="switchTab('approve')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-signature"></i><span>ผู้อนุมัติ</span>
+                </button>
+                <button onclick="switchTab('status')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium flex items-center space-x-1">
+                    <i class="fas fa-tasks"></i><span>สถานะรายการ</span>
+                </button>
+                <button onclick="fetchDataFromSheet()" class="px-3 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-700 transition font-medium text-emerald-100" title="รีเฟรชข้อมูล">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button onclick="switchTab('settings')" class="px-3 py-2 rounded-lg hover:bg-emerald-800 transition font-medium" title="ตั้งค่าระบบ (Admin)">
+                    <i class="fas fa-cog"></i>
+                </button>
             </nav>
         </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full pb-24">
+    <!-- Content Sections -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full pb-24 md:pb-6">
         
-        <!-- HOME -->
+        <!-- HOME DASHBOARD -->
         <section id="tab-home" class="tab-content space-y-6">
             <div class="bg-gradient-to-r from-emerald-800 to-teal-700 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center">
                 <div class="space-y-2">
-                    <span class="bg-emerald-600/60 text-emerald-100 text-xs px-3 py-1 rounded-full uppercase font-semibold">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
+                    <span class="bg-emerald-600/60 text-emerald-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
                     <h2 class="text-2xl md:text-3xl font-bold">Request MED+ ระบบขอเบิกยาและเวชภัณฑ์</h2>
-                    <p class="text-emerald-100 text-sm">เชื่อมต่อข้อมูลผู้ใช้งานและคำขอผ่านแท็บ Users ใน Google Sheets เรียบร้อย</p>
+                    <p class="text-emerald-100 text-sm">ระบบเชื่อมต่อคลาวด์ Google Sheets สมบูรณ์แบบ</p>
                 </div>
                 <div class="mt-4 md:mt-0 flex gap-3">
                     <button onclick="switchTab('request')" class="bg-white text-emerald-800 hover:bg-emerald-50 px-5 py-3 rounded-xl font-bold shadow-md transition">
@@ -91,55 +109,83 @@
             </div>
         </section>
 
+        <!-- REQUEST (บันทึกขอเบิก) -->
+        <section id="tab-request" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
+                <h2 class="text-xl font-bold text-slate-900 border-b pb-3"><i class="fas fa-file-medical text-emerald-600 mr-2"></i> บันทึกขอเบิกยาและเวชภัณฑ์</h2>
+                <p class="text-sm text-slate-600">แบบฟอร์มบันทึกรายการขอเบิกยา (กำลังพัฒนาส่วนฟอร์มกรอกรายการ)</p>
+            </div>
+        </section>
+
         <!-- DISPENSE (สถานพยาบาล) -->
         <section id="tab-dispense" class="tab-content hidden space-y-6">
-            <div id="login-dispense" class="bg-white p-8 rounded-2xl shadow-sm border max-w-md mx-auto text-center space-y-4">
+            <div id="login-dispense" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-md mx-auto text-center space-y-4">
                 <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto"><i class="fas fa-lock"></i></div>
                 <h3 class="font-bold text-xl text-slate-900">เข้าสู่ระบบ: สถานพยาบาล</h3>
-                <input type="text" id="user-dispense" placeholder="Username" class="w-full px-4 py-2 border rounded-xl text-sm">
-                <input type="password" id="pass-dispense" placeholder="Password" class="w-full px-4 py-2 border rounded-xl text-sm">
-                <button onclick="checkAuth('dispense')" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow">เข้าสู่ระบบ</button>
+                <input type="text" id="user-dispense" placeholder="Username" class="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="password" id="pass-dispense" placeholder="Password" class="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <button onclick="checkAuth('dispense')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบ</button>
                 <p class="text-xs text-slate-500">ยังไม่มีบัญชี? <button onclick="openRegisterModal('dispense')" class="text-blue-600 font-bold underline">ลงทะเบียน</button></p>
             </div>
             <div id="content-dispense" class="hidden bg-white p-6 rounded-2xl shadow-sm border">
-                <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <h2 class="text-xl font-bold text-slate-900">จัดการจ่ายยา (สถานพยาบาล)</h2>
-                    <button onclick="logout('dispense')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-lg font-bold">ออกจากระบบ</button>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">ระบบจ่ายยา (สถานพยาบาล)</h2>
+                    <button onclick="logout('dispense')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1 rounded-lg">ออกจากระบบ</button>
                 </div>
-                <div id="dispense-list-container" class="space-y-4"></div>
+                <p class="text-sm text-slate-600">ยินดีต้อนรับ เข้าสู่ระบบจ่ายยาเรียบร้อยแล้ว</p>
             </div>
         </section>
 
         <!-- APPROVE (ผู้อนุมัติ) -->
         <section id="tab-approve" class="tab-content hidden space-y-6">
-            <div id="login-approve" class="bg-white p-8 rounded-2xl shadow-sm border max-w-md mx-auto text-center space-y-4">
+            <div id="login-approve" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-md mx-auto text-center space-y-4">
                 <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto"><i class="fas fa-user-shield"></i></div>
                 <h3 class="font-bold text-xl text-slate-900">เข้าสู่ระบบ: ผู้อนุมัติ</h3>
-                <input type="text" id="user-approve" placeholder="Username" class="w-full px-4 py-2 border rounded-xl text-sm">
-                <input type="password" id="pass-approve" placeholder="Password" class="w-full px-4 py-2 border rounded-xl text-sm">
-                <button onclick="checkAuth('approve')" class="w-full py-2.5 bg-amber-600 text-white font-bold rounded-xl shadow">เข้าสู่ระบบ</button>
+                <input type="text" id="user-approve" placeholder="Username" class="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                <input type="password" id="pass-approve" placeholder="Password" class="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                <button onclick="checkAuth('approve')" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบ</button>
                 <p class="text-xs text-slate-500">ยังไม่มีบัญชี? <button onclick="openRegisterModal('approve')" class="text-amber-600 font-bold underline">ลงทะเบียน</button></p>
             </div>
             <div id="content-approve" class="hidden bg-white p-6 rounded-2xl shadow-sm border">
-                <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <h2 class="text-xl font-bold text-slate-900">ระบบผู้อนุมัติ</h2>
-                    <button onclick="logout('approve')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1.5 rounded-lg font-bold">ออกจากระบบ</button>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">ระบบผู้อนุมัติ</h2>
+                    <button onclick="logout('approve')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1 rounded-lg">ออกจากระบบ</button>
                 </div>
-                <div id="approve-list-container" class="space-y-4"></div>
+                <p class="text-sm text-slate-600">ยินดีต้อนรับ เข้าสู่ระบบอนุมัติเรียบร้อยแล้ว</p>
             </div>
         </section>
 
-        <!-- SETTINGS -->
-        <section id="tab-settings" class="tab-content hidden space-y-6">
+        <!-- STATUS (สถานะรายการ) -->
+        <section id="tab-status" class="tab-content hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h2 class="text-xl font-bold text-slate-900">ตั้งค่าระบบ & จัดการสิทธิ์ผู้ใช้งาน</h2>
-                    <button onclick="switchTab('home')" class="text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg font-bold">กลับหน้าหลัก</button>
+                <h2 class="text-xl font-bold text-slate-900 border-b pb-3"><i class="fas fa-tasks text-emerald-600 mr-2"></i> ติดตามสถานะรายการขอเบิก</h2>
+                <p class="text-sm text-slate-600">แสดงรายการขอเบิกทั้งหมดในระบบ</p>
+            </div>
+        </section>
+
+        <!-- SETTINGS (เฉพาะ ADMIN เท่านั้น) -->
+        <section id="tab-settings" class="tab-content hidden space-y-6">
+            <!-- หน้าจอ Login สำหรับ Admin -->
+            <div id="login-admin" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-md mx-auto text-center space-y-4">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto">
+                    <i class="fas fa-user-cog"></i>
                 </div>
-                <p class="text-sm text-slate-600">บัญชีผู้ใช้งานทั้งหมดถูกเชื่อมต่อและตรวจสอบผ่านแท็บ <strong>Users</strong> บน Google Sheets เรียบร้อยแล้ว</p>
-                <div id="users-list-container" class="border rounded-xl p-4 bg-slate-50">
-                    <h3 class="font-bold text-sm mb-2">รายชื่อผู้ใช้งานในระบบคลาวด์</h3>
-                    <div id="cloud-users-table" class="space-y-2"></div>
+                <h3 class="font-bold text-xl text-slate-900">เข้าสู่ระบบ: ผู้ดูแลระบบ (Admin)</h3>
+                <p class="text-xs text-slate-500">หน้านี้จำกัดสิทธิ์เฉพาะผู้ดูแลระบบเท่านั้น</p>
+                <input type="text" id="user-admin" placeholder="Username" class="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 outline-none">
+                <input type="password" id="pass-admin" placeholder="Password" class="w-full px-4 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 outline-none">
+                <button onclick="checkAuth('admin')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบ Admin</button>
+            </div>
+
+            <!-- เนื้อหาหลัง Login สำเร็จ -->
+            <div id="content-admin" class="hidden bg-white p-6 rounded-2xl shadow-sm border space-y-4">
+                <div class="flex justify-between items-center mb-4 border-b pb-3">
+                    <h2 class="text-xl font-bold text-slate-900"><i class="fas fa-cog text-emerald-600 mr-2"></i> ตั้งค่าระบบ (Admin Control Panel)</h2>
+                    <button onclick="logout('admin')" class="text-xs bg-rose-50 text-rose-600 px-3 py-1 rounded-lg font-medium">ออกจากระบบ</button>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-900 text-sm">
+                    <p class="font-bold mb-1"><i class="fas fa-shield-alt mr-1"></i> ยินดีต้อนรับท่านผู้ดูแลระบบ</p>
+                    <p class="text-xs text-emerald-700">ท่านมีสิทธิ์ในการจัดการตั้งค่าระบบ เชื่อมต่อฐานข้อมูล และจัดการผู้ใช้งานทั้งหมดในระบบ Request MED+</p>
                 </div>
             </div>
         </section>
@@ -148,26 +194,37 @@
 
     <!-- REGISTER MODAL -->
     <div id="register-modal" class="fixed inset-0 z-50 bg-slate-900/60 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6 space-y-4">
-            <h3 class="font-bold text-lg" id="reg-modal-title">ลงทะเบียนผู้ใช้งาน</h3>
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 space-y-4 shadow-xl">
+            <h3 class="font-bold text-lg text-slate-900 border-b pb-2" id="reg-modal-title">ลงทะเบียนผู้ใช้งาน</h3>
             <input type="hidden" id="reg-role">
-            <input type="text" id="reg-user" placeholder="Username" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <input type="password" id="reg-pass" placeholder="Password" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <input type="text" id="reg-fullname" placeholder="ชื่อ-นามสกุล / สังกัด" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeRegisterModal()" class="px-4 py-2 bg-slate-200 rounded-xl text-xs font-bold">ยกเลิก</button>
-                <button onclick="submitRegistration()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow">ส่งคำขอลงทะเบียน</button>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600">Username</label>
+                    <input type="text" id="reg-user" placeholder="ระบุชื่อผู้ใช้งาน" class="w-full px-3 py-2 border rounded-lg text-sm mt-1 outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600">Password</label>
+                    <input type="password" id="reg-pass" placeholder="ระบุรหัสผ่าน" class="w-full px-3 py-2 border rounded-lg text-sm mt-1 outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600">ชื่อ-นามสกุล</label>
+                    <input type="text" id="reg-fullname" placeholder="ระบุชื่อและนามสกุลจริง" class="w-full px-3 py-2 border rounded-lg text-sm mt-1 outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-3">
+                <button onclick="closeRegisterModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold text-slate-700 transition">ยกเลิก</button>
+                <button onclick="submitRegistration()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition">สมัครสมาชิก</button>
             </div>
         </div>
     </div>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypouVYZLjBUADyZPxa8mTIMXjFteaWM39gUNj1VDAmRicvBWuTiU57bGqs6VlxT6xh/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWpRZrAuybX6tWdkLIM_Lov0UStpx1_vqD0fJ2R3LJ6SfLJAEd1b-N4kDe3WN_Ja-4/exec";
         
         let appState = {
             users: [],
-            requests: [],
-            auth: { dispense: false, approve: false }
+            auth: { admin: false, dispense: false, approve: false }
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -175,6 +232,7 @@
         });
 
         function showLoading(s) { document.getElementById('loading-overlay').classList.toggle('hidden', !s); }
+        
         function showToast(t, m) {
             document.getElementById('toast-title').innerText = t;
             document.getElementById('toast-msg').innerText = m;
@@ -188,14 +246,11 @@
             try {
                 const res = await fetch(SCRIPT_URL);
                 const data = await res.json();
-                if (data) {
-                    appState.users = data.users || [];
-                    appState.requests = data.requests || [];
+                if (data && data.users) {
+                    appState.users = data.users;
                 }
-                renderCloudUsers();
             } catch (err) {
                 console.error("Fetch error:", err);
-                showToast("ข้อผิดพลาด", "ไม่สามารถดึงข้อมูลจาก Google Sheets ได้");
             } finally {
                 showLoading(false);
             }
@@ -205,16 +260,24 @@
             const u = document.getElementById(`user-${role}`).value.trim();
             const p = document.getElementById(`pass-${role}`).value.trim();
 
-            // ตรวจสอบกับข้อมูลในแท็บ Users ที่ดึงมาจาก Google Sheet
+            if (!u || !p) {
+                showToast("ข้อผิดพลาด", "กรุณากรอก Username และ Password");
+                return;
+            }
+
+            // เงื่อนไขพิเศษบัญชีกลาง Admin: admin / 1234
+            const isDefaultAdmin = (role === 'admin' && u === 'admin' && p === '1234');
+
+            // ตรวจสอบข้อมูลจาก Google Sheet Users
             const found = appState.users.find(item => item.Username === u && String(item.Password) === p && item.Role === role);
 
-            if (found || (u === 'admin' && p === '1234')) {
+            if (found || isDefaultAdmin) {
                 appState.auth[role] = true;
                 document.getElementById(`login-${role}`).classList.add('hidden');
                 document.getElementById(`content-${role}`).classList.remove('hidden');
                 showToast("สำเร็จ", "เข้าสู่ระบบเรียบร้อยแล้ว");
             } else {
-                showToast("ข้อผิดพลาด", "Username หรือ Password ไม่ถูกต้อง หรือยังไม่ได้ลงทะเบียนในระบบ");
+                showToast("ข้อผิดพลาด", "Username หรือ Password ไม่ถูกต้อง");
             }
         }
 
@@ -222,17 +285,18 @@
             appState.auth[role] = false;
             document.getElementById(`content-${role}`).classList.add('hidden');
             document.getElementById(`login-${role}`).classList.remove('hidden');
-            showToast("ออกจากระบบ", "ออกจากระบบเรียบร้อยแล้ว");
+            // เคลียร์ค่าฟอร์มล็อกอิน
+            document.getElementById(`user-${role}`).value = '';
+            document.getElementById(`pass-${role}`).value = '';
         }
 
         function switchTab(t) {
-            if (t === 'settings' && !appState.auth.dispense) {
-                showToast("แจ้งเตือน", "กรุณาล็อกอินเข้าสู่ระบบ 'สถานพยาบาล' ก่อนเข้าหน้าตั้งค่า");
-                t = 'dispense';
+            // ถ้ากดเข้าหน้า settings แต่ยังไม่ได้ล็อกอิน admin ให้เด้งเตือน
+            if (t === 'settings' && !appState.auth.admin) {
+                showToast("แจ้งเตือน", "กรุณาล็อกอินเข้าสู่ระบบ 'ผู้ดูแลระบบ (Admin)' ก่อนเข้าหน้าตั้งค่า");
             }
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${t}`)?.classList.remove('hidden');
-            if (t === 'settings') renderCloudUsers();
         }
 
         function openRegisterModal(role) {
@@ -240,7 +304,13 @@
             document.getElementById('reg-modal-title').innerText = role === 'dispense' ? 'ลงทะเบียน: สถานพยาบาล' : 'ลงทะเบียน: ผู้อนุมัติ';
             document.getElementById('register-modal').classList.remove('hidden');
         }
-        function closeRegisterModal() { document.getElementById('register-modal').classList.add('hidden'); }
+        
+        function closeRegisterModal() { 
+            document.getElementById('register-modal').classList.add('hidden'); 
+            document.getElementById('reg-user').value = '';
+            document.getElementById('reg-pass').value = '';
+            document.getElementById('reg-fullname').value = '';
+        }
 
         async function submitRegistration() {
             const role = document.getElementById('reg-role').value;
@@ -248,7 +318,7 @@
             const p = document.getElementById('reg-pass').value.trim();
             const fn = document.getElementById('reg-fullname').value.trim();
 
-            if (!u || !p) return showToast("ข้อผิดพลาด", "กรุณากรอก Username และ Password");
+            if (!u || !p || !fn) return showToast("ข้อผิดพลาด", "กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง");
 
             showLoading(true);
             try {
@@ -262,31 +332,13 @@
                     })
                 });
                 closeRegisterModal();
-                showToast("สำเร็จ", "บันทึกบัญชีลง Google Sheets (แท็บ Users) เรียบร้อยแล้ว");
+                showToast("สำเร็จ", "ส่งคำขอลงทะเบียนไปยัง Google Sheets เรียบร้อยแล้ว");
                 setTimeout(fetchDataFromSheet, 2000);
             } catch (err) {
-                showToast("ข้อผิดพลาด", "ไม่สามารถบันทึกข้อมูลได้");
+                showToast("ข้อผิดพลาด", "ไม่สามารถเชื่อมต่อเพื่อบันทึกข้อมูลได้");
             } finally {
                 showLoading(false);
             }
-        }
-
-        function renderCloudUsers() {
-            const container = document.getElementById('cloud-users-table');
-            if (!container) return;
-            if (appState.users.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400">ยังไม่มีข้อมูลผู้ใช้งานในแท็บ Users</p>`;
-                return;
-            }
-            container.innerHTML = appState.users.map(u => `
-                <div class="flex justify-between items-center bg-white p-2.5 rounded-lg border text-xs">
-                    <div>
-                        <strong>${u.Username}</strong> (${u.FullName || '-'}) 
-                        <span class="ml-2 px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">${u.Role}</span>
-                    </div>
-                    <span class="text-slate-500">สถานะ: ${u.Status}</span>
-                </div>
-            `).join('');
         }
     </script>
 </body>
