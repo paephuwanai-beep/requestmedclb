@@ -470,16 +470,17 @@
 
         <!-- TAB 7: SETTINGS -->
         <section id="tab-settings" class="tab-content hidden space-y-6">
-            <!-- LOGIN VIEW -->
+            <!-- LOGIN VIEW (Feature 2: Uses same credentials as dispense) -->
             <div id="login-settings" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-md mx-auto text-center space-y-4">
                 <div class="w-16 h-16 bg-slate-100 text-slate-700 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto">
                     <i class="fas fa-cog"></i>
                 </div>
                 <div>
                     <h3 class="font-bold text-xl text-slate-900">เข้าสู่ระบบตั้งค่า</h3>
-                    <p class="text-xs text-slate-500 mt-1">สำหรับผู้ดูแลระบบเท่านั้น (รหัสผ่าน: 9999)</p>
+                    <p class="text-xs text-slate-500 mt-1">ใช้ Username และ Password เดียวกับสถานพยาบาล</p>
                 </div>
-                <input type="password" id="pass-settings" placeholder="กรอกรหัสผ่านผู้ดูแล..." class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-center text-lg font-bold focus:ring-2 focus:ring-slate-500 focus:outline-none">
+                <input type="text" id="user-settings" placeholder="Username..." class="w-full px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-slate-500 focus:outline-none">
+                <input type="password" id="pass-settings" placeholder="Password..." class="w-full px-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-slate-500 focus:outline-none">
                 <button onclick="checkAuth('settings')" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบตั้งค่า</button>
             </div>
 
@@ -493,10 +494,10 @@
                     <button onclick="logout('settings')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 rounded-lg font-bold"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
                 </div>
 
-                <!-- 1. ตั้งค่าผู้อนุมัติ & ผู้จ่ายยา -->
+                <!-- 1. ตั้งค่าผู้อนุมัติ (Feature 3: Default Signature Storage) & ผู้จ่ายยา -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-                        <h3 class="font-bold text-slate-800 text-sm flex items-center"><i class="fas fa-user-check text-amber-600 mr-2"></i> ข้อมูลผู้อนุมัติ</h3>
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center"><i class="fas fa-user-check text-amber-600 mr-2"></i> ข้อมูลและลายเซ็นผู้อนุมัติ</h3>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">ชื่อ-นามสกุล</label>
                             <input type="text" id="setting-approver-name" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
@@ -504,6 +505,16 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">ตำแหน่ง</label>
                             <input type="text" id="setting-approver-pos" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-bold text-slate-600">บันทึกลายเซ็นเริ่มต้น (ใช้ซ้ำอัตโนมัติ)</label>
+                                <button type="button" onclick="clearSignature('setting-approver')" class="text-xs text-rose-600 hover:underline">ล้าง</button>
+                            </div>
+                            <div class="flex justify-center bg-white p-2 rounded-lg border border-slate-300">
+                                <canvas id="sig-canvas-setting-approver" width="300" height="100" class="signature-canvas w-full h-24 cursor-crosshair"></canvas>
+                            </div>
+                            <input type="hidden" id="setting-approver-signature-data">
                         </div>
                     </div>
 
@@ -521,7 +532,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button onclick="savePeopleSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow"><i class="fas fa-save mr-1"></i> บันทึกข้อมูลเจ้าหน้าที่</button>
+                    <button onclick="savePeopleSettings()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow"><i class="fas fa-save mr-1"></i> บันทึกข้อมูลเจ้าหน้าที่และลายเซ็น</button>
                 </div>
 
                 <hr class="border-slate-200">
@@ -555,7 +566,7 @@
 
     </main>
 
-    <!-- MODAL: REGISTRATION (Feature 4) -->
+    <!-- MODAL: REGISTRATION -->
     <div id="register-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
@@ -584,7 +595,7 @@
         </div>
     </div>
 
-    <!-- MODAL: PRE-APPROVAL INSPECTION (Feature 5) -->
+    <!-- MODAL: PRE-APPROVAL INSPECTION -->
     <div id="inspect-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-amber-800 text-white px-6 py-4 flex justify-between items-center">
@@ -592,6 +603,24 @@
                 <button onclick="closeInspectModal()" class="text-white"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-6 overflow-y-auto space-y-4" id="inspect-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: RECEIPT POPUP (Feature 1) -->
+    <div id="receipt-popup-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-center">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <h3 class="font-bold text-lg text-slate-900">ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์</h3>
+                <button onclick="closeReceiptPopup()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="receipt-preview-container" class="flex justify-center border border-slate-200 rounded-xl p-2 bg-slate-50 max-h-[60vh] overflow-y-auto">
+                <img id="receipt-preview-img" class="rounded-lg shadow max-w-full h-auto" src="" alt="Receipt Preview">
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeReceiptPopup()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">ปิด</button>
+                <button onclick="shareReceiptImage()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1"><i class="fas fa-share-alt"></i><span>แชร์ภาพ</span></button>
+                <button onclick="downloadReceiptImage()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1"><i class="fas fa-download"></i><span>ดาวน์โหลด JPG</span></button>
+            </div>
         </div>
     </div>
 
@@ -624,25 +653,14 @@
         </div>
     </div>
 
-    <!-- MODAL: APPROVE -->
-    <div id="approve-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-            <div class="bg-amber-800 text-white px-6 py-4 flex justify-between items-center">
-                <h3 class="font-bold text-lg">ลงนามอนุมัติคำขอเบิกยา</h3>
-                <button onclick="closeApproveModal()" class="text-white"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="p-6 space-y-4" id="approve-modal-content"></div>
-        </div>
-    </div>
-
-    <!-- HIDDEN RECEIPT TEMPLATE FOR JPEG GENERATION (Feature 6) -->
+    <!-- HIDDEN RECEIPT TEMPLATE FOR JPEG GENERATION -->
     <div id="receipt-capture-container" style="position: absolute; left: -9999px; top: -9999px;">
         <div id="receipt-card" style="width: 600px; background: #ffffff; padding: 30px; font-family: 'Prompt', 'Kanit', sans-serif; border: 2px solid #10b981; border-radius: 16px; color: #1e293b;">
             <div style="text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
                 <h2 style="font-size: 20px; font-weight: bold; color: #064e3b; margin: 0;">สถานพยาบาลเขื่อนจุฬาภรณ์</h2>
                 <p style="font-size: 14px; color: #059669; font-weight: 600; margin: 5px 0 0 0;">ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์</p>
             </div>
-            <div style="font-size: 13px; line-height: 1.6; space-y: 8px;">
+            <div style="font-size: 13px; line-height: 1.6;">
                 <p><strong>เลขที่คำขอ:</strong> <span id="rc-id"></span></p>
                 <p><strong>วันที่ขอเบิก:</strong> <span id="rc-date"></span></p>
                 <p><strong>หน่วยงานผู้ขอเบิก:</strong> <span id="rc-dept"></span></p>
@@ -688,6 +706,7 @@
             settings: {
                 approverName: "นายสมศักดิ์ ผู้ทรงคุณ",
                 approverPos: "หัวหน้าแผนกธุรการ",
+                approverSignature: "",
                 dispenserName: "นางสาววรรณภา รักษาดี",
                 dispenserPos: "เจ้าหน้าที่สถานพยาบาล",
                 gssUrl: "https://script.google.com/macros/s/AKfycbwfsdNi1FaAq0Bm3-zY4a_R13CQcJX1qYuzkCsUfuexIDLHwejiLMw1YioYFGcYuC95/exec"
@@ -704,9 +723,10 @@
         };
 
         let currentFilterStatus = 'all';
+        let latestReceiptDataUrl = null;
         let sigPads = {
             req: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
-            approve: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
+            'setting-approver': { canvas: null, ctx: null, drawing: false, hasDrawn: false },
             dispense: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
             receive: { canvas: null, ctx: null, drawing: false, hasDrawn: false }
         };
@@ -718,6 +738,7 @@
             renderDrugCatalog();
             renderDepartmentsSelect();
             initSignaturePad('req');
+            initSignaturePad('setting-approver');
             
             fetchDataFromSheet();
             switchTab('home');
@@ -735,6 +756,7 @@
                 const parsed = JSON.parse(savedPeople);
                 appState.settings.approverName = parsed.approverName || appState.settings.approverName;
                 appState.settings.approverPos = parsed.approverPos || appState.settings.approverPos;
+                appState.settings.approverSignature = parsed.approverSignature || "";
                 appState.settings.dispenserName = parsed.dispenserName || appState.settings.dispenserName;
                 appState.settings.dispenserPos = parsed.dispenserPos || appState.settings.dispenserPos;
             }
@@ -743,28 +765,42 @@
             document.getElementById('setting-approver-pos').value = appState.settings.approverPos;
             document.getElementById('setting-dispenser-name').value = appState.settings.dispenserName;
             document.getElementById('setting-dispenser-pos').value = appState.settings.dispenserPos;
+
+            if (appState.settings.approverSignature) {
+                const canvas = document.getElementById('sig-canvas-setting-approver');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    img.onload = () => ctx.drawImage(img, 0, 0);
+                    img.src = appState.settings.approverSignature;
+                    document.getElementById('setting-approver-signature-data').value = appState.settings.approverSignature;
+                }
+            }
         }
 
-        // --- Feature 4: Login & Registration System ---
+        // --- Feature 2: Settings uses same login as Dispense ---
         function checkAuth(module) {
-            const userInput = document.getElementById(`user-${module}`).value.trim();
-            const passInput = document.getElementById(`pass-${module}`).value.trim();
-
             if (module === 'settings') {
-                if (passInput === "9999") {
+                const userInput = document.getElementById('user-settings').value.trim();
+                const passInput = document.getElementById('pass-settings').value.trim();
+                const targetUser = appState.users.dispense;
+                if (targetUser && targetUser.user === userInput && targetUser.pass === passInput) {
                     appState.auth.settings = true;
                     document.getElementById('login-settings').classList.add('hidden');
                     document.getElementById('content-settings').classList.remove('hidden');
+                    document.getElementById('user-settings').value = '';
                     document.getElementById('pass-settings').value = '';
                     showToast("สำเร็จ", "เข้าสู่ระบบตั้งค่าเรียบร้อยแล้ว");
                     renderDepartmentTable();
                     return;
                 } else {
-                    showToast("ข้อผิดพลาด", "รหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
+                    showToast("ข้อผิดพลาด", "Username หรือ Password ของสถานพยาบาลไม่ถูกต้อง");
                     return;
                 }
             }
 
+            const userInput = document.getElementById(`user-${module}`).value.trim();
+            const passInput = document.getElementById(`pass-${module}`).value.trim();
             const targetUser = appState.users[module];
             if (targetUser && targetUser.user === userInput && targetUser.pass === passInput) {
                 appState.auth[module] = true;
@@ -1131,8 +1167,8 @@
             } else {
                 appState.requests.unshift(reqData);
                 showToast("สำเร็จ", "บันทึกใบขอเบิกไปยัง Google Sheet แล้ว");
-                // Feature 6: Generate and download JPEG receipt automatically
-                generateAndDownloadReceipt(reqData);
+                // Feature 1: Generate Receipt and Open Popup
+                generateAndShowReceiptPopup(reqData);
             }
 
             syncToGoogleSheets(reqData);
@@ -1143,8 +1179,8 @@
             switchTab('status');
         }
 
-        // --- Feature 6: Generate JPEG Receipt ---
-        function generateAndDownloadReceipt(r) {
+        // --- Feature 1: Receipt Popup, Download & Share ---
+        function generateAndShowReceiptPopup(r) {
             document.getElementById('rc-id').innerText = r.id;
             document.getElementById('rc-date').innerText = r.date;
             document.getElementById('rc-dept').innerText = r.departmentGroup;
@@ -1157,11 +1193,42 @@
 
             const container = document.getElementById('receipt-card');
             html2canvas(container, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์_${r.id}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.95);
-                link.click();
+                latestReceiptDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                document.getElementById('receipt-preview-img').src = latestReceiptDataUrl;
+                document.getElementById('receipt-popup-modal').classList.remove('hidden');
             });
+        }
+
+        function closeReceiptPopup() {
+            document.getElementById('receipt-popup-modal').classList.add('hidden');
+        }
+
+        function downloadReceiptImage() {
+            if (!latestReceiptDataUrl) return;
+            const link = document.createElement('a');
+            link.download = `ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์.jpg`;
+            link.href = latestReceiptDataUrl;
+            link.click();
+        }
+
+        async function shareReceiptImage() {
+            if (!latestReceiptDataUrl) return;
+            try {
+                const blob = await (await fetch(latestReceiptDataUrl)).blob();
+                const file = new File([blob], "ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์.jpg", { type: "image/jpeg" });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์',
+                        text: 'ใบบันทึกรายการขอเบิกยาและเวชภัณฑ์ สถานพยาบาลเขื่อนจุฬาภรณ์',
+                        files: [file]
+                    });
+                } else {
+                    downloadReceiptImage();
+                    showToast("แจ้งเตือน", "เบราว์เซอร์นี้ไม่รองรับการแชร์ไฟล์โดยตรง ทำการดาวน์โหลดภาพแทน");
+                }
+            } catch (err) {
+                console.log('Share error:', err);
+            }
         }
 
         function renderDashboardStats() {
@@ -1285,7 +1352,6 @@
             }
         }
 
-        // --- Feature 5: Pre-Approval Inspection ---
         function renderApproveList() {
             const container = document.getElementById('approve-list-container');
             const pending = appState.requests.filter(r => r.status === 'pending_approve');
@@ -1309,8 +1375,8 @@
                     </div>
                     <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
                         <button onclick="openInspectModal('${r.id}')" class="px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-xs font-bold"><i class="fas fa-search mr-1"></i>ตรวจสอบรายการ</button>
-                        <button onclick="openApproveModalHandler('${r.id}')" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1">
-                            <i class="fas fa-stamp"></i><span>ลงนามอนุมัติ</span>
+                        <button onclick="confirmApprovalWithSavedSig('${r.id}')" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1">
+                            <i class="fas fa-stamp"></i><span>ลงนามอนุมัติ (อัติโนมัติ)</span>
                         </button>
                     </div>
                 </div>
@@ -1352,56 +1418,22 @@
             document.getElementById('inspect-modal').classList.add('hidden');
         }
 
-        let currentApprovingId = null;
-        function openApproveModalHandler(id) {
-            currentApprovingId = id;
+        // --- Feature 3: Approval using Saved Signature from Settings ---
+        function confirmApprovalWithSavedSig(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
 
-            document.getElementById('approve-modal-content').innerHTML = `
-                <div>
-                    <p class="text-xs text-slate-500">คำขอเบิกเลขที่: <strong>${r.id}</strong></p>
-                    <p class="text-xs text-slate-500">ผู้ขอเบิก: <strong>${r.name} (${r.departmentGroup})</strong></p>
-                </div>
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                    <label class="block text-xs font-bold text-slate-700">ชื่อ-นามสกุล ผู้อนุมัติ</label>
-                    <input type="text" id="modal-approver-name" value="${appState.settings.approverName}" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm">
-                </div>
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-xs font-bold text-slate-700">ลายเซ็นอนุมัติ</label>
-                        <button type="button" onclick="clearSignature('approve')" class="text-xs text-rose-600 hover:underline">ล้าง</button>
-                    </div>
-                    <div class="flex justify-center bg-white p-2 rounded-lg border border-slate-300">
-                        <canvas id="sig-canvas-approve" width="350" height="120" class="signature-canvas w-full h-28 cursor-crosshair"></canvas>
-                    </div>
-                    <input type="hidden" id="approve-signature-data">
-                </div>
-                <div class="flex justify-end space-x-2 pt-2">
-                    <button onclick="closeApproveModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">ยกเลิก</button>
-                    <button onclick="confirmApproval()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow">ยืนยันอนุมัติ</button>
-                </div>
-            `;
-            document.getElementById('approve-modal').classList.remove('hidden');
-            setTimeout(() => initSignaturePad('approve'), 100);
-        }
+            if (!appState.settings.approverSignature) {
+                showToast("แจ้งเตือน", "ยังไม่ได้บันทึกลายเซ็นผู้อนุมัติในหน้าตั้งค่า! กรุณาไปบันทึกก่อน");
+                switchTab('settings');
+                return;
+            }
 
-        function closeApproveModal() {
-            document.getElementById('approve-modal').classList.add('hidden');
-            currentApprovingId = null;
-        }
-
-        function confirmApproval() {
-            const r = appState.requests.find(item => item.id === currentApprovingId);
-            if (!r) return;
-
-            const sigData = document.getElementById('approve-signature-data').value;
             r.status = 'pending_dispense';
-            r.signatures.approver = sigData || "อนุมัติแล้ว";
+            r.signatures.approver = appState.settings.approverSignature;
 
             syncToGoogleSheets(r);
-            closeApproveModal();
-            showToast("สำเร็จ", "อนุมัติคำขอเบิกยาเรียบร้อยแล้ว ส่งต่อไปยังสถานพยาบาล");
+            showToast("สำเร็จ", "อนุมัติคำขอเบิกยาโดยใช้ลายเซ็นที่บันทึกไว้เรียบร้อยแล้ว");
             renderApproveList();
             renderStatusTable();
             renderDashboardStats();
@@ -1527,17 +1559,19 @@
         function savePeopleSettings() {
             appState.settings.approverName = document.getElementById('setting-approver-name').value;
             appState.settings.approverPos = document.getElementById('setting-approver-pos').value;
+            appState.settings.approverSignature = document.getElementById('setting-approver-signature-data').value;
             appState.settings.dispenserName = document.getElementById('setting-dispenser-name').value;
             appState.settings.dispenserPos = document.getElementById('setting-dispenser-pos').value;
 
             localStorage.setItem('egat_people', JSON.stringify({
                 approverName: appState.settings.approverName,
                 approverPos: appState.settings.approverPos,
+                approverSignature: appState.settings.approverSignature,
                 dispenserName: appState.settings.dispenserName,
                 dispenserPos: appState.settings.dispenserPos
             }));
 
-            showToast("สำเร็จ", "บันทึกข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว");
+            showToast("สำเร็จ", "บันทึกข้อมูลเจ้าหน้าที่และลายเซ็นเรียบร้อยแล้ว");
         }
 
         function renderDepartmentsSelect() {
@@ -1599,7 +1633,6 @@
             localStorage.setItem('egat_depts', JSON.stringify(appState.departments));
         }
 
-        // --- Feature 1: PDF Preview with TH Sarabun PSK Font & Fixed Item Rendering ---
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
@@ -1708,7 +1741,7 @@
                         <!-- Approver -->
                         <div class="border border-slate-400 p-3 rounded flex flex-col justify-between h-32 relative">
                             <div class="text-center relative h-16 flex items-end justify-center">
-                                ${r.signatures && r.signatures.approver && r.signatures.approver !== "มีลายเซ็น" ? `<img src="${r.signatures.approver}" class="h-12 object-contain">` : (r.status !== 'pending_approve' ? '<span class="text-emerald-700 font-bold text-xs">อนุมัติแล้ว</span>' : '')}
+                                ${r.signatures && r.signatures.approver ? `<img src="${r.signatures.approver}" class="h-12 object-contain">` : ''}
                             </div>
                             <div class="text-center">
                                 <p>(ลงชื่อ)...................................................</p>
