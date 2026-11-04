@@ -480,7 +480,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: CATALOG (Feature 5: Drug Image Customization) -->
+        <!-- TAB 6: CATALOG (Feature 3: Drug Image File Upload) -->
         <section id="tab-catalog" class="tab-content hidden space-y-6">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
                 <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
@@ -488,7 +488,7 @@
                         <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">คลังยา สถานพยาบาลเขื่อนจุฬาภรณ์</span>
                         <h2 class="text-2xl font-bold text-slate-900 mt-1">รายการยาและเวชภัณฑ์ (11 รายการ)</h2>
                     </div>
-                    <span class="text-xs text-slate-500">สามารถคลิกแก้ไขรูปภาพยาแต่ละรายการได้</span>
+                    <span class="text-xs text-slate-500">คลิกปุ่มเพื่ออัปโหลดไฟล์รูปภาพยาจากเครื่องหรือมือถือ</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="drug-catalog-grid"></div>
             </div>
@@ -505,7 +505,7 @@
                     <button onclick="switchTab('home')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 rounded-lg font-bold"><i class="fas fa-home"></i> กลับหน้าหลัก</button>
                 </div>
 
-                <!-- Feature 3: Admin Registration Approvals -->
+                <!-- Registration Approvals -->
                 <div class="space-y-4 bg-amber-50/60 p-5 rounded-2xl border border-amber-200">
                     <h3 class="font-bold text-slate-800 text-base flex items-center">
                         <i class="fas fa-user-clock text-amber-600 mr-2"></i> คำขอลงทะเบียนรอการอนุมัติ (<span id="pending-users-count">0</span>)
@@ -751,7 +751,6 @@
                 approve: false,
                 settings: false
             },
-            // Feature 3: Multi-user auth list supporting approved registrations
             users: {
                 dispense: [{ user: "nurse01", pass: "1234" }],
                 approve: [{ user: "approver01", pass: "1234" }]
@@ -834,7 +833,6 @@
             localStorage.setItem('egat_requests', JSON.stringify(appState.requests));
         }
 
-        // Feature 3: Multi-account login validation
         function checkAuth(module) {
             const userInput = document.getElementById(`user-${module}`).value.trim();
             const passInput = document.getElementById(`pass-${module}`).value.trim();
@@ -923,7 +921,6 @@
             const target = appState.pendingUsers[index];
             if (!appState.users[target.role]) appState.users[target.role] = [];
             
-            // Push to approved user list
             appState.users[target.role].push({ user: target.user, pass: target.pass });
             localStorage.setItem('egat_custom_users', JSON.stringify(appState.users));
 
@@ -1139,7 +1136,6 @@
             `).join('');
         }
 
-        // Feature 4: Strict Max Quantity validation
         function validateDrugQty(input, max) {
             let val = parseInt(input.value);
             if (val > max) {
@@ -1246,7 +1242,7 @@
                 const chk = document.getElementById(`drug-chk-${drug.id}`);
                 if (chk && chk.checked) {
                     let qty = parseInt(document.getElementById(`drug-qty-${drug.id}`).value) || 1;
-                    if (qty > drug.maxQty) qty = drug.maxQty; // Safeguard
+                    if (qty > drug.maxQty) qty = drug.maxQty;
                     selectedItems.push({ id: drug.id, name: drug.name, qty: qty, maxQty: drug.maxQty, unit: drug.unit });
                 }
             });
@@ -1678,7 +1674,7 @@
             renderDashboardStats();
         }
 
-        // Feature 5: Drug Catalog & Image Customization
+        // Feature 3: Drug Catalog & File Upload Handler
         function renderDrugCatalog() {
             const grid = document.getElementById('drug-catalog-grid');
             if (!grid) return;
@@ -1694,24 +1690,29 @@
                         </div>
                         <p class="text-xs text-slate-500">จำนวนสูงสุดที่ขอเบิกได้: <strong class="text-slate-700">${d.maxQty} ${d.unit}</strong></p>
                     </div>
-                    <button onclick="editDrugImage(${d.id})" class="w-full py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1">
-                        <i class="fas fa-image text-emerald-600"></i><span>แก้ไขรูปภาพตัวอย่างยา</span>
-                    </button>
+                    <label class="w-full py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 cursor-pointer">
+                        <i class="fas fa-upload text-emerald-600"></i><span>อัปโหลดไฟล์รูปภาพยา</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="uploadDrugImage(event, ${d.id})">
+                    </label>
                 </div>
             `).join('');
         }
 
-        function editDrugImage(id) {
-            const drug = DRUG_CATALOG.find(d => d.id === id);
-            if (!drug) return;
-            const newUrl = prompt(`ระบุลิงก์รูปภาพ (Image URL) สำหรับ: ${drug.name}`, drug.image || '');
-            if (newUrl !== null) {
-                drug.image = newUrl.trim() || drug.image;
-                localStorage.setItem('egat_drug_catalog', JSON.stringify(DRUG_CATALOG));
-                renderDrugCatalog();
-                renderDrugItemsForm();
-                showToast("สำเร็จ", "อัปเดตภาพตัวอย่างยาเรียบร้อยแล้ว");
-            }
+        function uploadDrugImage(event, id) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const drug = DRUG_CATALOG.find(d => d.id === id);
+                if (drug) {
+                    drug.image = e.target.result;
+                    localStorage.setItem('egat_drug_catalog', JSON.stringify(DRUG_CATALOG));
+                    renderDrugCatalog();
+                    renderDrugItemsForm();
+                    showToast("สำเร็จ", "อัปโหลดภาพตัวอย่างยาจากไฟล์เรียบร้อยแล้ว");
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
         function savePeopleSettings() {
@@ -1791,7 +1792,7 @@
             localStorage.setItem('egat_depts', JSON.stringify(appState.departments));
         }
 
-        // Feature 2: Robust PDF Generation displaying requested & dispensed items
+        // Feature 1: Robust PDF generation displaying requested & dispensed items accurately
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
@@ -1803,7 +1804,7 @@
 
             let rowsHtml = '';
             for (let i = 0; i < 11; i++) {
-                const item = r.items[i];
+                const item = r.items && r.items[i] ? r.items[i] : null;
                 let isDispensed = r.status === 'completed' || r.status === 'pending_dispense';
                 rowsHtml += `
                     <tr class="h-8 border-b border-slate-300 text-sm">
