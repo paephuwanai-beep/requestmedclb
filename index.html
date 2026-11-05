@@ -1072,69 +1072,94 @@
             if (dateEl) dateEl.value = today;
         }
 
-        async function fetchDataFromSheet() {
-            const url = appState.settings.gssUrl;
-            if (!url) return;
+ async function fetchDataFromSheet() {
+    const url = appState.settings.gssUrl;
+    if (!url) return;
 
-            showLoading(true);
-            try {
-                const res = await fetch(`${url}?action=getData`, { method: 'GET' });
-                const data = await res.json();
-                
-                // ดึงข้อมูลบัญชีผู้ใช้จากชีต Users
-                if (data && data.users) {
-                    appState.usersFromSheet = data.users;
-                }
-
-                if (data && data.requests) {
-                    appState.requests = data.requests.map(r => {
-                        let parsedItems = [];
-                        try {
-                            parsedItems = typeof r.Items === 'string' ? JSON.parse(r.Items) : (r.Items || []);
-                        } catch (e) { parsedItems = []; }
-
-                        let parsedStatus = r.Status || r.status || "pending_approve";
-                        if (parsedStatus === "รออนุมัติ") parsedStatus = "pending_approve";
-                        if (parsedStatus === "รอจ่ายยา") parsedStatus = "pending_dispense";
-                        if (parsedStatus === "สมบูรณ์แล้ว" || parsedStatus === "จ่ายยาแล้ว") parsedStatus = "completed";
-
-                        return {
-                            id: r.RequestNo || r.id,
-                            date: r.RequestDate || r.date,
-                            recipient: r.Recipient || "หธฬอ.ฟ",
-                            departmentGroup: r.Dept || r.departmentGroup,
-                            name: r.RequesterName || r.name,
-                            idCard: r.EmpId || r.idCard,
-                            phone: r.Phone || r.phone,
-                            position: r.Position || r.position || "ช.6",
-                            section: r.Section || r.section || "หธฬอ.ฟ",
-                            division: r.Division || r.division || "กอง กฬอ-ฟ",
-                            departmentSub: r.DepartmentSub || r.departmentSub || "ฝ่าย อฟอ.",
-                            purpose: { text: r.Purpose || "เพื่อสำรองไว้ใช้ประจำหน่วยงาน" },
-                            items: parsedItems,
-                            status: parsedStatus,
-                            signatures: {
-                                requestor: r.SignRequester || "",
-                                approver: r.SignApprover || "",
-                                dispenser: r.SignDispenser || "",
-                                receiver: r.SignReceiver || ""
-                            }
-                        };
-                    });
-                    saveRequestsLocal();
-                }
-                renderDashboardStats();
-                renderStatusTable();
-                updateMobileNavBadges();
-                if (appState.auth.approve) renderApproveList();
-                if (appState.auth.dispense) renderDispenseList();
-                showToast("สำเร็จ", "ซิงค์ข้อมูลล่าสุดเรียบร้อยแล้ว");
-            } catch (err) {
-                console.error("Fetch error:", err);
-            } finally {
-                showLoading(false);
-            }
+    showLoading(true);
+    try {
+        const res = await fetch(`${url}?action=getData`, { method: 'GET' });
+        const data = await res.json();
+        
+        // 1. ดึงข้อมูลผู้ใช้งานจากชีต Users
+        if (data && data.users) {
+            appState.usersFromSheet = data.users;
         }
+
+        // 2. ดึงข้อมูลแผนกจากชีต Departments (อัปเดตรายชื่อแผนกตาม Google Sheet ทันที)
+        if (data && data.departments && data.departments.length > 0) {
+            // เช็กชื่อคอลัมน์จากภาพชีต Departments ของคุณคือ DepartmentName หรือ DeptName
+            appState.departments = data.departments.map(d => d.DepartmentName || d.DepartmentID || d.DeptName || Object.values(d)[1]).filter(Boolean);
+            renderDepartmentsSelect();
+            if (typeof renderDepartmentTable === 'function') renderDepartmentTable();
+        }
+
+        // 3. ดึงข้อมูลคลังยาจากชีต MedicineCatalog (ถ้ามี)
+        if (data && data.medicines && data.medicines.length > 0) {
+            // แมตช์ข้อมูลยาจากชีต MedicineCatalog
+            DRUG_CATALOG = data.medicines.map((m, idx) => ({
+                id: m.ItemID || idx + 1,
+                name: m.MedicineName || m.Name || "",
+                maxQty: m.MaxQuota || m.MaxQty || 50,
+                unit: m.Unit || "เม็ด",
+                image: m.Image || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80"
+            }));
+            renderDrugItemsForm();
+            renderDrugCatalog();
+        }
+
+        // 4. ดึงข้อมูลใบขอเบิกจากชีต Requests
+        if (data && data.requests) {
+            appState.requests = data.requests.map(r => {
+                let parsedItems = [];
+                try {
+                    parsedItems = typeof r.ItemsJSON === 'string' ? JSON.parse(r.ItemsJSON) : (typeof r.Items === 'string' ? JSON.parse(r.Items) : (r.ItemsJSON || r.Items || []));
+                } catch (e) { parsedItems = []; }
+
+                let parsedStatus = r.Status || r.status || "pending_approve";
+                if (parsedStatus === "รออนุมัติ") parsedStatus = "pending_approve";
+                if (parsedStatus === "รอจ่ายยา") parsedStatus = "pending_dispense";
+                if (parsedStatus === "สมบูรณ์แล้ว" || parsedStatus === "จ่ายยาแล้ว") parsedStatus = "completed";
+
+                return {
+                    id: r.RequestNo || r.id,
+                    date: r.RequestDate || r.date,
+                    recipient: r.Recipient || "หธฬอ.ฟ",
+                    departmentGroup: r.Dept || r.departmentGroup,
+                    name: r.RequesterName || r.name,
+                    idCard: r.EmpId || r.idCard,
+                    phone: r.Phone || r.phone,
+                    position: r.Position || r.position || "ช.6",
+                    section: r.Section || r.section || "หธฬอ.ฟ",
+                    division: r.Division || r.division || "กอง กฬอ-ฟ",
+                    departmentSub: r.DepartmentSub || r.departmentSub || "ฝ่าย อฟอ.",
+                    purpose: { text: r.Purpose || "เพื่อสำรองไว้ใช้ประจำหน่วยงาน" },
+                    items: parsedItems,
+                    status: parsedStatus,
+                    signatures: {
+                        requestor: r.SignRequester || "",
+                        approver: r.SignApprover || "",
+                        dispenser: r.SignDispenser || "",
+                        receiver: r.SignReceiver || ""
+                    }
+                };
+            });
+            saveRequestsLocal();
+        }
+
+        renderDashboardStats();
+        renderStatusTable();
+        updateMobileNavBadges();
+        if (appState.auth.approve) renderApproveList();
+        if (appState.auth.dispense) renderDispenseList();
+        showToast("สำเร็จ", "ซิงค์ข้อมูลจาก Google Sheets เรียบร้อยแล้ว");
+    } catch (err) {
+        console.error("Fetch error:", err);
+        showToast("ข้อผิดพลาด", "ไม่สามารถเชื่อมต่อฐานข้อมูลได้");
+    } finally {
+        showLoading(false);
+    }
+}
 
         async function syncToGoogleSheets(reqData) {
             const url = appState.settings.gssUrl;
