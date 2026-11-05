@@ -51,7 +51,7 @@
     <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center">
         <div class="bg-white px-6 py-4 rounded-2xl shadow-xl flex items-center space-x-3">
             <i class="fas fa-circle-notch fa-spin text-emerald-600 text-2xl"></i>
-            <span class="font-bold text-slate-700 text-sm">กำลังเชื่อมต่อฐานข้อมูล Users & Requests...</span>
+            <span class="font-bold text-slate-700 text-sm">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</span>
         </div>
     </div>
 
@@ -135,7 +135,7 @@
                     <span class="bg-emerald-600/60 text-emerald-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
                     <h2 class="text-2xl md:text-3xl font-bold">Request MED+ ระบบขอเบิกยาและเวชภัณฑ์</h2>
                     <p class="text-emerald-100 text-sm max-w-2xl">
-                        เชื่อมต่อฐานข้อมูล Google Sheet (ชีต Users และ Requests) แบบเรียลไทม์ ปลอดภัยด้วยระบบสิทธิ์ผู้ใช้งาน
+                        เชื่อมต่อฐานข้อมูล Google Sheets (ชีต Users และ Requests) อย่างสมบูรณ์แบบ
                     </p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -263,7 +263,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-bold text-slate-800">
-                                <i class="fas fa-pills text-emerald-600 mr-1"></i> รายการยาและเวชภัณฑ์ (ระบบจะจำกัดไม่ให้กรอกเกินจำนวนสูงสุด)
+                                <i class="fas fa-pills text-emerald-600 mr-1"></i> รายการยาและเวชภัณฑ์ (ระบบจำกัดไม่ให้กรอกเกินจำนวนสูงสุด)
                             </label>
                         </div>
                         <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -345,7 +345,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-center border-b pb-4">
                     <h2 class="text-2xl font-bold">สถานะรายการขอเบิกทั้งหมด</h2>
                     <div class="flex gap-1 bg-slate-100 p-1 rounded-xl text-xs font-medium">
-                        <button onclick="filterStatus('all')" id="filter-all" class="px-3 py-1.5 rounded-lg bg-white shadow-sm">ทั้งหมด</button>
+                        <button onclick="filterStatus('all')" id="filter-all" class="px-3 py-1.5 rounded-lg bg-white shadow-sm font-bold">ทั้งหมด</button>
                         <button onclick="filterStatus('pending_approve')" id="filter-pending_approve" class="px-3 py-1.5 rounded-lg">รออนุมัติ</button>
                         <button onclick="filterStatus('pending_dispense')" id="filter-pending_dispense" class="px-3 py-1.5 rounded-lg">รอจ่ายยา</button>
                         <button onclick="filterStatus('completed')" id="filter-completed" class="px-3 py-1.5 rounded-lg">สมบูรณ์แล้ว</button>
@@ -414,17 +414,6 @@
         </div>
     </div>
 
-    <!-- MODAL: DISPENSE -->
-    <div id="dispense-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-            <div class="bg-blue-900 text-white px-6 py-4 flex justify-between items-center">
-                <h3 class="font-bold text-lg">บันทึกการจ่ายยาและเวชภัณฑ์</h3>
-                <button onclick="closeDispenseModal()" class="text-white"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto" id="dispense-modal-content"></div>
-        </div>
-    </div>
-
     <!-- SCRIPT LOGIC -->
     <script>
         let DRUG_CATALOG = [
@@ -451,11 +440,11 @@
                 gssUrl: "https://script.google.com/macros/s/AKfycbx2xPyN0qh7QC_799rcK1Sgm474zOA_ft6TOvU_xc989PIR5eL_eSNh0KTVtgIl1KAK/exec"
             },
             auth: { admin: false, dispense: false, approve: false },
-            usersFromSheet: [] // ดึงจากชีต Users
+            usersFromSheet: []
         };
 
         let currentFilterStatus = 'all';
-        let sigPads = { req: { canvas: null, ctx: null, hasDrawn: false }, 'setting-approver': { canvas: null, ctx: null, hasDrawn: false } };
+        let sigPads = { req: { canvas: null, ctx: null, hasDrawn: false } };
 
         window.addEventListener('DOMContentLoaded', () => {
             initDate();
@@ -487,15 +476,12 @@
                 const res = await fetch(`${url}?action=getData`);
                 const data = await res.json();
                 
-                // 1. โหลด Users จากชีต Users
                 if (data && data.users) {
                     appState.usersFromSheet = data.users;
                 } else {
-                    // ค่าสำรองตามภาพชีต Users ของคุณ (Bhoovanai / 3112 / admin)
                     appState.usersFromSheet = [{ Username: "Bhoovanai", Password: "3112", Role: "admin" }];
                 }
 
-                // 2. โหลด Requests ประวัติการเบิก
                 if (data && data.requests) {
                     appState.requests = data.requests.map(r => ({
                         id: r.RequestNo || r.id,
@@ -563,7 +549,6 @@
             } catch (e) { console.log(e); }
         }
 
-        // เช็กล็อกอินจากชีต Users โดยตรง
         function checkAuth(module) {
             const user = document.getElementById(`user-${module}`).value.trim();
             const pass = document.getElementById(`pass-${module}`).value.trim();
@@ -645,7 +630,6 @@
             `).join('');
         }
 
-        // ล็อกไม่ให้กรอกเกินจำนวนสูงสุด
         function validateDrugQty(input, max) {
             let val = parseInt(input.value);
             if (val > max) {
@@ -827,7 +811,6 @@
             renderDashboardStats();
         }
 
-        // PDF Generation แบบเต็มรูปแบบ ป้องกันกระดาษว่างเปล่า
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
