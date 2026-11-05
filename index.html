@@ -794,8 +794,10 @@
         }
            if (data && data.settings && data.settings.length > 0) {
             data.settings.forEach(s => {
-                const k = (s.Key || s.key || "").toString().trim();
-                const v = (s.Value || s.value || "").toString().trim();
+                // รองรับชื่อหัวคอลัมน์ทั้ง Key, key, KEY
+                const k = (s.Key || s.key || s.KEY || "").toString().trim();
+                const v = (s.Value || s.value || s.VALUE || "").toString().trim();
+                
                 if (k === 'Approver_Name') appState.settings.approverName = v;
                 if (k === 'Approver_Position') appState.settings.approverPos = v;
                 if (k === 'Approver_Signature') appState.settings.approverSignature = v;
