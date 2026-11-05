@@ -1821,7 +1821,7 @@
             reader.readAsDataURL(file);
         }
 
-        function savePeopleSettings() {
+       async function savePeopleSettings() {
             appState.settings.approverName = document.getElementById('setting-approver-name').value;
             appState.settings.approverPos = document.getElementById('setting-approver-pos').value;
             appState.settings.approverSignature = document.getElementById('setting-approver-signature-data').value;
@@ -1836,7 +1836,33 @@
                 dispenserPos: appState.settings.dispenserPos
             }));
 
-            showToast("สำเร็จ", "บันทึกข้อมูลเจ้าหน้าที่และลายเซ็นเรียบร้อยแล้ว");
+            const url = appState.settings.gssUrl;
+            if (url) {
+                try {
+                    const settingsMap = [
+                        { key: 'Approver_Name', value: appState.settings.approverName },
+                        { key: 'Approver_Position', value: appState.settings.approverPos },
+                        { key: 'Approver_Signature', value: appState.settings.approverSignature },
+                        { key: 'Dispenser_Name', value: appState.settings.dispenserName },
+                        { key: 'Dispenser_Position', value: appState.settings.dispenserPos }
+                    ];
+
+                    for (let item of settingsMap) {
+                        await fetch(url, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'saveSettings', key: item.key, value: item.value })
+                        });
+                    }
+                    showToast("สำเร็จ", "บันทึกข้อมูลและลายเซ็นลง Google Sheet เรียบร้อยแล้ว");
+                } catch (err) {
+                    console.log('Sync settings error:', err);
+                    showToast("แจ้งเตือน", "บันทึกในเครื่องสำเร็จ แต่ไม่สามารถซิงค์ลง Google Sheet ได้");
+                }
+            } else {
+                showToast("สำเร็จ", "บันทึกข้อมูลเจ้าหน้าที่และลายเซ็นเรียบร้อยแล้ว");
+            }
         }
 
         function renderDepartmentsSelect() {
@@ -1899,6 +1925,7 @@
         }
 
         // PDF Generation Code - Optimized EXACT FIT 1 Page A4
+// PDF Generation Code - Optimized EXACT FIT 1 Page A4
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
@@ -1927,14 +1954,29 @@
                 `;
             }
 
-            // Highlighting Purpose & Requesting Department
+            // ตรวจสอบและดึงข้อมูลวัตถุประสงค์และจำนวนผู้ปฏิบัติงานที่ผู้เบิกกรอกเข้ามา
             let purposeRaw = r.purpose ? r.purpose.text : '';
             let deptName = r.departmentGroup || 'หน่วยงานผู้ขอเบิก';
-            let formattedPurpose = purposeRaw;
-
-            if (purposeRaw.includes("เพื่อสำรองไว้ใช้ประจำหน่วยงาน")) {
-                formattedPurpose = `เพื่อสำรองไว้ใช้ประจำหน่วยงาน <span class="font-bold underline text-emerald-950 bg-emerald-100/80 px-1.5 py-0.5 rounded border border-emerald-400">หน่วยงาน: ${deptName}</span>`;
+            let workerCount = r.staffCount || 10; // ดึงจำนวนผู้ปฏิบัติงาน
+            
+            // ดึงตัวเลขจำนวนคนจากข้อความวัตถุประสงค์ (ถ้ามีระบุไว้)
+            const matchWorkers = purposeRaw.match(/ผู้ปฏิบัติงาน\s*(\d+)\s*คน/);
+            if (matchWorkers && matchWorkers[1]) {
+                workerCount = matchWorkers[1];
             }
+
+            let purposeHtml = `
+                <div class="space-y-1 text-xs">
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-block w-4 h-4 border border-black text-center text-[10px] leading-3 font-bold">✓</span>
+                        <span>เพื่อสำรองไว้ใช้ประจำหน่วยงาน <strong class="underline">${deptName}</strong> ซึ่งมีผู้ปฏิบัติงานจำนวน <strong class="underline px-1">${workerCount}</strong> คน</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-slate-400">
+                        <span class="inline-block w-4 h-4 border border-slate-400 text-center text-[10px] leading-3"></span>
+                        <span>เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ ................................................... ประมาณ ......... วัน สำหรับผู้เดินทางจำนวน ......... คน</span>
+                    </div>
+                </div>
+            `;
 
             const printableArea = document.getElementById('printable-area');
             printableArea.innerHTML = `
@@ -1968,11 +2010,8 @@
                         </div>
                         <p class="mt-1 font-semibold">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
                         
-                        <div class="pl-2 mt-0.5">
-                            <div class="flex items-center space-x-1.5">
-                                <span class="text-emerald-700 font-bold">●</span>
-                                <span class="text-xs">${formattedPurpose}</span>
-                            </div>
+                        <div class="pl-2 mt-1">
+                            ${purposeHtml}
                         </div>
                     </div>
                 </div>
