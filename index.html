@@ -791,7 +791,7 @@
 
             const savedPending = localStorage.getItem('egat_pending_users');
             if (savedPending) appState.pendingUsers = JSON.parse(savedPending);
-
+        }
            if (data && data.settings && data.settings.length > 0) {
             data.settings.forEach(s => {
                 const k = (s.Key || s.key || "").toString().trim();
