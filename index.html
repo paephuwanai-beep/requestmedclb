@@ -792,27 +792,32 @@
             const savedPending = localStorage.getItem('egat_pending_users');
             if (savedPending) appState.pendingUsers = JSON.parse(savedPending);
 
-            const savedPeople = localStorage.getItem('egat_people');
-            if (savedPeople) {
-                const parsed = JSON.parse(savedPeople);
-                appState.settings.approverName = parsed.approverName || appState.settings.approverName;
-                appState.settings.approverPos = parsed.approverPos || appState.settings.approverPos;
-                appState.settings.approverSignature = parsed.approverSignature || "";
-                appState.settings.dispenserName = parsed.dispenserName || appState.settings.dispenserName;
-                appState.settings.dispenserPos = parsed.dispenserPos || appState.settings.dispenserPos;
-            }
+           if (data && data.settings && data.settings.length > 0) {
+            data.settings.forEach(s => {
+                const k = (s.Key || s.key || "").toString().trim();
+                const v = (s.Value || s.value || "").toString().trim();
+                if (k === 'Approver_Name') appState.settings.approverName = v;
+                if (k === 'Approver_Position') appState.settings.approverPos = v;
+                if (k === 'Approver_Signature') appState.settings.approverSignature = v;
+                if (k === 'Dispenser_Name') appState.settings.dispenserName = v;
+                if (k === 'Dispenser_Position') appState.settings.dispenserPos = v;
+            });
 
-            document.getElementById('setting-approver-name').value = appState.settings.approverName;
-            document.getElementById('setting-approver-pos').value = appState.settings.approverPos;
-            document.getElementById('setting-dispenser-name').value = appState.settings.dispenserName;
-            document.getElementById('setting-dispenser-pos').value = appState.settings.dispenserPos;
+            // แสดงผลลงช่อง Input หน้าแอดมินทันที
+            document.getElementById('setting-approver-name').value = appState.settings.approverName || "";
+            document.getElementById('setting-approver-pos').value = appState.settings.approverPos || "";
+            document.getElementById('setting-dispenser-name').value = appState.settings.dispenserName || "";
+            document.getElementById('setting-dispenser-pos').value = appState.settings.dispenserPos || "";
 
             if (appState.settings.approverSignature) {
                 const canvas = document.getElementById('sig-canvas-setting-approver');
                 if (canvas) {
                     const ctx = canvas.getContext('2d');
                     const img = new Image();
-                    img.onload = () => ctx.drawImage(img, 0, 0);
+                    img.onload = () => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                    };
                     img.src = appState.settings.approverSignature;
                     document.getElementById('setting-approver-signature-data').value = appState.settings.approverSignature;
                 }
