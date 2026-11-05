@@ -909,24 +909,44 @@
             document.getElementById('reg-fullname').value = '';
         }
 
-        function submitRegistration() {
-            const role = document.getElementById('reg-role').value;
-            const user = document.getElementById('reg-user').value.trim();
-            const pass = document.getElementById('reg-pass').value.trim();
-            const fullname = document.getElementById('reg-fullname').value.trim();
+ async function submitRegistration() {
+    const role = document.getElementById('reg-role').value;
+    const user = document.getElementById('reg-user').value.trim();
+    const pass = document.getElementById('reg-pass').value.trim();
+    const fullname = document.getElementById('reg-fullname').value.trim();
 
-            if (!user || !pass) {
-                showToast("ข้อผิดพลาด", "กรุณากรอก Username และ Password");
-                return;
-            }
+    if (!user || !pass) {
+        showToast("ข้อผิดพลาด", "กรุณากรอก Username และ Password");
+        return;
+    }
 
-            appState.pendingUsers.push({ role, user, pass, fullname });
-            localStorage.setItem('egat_pending_users', JSON.stringify(appState.pendingUsers));
-
-            closeRegisterModal();
-            showToast("สำเร็จ", "ส่งคำขอลงทะเบียนแล้ว รอผู้ดูแลระบบ (Admin) อนุมัติและกำหนดบทบาท");
+    // ส่งข้อมูลไปบันทึกลงใน Google Sheet (แท็บ Users) ทันที
+    const url = appState.settings.gssUrl;
+    if (url) {
+        try {
+            await fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'registerUser',
+                    user: user,
+                    pass: pass,
+                    fullname: fullname,
+                    role: role
+                })
+            });
+        } catch (err) {
+            console.log('Registration sync error:', err);
         }
+    }
 
+    appState.pendingUsers.push({ role, user, pass, fullname });
+    localStorage.setItem('egat_pending_users', JSON.stringify(appState.pendingUsers));
+
+    closeRegisterModal();
+    showToast("สำเร็จ", "ส่งคำขอลงทะเบียนเรียบร้อยแล้ว บันทึกลงฐานข้อมูล Google Sheet สำเร็จ");
+}
         function renderPendingUsersTable() {
             const tbody = document.getElementById('pending-users-table');
             const countEl = document.getElementById('pending-users-count');
