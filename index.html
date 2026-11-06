@@ -102,7 +102,7 @@
                         <span>Request MED+</span>
                         <span class="text-xs bg-emerald-700 px-2 py-0.5 rounded-full text-emerald-100">PRO Online</span>
                     </h1>
-                    <p class="text-[11px] text-emerald-200">สถานพยาบาลเขื่อนจุฬาภรณ์ (แบบ กฟผ.-รพ.74)</p>
+                    <p class="text-[11px] text-emerald-200">สถานพยาบาลเขื่อนจุฬาภรณ์</p>
                 </div>
             </div>
             <nav class="hidden md:flex items-center space-x-1 text-sm">
@@ -286,7 +286,7 @@
                 </div>
             </div>
 
-            <!-- Emergency Contact Section (Moved to Bottom of HOME as requested) -->
+            <!-- Emergency Contact Section (At Bottom of HOME) -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
                 <div>
                     <h3 class="font-bold text-slate-900 text-lg flex items-center">
@@ -382,7 +382,7 @@
                         </div>
                     </div>
 
-                    <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">วัตถุประสงค์การขอเบิกยา <span class="text-red-500">*</span></label>
                         <div class="space-y-3">
                             <label class="flex items-start space-x-3 cursor-pointer">
@@ -423,7 +423,9 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200">
-                                        <th class="p-3 text-center w-12">เลือก</th>
+                                        <th class="p-3 text-center w-12">
+                                            <input type="checkbox" id="select-all-drugs" onclick="toggleSelectAllDrugs(this)" class="w-4 h-4 text-emerald-600 rounded cursor-pointer" title="เลือกทุกรายการ">
+                                        </th>
                                         <th class="p-3">ลำดับ / รายการยาและเวชภัณฑ์</th>
                                         <th class="p-3 text-center w-36">จำนวนที่ขอเบิก</th>
                                         <th class="p-3 text-center w-24">หน่วย</th>
@@ -450,7 +452,7 @@
                         <button type="button" onclick="switchTab('home')" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl font-bold text-sm">ยกเลิก</button>
                         <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center space-x-2">
                             <i class="fas fa-save"></i>
-                            <span id="submit-btn-text">บันทึกใบขอเบิกยา (Google Sheets)</span>
+                            <span id="submit-btn-text">บันทึกใบขอเบิกยา</span>
                         </button>
                     </div>
                 </form>
@@ -1317,7 +1319,7 @@
             container.innerHTML = DRUG_CATALOG.map((drug, index) => `
                 <tr class="hover:bg-slate-50 border-b border-slate-100">
                     <td class="p-3 text-center">
-                        <input type="checkbox" id="drug-chk-${drug.id}" onchange="toggleDrugQty(${drug.id})" class="w-4 h-4 text-emerald-600 rounded">
+                        <input type="checkbox" id="drug-chk-${drug.id}" onchange="toggleDrugQty(${drug.id})" class="w-4 h-4 text-emerald-600 rounded cursor-pointer">
                     </td>
                     <td class="p-3 flex items-center space-x-3">
                         <img src="${drug.image}" class="w-10 h-10 object-cover rounded-lg border border-slate-200 shadow-sm" alt="">
@@ -1333,6 +1335,26 @@
                     <td class="p-3 text-center text-slate-600 text-xs">${drug.unit}</td>
                 </tr>
             `).join('');
+            updateSelectAllState();
+        }
+
+        function toggleSelectAllDrugs(source) {
+            const checkboxes = document.querySelectorAll('#drug-items-container input[type="checkbox"]');
+            checkboxes.forEach(chk => {
+                chk.checked = source.checked;
+                const id = chk.id.replace('drug-chk-', '');
+                toggleDrugQty(parseInt(id), false);
+            });
+        }
+
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('#drug-items-container input[type="checkbox"]');
+            const selectAll = document.getElementById('select-all-drugs');
+            if (!selectAll || checkboxes.length === 0) return;
+            const allChecked = Array.from(checkboxes).every(chk => chk.checked);
+            const someChecked = Array.from(checkboxes).some(chk => chk.checked);
+            selectAll.checked = allChecked;
+            selectAll.indeterminate = someChecked && !allChecked;
         }
 
         function validateDrugQty(input, max) {
@@ -1345,9 +1367,11 @@
             }
         }
 
-        function toggleDrugQty(id) {
+        function toggleDrugQty(id, checkSelectAll = true) {
             const chk = document.getElementById(`drug-chk-${id}`);
             const input = document.getElementById(`drug-qty-${id}`);
+            if (!chk || !input) return;
+
             if (chk.checked) {
                 input.disabled = false;
                 input.classList.remove('bg-slate-100');
@@ -1356,6 +1380,9 @@
                 input.disabled = true;
                 input.classList.add('bg-slate-100');
                 input.classList.remove('bg-white');
+            }
+            if (checkSelectAll) {
+                updateSelectAllState();
             }
         }
 
@@ -1497,7 +1524,7 @@
 
             if (editId) {
                 document.getElementById('edit-id').value = '';
-                document.getElementById('submit-btn-text').innerText = "บันทึกใบขอเบิกยา (Google Sheets)";
+                document.getElementById('submit-btn-text').innerText = "บันทึกใบขอเบิกยา";
                 showToast("กำลังซิงค์...", "กำลังบันทึกการแก้ไขไปยัง Google Sheets");
             } else {
                 showToast("กำลังซิงค์...", "กำลังบันทึกใบขอเบิกใหม่ไปยัง Google Sheets");
@@ -1676,8 +1703,9 @@
                     qtyInput.value = item.qty;
                 }
             });
+            updateSelectAllState();
 
-            document.getElementById('submit-btn-text').innerText = "บันทึกการแก้ไขไปยัง Google Sheets";
+            document.getElementById('submit-btn-text').innerText = "บันทึกการแก้ไขใบขอเบิกยา";
             showToast("แก้ไขข้อมูล", `กำลังแก้ไขคำขอเบิกเลขที่ ${r.id}`);
         }
 
@@ -2065,7 +2093,6 @@
             }
         }
 
-        // Perfect Proportion PDF Generation matching Request No. top-left & clean single-name signatures
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
