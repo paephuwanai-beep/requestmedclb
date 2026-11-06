@@ -73,11 +73,21 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center">
-        <div class="bg-white px-6 py-4 rounded-2xl shadow-xl flex items-center space-x-3">
-            <i class="fas fa-circle-notch fa-spin text-emerald-600 text-2xl"></i>
-            <span class="font-bold text-slate-700 text-sm">กำลังเชื่อมต่อฐานข้อมูล Google Sheets...</span>
+    <!-- Loading Overlay with Progress Bar & Updated Text -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-white px-8 py-6 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full space-y-4 text-center">
+            <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl animate-pulse">
+                <i class="fas fa-sync-alt fa-spin"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">กำลังเชื่อมต่อ กรุณารอสักครู่</h3>
+                <p id="loading-subtext" class="text-xs text-slate-500 mt-1">กำลังโหลดและซิงค์ข้อมูลกับฐานข้อมูล...</p>
+            </div>
+            <!-- Progress Bar % -->
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden p-0.5 border border-slate-200">
+                <div id="loading-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-600 h-full rounded-full transition-all duration-300" style="width: 15%;"></div>
+            </div>
+            <span id="loading-progress-text" class="text-xs font-bold text-emerald-700">15%</span>
         </div>
     </div>
 
@@ -156,12 +166,14 @@
 
         <!-- TAB 1: HOME DASHBOARD -->
         <section id="tab-home" class="tab-content space-y-6">
+            <!-- Hero Banner with Updated Description -->
             <div class="bg-gradient-to-r from-emerald-800 to-teal-700 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center">
                 <div class="space-y-3 mb-4 md:mb-0">
                     <span class="bg-emerald-600/60 text-emerald-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
                     <h2 class="text-2xl md:text-3xl font-bold">Request MED+ ระบบขอเบิกยาและเวชภัณฑ์</h2>
-                    <p class="text-emerald-100 text-sm max-w-2xl">
-                        เชื่อมต่อฐานข้อมูล Google Sheets แบบ Real-Time ออนไลน์ ซิงค์ข้อมูลข้ามอุปกรณ์ทันที
+                    <!-- Updated Text -->
+                    <p class="text-emerald-100 text-sm max-w-2xl font-medium">
+                        ระบบบันทึกขอเบิกยาและเวชภัณฑ์ออนไลน์ พัฒนาโดย สถานพยาบาลเขื่อนจุฬาภรณ์
                     </p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -173,6 +185,79 @@
                         <i class="fas fa-list-alt"></i>
                         <span>ติดตามสถานะ</span>
                     </button>
+                </div>
+            </div>
+
+            <!-- New Graphic Step-by-Step Flow Chart -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div class="border-b border-slate-100 pb-3 flex items-center space-x-2">
+                    <div class="p-2 bg-emerald-100 text-emerald-700 rounded-xl text-sm font-bold"><i class="fas fa-stream"></i></div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base">ขั้นตอนง่ายๆ ในการใช้งานระบบ Request MED+</h3>
+                        <p class="text-xs text-slate-500">กระบวนการบันทึก ขอเบิก อนุมัติ และจัดจ่ายยาแบบดิจิทัลครบวงจร</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                    <!-- Step 1 -->
+                    <div class="relative bg-gradient-to-b from-emerald-50/50 to-white p-5 rounded-2xl border border-emerald-100 flex flex-col justify-between hover:shadow-md transition">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shadow">1</span>
+                                <span class="text-2xl text-emerald-600"><i class="fas fa-edit"></i></span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">1. บันทึกขอเบิกยา</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">ผู้ขอเบิกเลือกรายการยา ระบุวัตถุประสงค์ และลงลายมือชื่อผู้ขอเบิก</p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-emerald-100 text-[11px] font-semibold text-emerald-700">
+                            เมนู: <span class="underline cursor-pointer" onclick="switchTab('request')">บันทึกขอเบิก</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative bg-gradient-to-b from-blue-50/50 to-white p-5 rounded-2xl border border-blue-100 flex flex-col justify-between hover:shadow-md transition">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow">2</span>
+                                <span class="text-2xl text-blue-600"><i class="fas fa-file-invoice"></i></span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">2. ออกใบบันทึก/สลิป</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">ระบบออกใบบันทึกรูปแบบสลิปสแกน JPG หรือแบบฟอร์ม A4 กฟผ.-รพ.74</p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-blue-100 text-[11px] font-semibold text-blue-700">
+                            เมนู: <span class="underline cursor-pointer" onclick="switchTab('status')">สถานะรายการ</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative bg-gradient-to-b from-amber-50/50 to-white p-5 rounded-2xl border border-amber-100 flex flex-col justify-between hover:shadow-md transition">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="w-8 h-8 rounded-xl bg-amber-600 text-white font-bold text-sm flex items-center justify-center shadow">3</span>
+                                <span class="text-2xl text-amber-600"><i class="fas fa-signature"></i></span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">3. ผู้อนุมัติลงนาม</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">หัวหน้าหน่วยงานตรวจสอบรายการยาและลงนามอนุมัติใบขอเบิก</p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-amber-100 text-[11px] font-semibold text-amber-700">
+                            เมนู: <span class="underline cursor-pointer" onclick="switchTab('approve')">ผู้อนุมัติ</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relative bg-gradient-to-b from-purple-50/50 to-white p-5 rounded-2xl border border-purple-100 flex flex-col justify-between hover:shadow-md transition">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="w-8 h-8 rounded-xl bg-purple-600 text-white font-bold text-sm flex items-center justify-center shadow">4</span>
+                                <span class="text-2xl text-purple-600"><i class="fas fa-pills"></i></span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">4. รับยา & เวชภัณฑ์</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">เจ้าหน้าที่สถานพยาบาลจัดยา ผู้ขอเบิกลงนามรับยาเรียบร้อยแล้ว</p>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-purple-100 text-[11px] font-semibold text-purple-700">
+                            เมนู: <span class="underline cursor-pointer" onclick="switchTab('dispense')">สถานพยาบาล</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -451,14 +536,15 @@
             </div>
         </section>
 
-        <!-- TAB 6: CATALOG -->
+        <!-- TAB 6: CATALOG (With Image Upload Feature) -->
         <section id="tab-catalog" class="tab-content hidden space-y-6">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div class="border-b border-slate-200 pb-4 mb-6 flex justify-between items-center">
+                <div class="border-b border-slate-200 pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                     <div>
                         <span class="text-xs font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">คลังยา สถานพยาบาลเขื่อนจุฬาภรณ์</span>
                         <h2 class="text-2xl font-bold text-slate-900 mt-1">รายการยาและเวชภัณฑ์ในระบบ</h2>
                     </div>
+                    <span class="text-xs text-slate-500 font-medium"><i class="fas fa-info-circle mr-1 text-emerald-600"></i>สามารถอัปโหลดไฟล์รูปภาพยาเพื่อแสดงผลข้ามอุปกรณ์ได้ทันที</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="drug-catalog-grid"></div>
             </div>
@@ -466,7 +552,6 @@
 
         <!-- TAB 7: SETTINGS (ADMIN ONLY) -->
         <section id="tab-settings" class="tab-content hidden space-y-6">
-            <!-- ADMIN LOGIN OVERLAY -->
             <div id="login-settings" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-md mx-auto text-center space-y-4">
                 <div class="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto">
                     <i class="fas fa-user-shield"></i>
@@ -480,7 +565,6 @@
                 <button onclick="checkAdminAuth()" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow transition">เข้าสู่ระบบแอดมิน</button>
             </div>
 
-            <!-- ADMIN CONTENT -->
             <div id="content-settings" class="hidden bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-8">
                 <div class="flex justify-between items-center border-b border-slate-200 pb-4">
                     <div>
@@ -490,7 +574,6 @@
                     <button onclick="logoutAdmin()" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1.5 rounded-lg font-bold"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ Admin</button>
                 </div>
 
-                <!-- Registration Approvals -->
                 <div class="space-y-4 bg-amber-50/60 p-5 rounded-2xl border border-amber-200">
                     <h3 class="font-bold text-slate-800 text-base flex items-center">
                         <i class="fas fa-user-clock text-amber-600 mr-2"></i> คำขอลงทะเบียนในระบบ Google Sheets (<span id="pending-users-count">0</span>)
@@ -511,7 +594,6 @@
                     </div>
                 </div>
 
-                <!-- Settings Officers & Signatures -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                         <h3 class="font-bold text-slate-800 text-sm flex items-center"><i class="fas fa-user-check text-amber-600 mr-2"></i> ข้อมูลและลายเซ็นผู้อนุมัติ</h3>
@@ -554,7 +636,6 @@
 
                 <hr class="border-slate-200">
 
-                <!-- Manage Departments -->
                 <div class="space-y-4">
                     <h3 class="font-bold text-slate-800 text-base flex items-center"><i class="fas fa-building text-emerald-600 mr-2"></i> รายการหน่วยงานผู้ขอเบิก (Google Sheet Realtime)</h3>
                     
@@ -583,7 +664,7 @@
 
     </main>
 
-    <!-- MODAL: REGISTRATION -->
+    <!-- MODALS -->
     <div id="register-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
@@ -612,7 +693,6 @@
         </div>
     </div>
 
-    <!-- MODAL: PRE-APPROVAL INSPECTION -->
     <div id="inspect-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-amber-800 text-white px-6 py-4 flex justify-between items-center">
@@ -623,7 +703,6 @@
         </div>
     </div>
 
-    <!-- MODAL: RECEIPT POPUP -->
     <div id="receipt-popup-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-center">
             <div class="flex justify-between items-center border-b border-slate-200 pb-3">
@@ -641,7 +720,6 @@
         </div>
     </div>
 
-    <!-- MODAL: PDF -->
     <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
             <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center no-print">
@@ -659,7 +737,6 @@
         </div>
     </div>
 
-    <!-- MODAL: DISPENSE -->
     <div id="dispense-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col">
             <div class="bg-blue-900 text-white px-6 py-4 flex justify-between items-center">
@@ -670,7 +747,6 @@
         </div>
     </div>
 
-    <!-- HIDDEN RECEIPT TEMPLATE WITH LOGO -->
     <div id="receipt-capture-container" style="position: absolute; left: -9999px; top: -9999px;">
         <div id="receipt-card" style="width: 600px; background: #ffffff; padding: 30px; font-family: 'Prompt', 'Kanit', sans-serif; border: 2px solid #10b981; border-radius: 16px; color: #1e293b;">
             <div style="text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
@@ -698,9 +774,8 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC REALTIME (NO LOCALSTORAGE) -->
+    <!-- JAVASCRIPT LOGIC REALTIME -->
     <script>
-        // รายการยาเริ่มต้นกรณี Sheet ยังไม่มีข้อมูล
         let DRUG_CATALOG = [
             { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด", image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80" },
             { id: 2, name: "Chlorpheniramine 4 mg. (ยาแก้แพ้ ลดผื่นคัน ลดน้ำมูก)", maxQty: 30, unit: "เม็ด", image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&auto=format&fit=crop&q=80" },
@@ -731,18 +806,16 @@
                 approverSignature: "",
                 dispenserName: "นางสาววรรณภา รักษาดี",
                 dispenserPos: "เจ้าหน้าที่สถานพยาบาล",
-                gssUrl: "https://script.google.com/macros/s/AKfycbxStsFfTfCNh7sJgPcffkNlJtzeGxKNq1MktBxdaFvu9hkvQvVZ0fH8EhZZdJfsQxpm/exec"
+                gssUrl: "https://script.google.com/macros/s/AKfycbwknmo8owx2kHIeAN9D6nTx8HQ6CTDtySlJGFM4fcmDaT9XIk3JEPluRX1s1TaKMYeb/exec"
             },
-            auth: {
-                admin: false,
-                dispense: false,
-                approve: false
-            },
+            auth: { admin: false, dispense: false, approve: false },
             usersFromSheet: []
         };
 
         let currentFilterStatus = 'all';
         let latestReceiptDataUrl = null;
+        let progressInterval = null;
+
         let sigPads = {
             req: { canvas: null, ctx: null, drawing: false, hasDrawn: false },
             'setting-approver': { canvas: null, ctx: null, drawing: false, hasDrawn: false },
@@ -758,10 +831,8 @@
             initSignaturePad('req');
             initSignaturePad('setting-approver');
             
-            // ดึงข้อมูลครั้งแรกเมื่อเปิดเว็บ
             fetchDataFromSheet(true);
 
-            // ตั้งระบบ Realtime Polling ซิงค์ข้อมูลอัตโนมัติทุกๆ 8 วินาที
             setInterval(() => {
                 fetchDataFromSheet(false);
             }, 8000);
@@ -769,10 +840,35 @@
             switchTab('home');
         });
 
-        function showLoading(show) {
+        // Loading Overlay with Progress Bar % Animation
+        function showLoading(show, targetPercent = 90) {
             const el = document.getElementById('loading-overlay');
-            if (show) el.classList.remove('hidden');
-            else el.classList.add('hidden');
+            const bar = document.getElementById('loading-progress-bar');
+            const txt = document.getElementById('loading-progress-text');
+
+            if (show) {
+                el.classList.remove('hidden');
+                let current = 10;
+                bar.style.width = current + '%';
+                txt.innerText = current + '%';
+
+                if (progressInterval) clearInterval(progressInterval);
+                progressInterval = setInterval(() => {
+                    if (current < targetPercent) {
+                        current += Math.floor(Math.random() * 8) + 3;
+                        if (current > targetPercent) current = targetPercent;
+                        bar.style.width = current + '%';
+                        txt.innerText = current + '%';
+                    }
+                }, 150);
+            } else {
+                if (progressInterval) clearInterval(progressInterval);
+                bar.style.width = '100%';
+                txt.innerText = '100%';
+                setTimeout(() => {
+                    el.classList.add('hidden');
+                }, 300);
+            }
         }
 
         function showToast(title, msg) {
@@ -787,7 +883,7 @@
             const url = appState.settings.gssUrl;
             if (!url) return;
 
-            if (showSpinner) showLoading(true);
+            if (showSpinner) showLoading(true, 85);
 
             try {
                 const res = await fetch(`${url}?action=getData`, { method: 'GET' });
@@ -909,7 +1005,7 @@
             const url = appState.settings.gssUrl;
             if (!url) return;
 
-            showLoading(true);
+            showLoading(true, 90);
             const postData = {
                 action: "saveRequest",
                 payload: {
@@ -953,7 +1049,7 @@
             const url = appState.settings.gssUrl;
             if (!url) return;
 
-            showLoading(true);
+            showLoading(true, 90);
             try {
                 await fetch(url, {
                     method: 'POST',
@@ -1065,7 +1161,7 @@
 
             const url = appState.settings.gssUrl;
             if (url) {
-                showLoading(true);
+                showLoading(true, 85);
                 try {
                     await fetch(url, {
                         method: 'POST',
@@ -1080,7 +1176,7 @@
                         })
                     });
                     closeRegisterModal();
-                    showToast("สำเร็จ", "ส่งคำขอลงทะเบียนไปยัง Google Sheets เรียบร้อยแล้ว กรอยืนยันสิทธิ์จาก Admin");
+                    showToast("สำเร็จ", "ส่งคำขอลงทะเบียนไปยัง Google Sheets เรียบร้อยแล้ว");
                     setTimeout(() => fetchDataFromSheet(false), 1000);
                 } catch (err) {
                     showToast("ข้อผิดพลาด", "ไม่สามารถส่งข้อมูลลงทะเบียนได้");
@@ -1127,7 +1223,7 @@
             const url = appState.settings.gssUrl;
             if (!url) return;
 
-            showLoading(true);
+            showLoading(true, 85);
             try {
                 await fetch(url, {
                     method: 'POST',
@@ -1205,7 +1301,7 @@
                         <input type="checkbox" id="drug-chk-${drug.id}" onchange="toggleDrugQty(${drug.id})" class="w-4 h-4 text-emerald-600 rounded">
                     </td>
                     <td class="p-3 flex items-center space-x-3">
-                        <img src="${drug.image}" class="w-10 h-10 object-cover rounded-lg border border-slate-200" alt="">
+                        <img src="${drug.image}" class="w-10 h-10 object-cover rounded-lg border border-slate-200 shadow-sm" alt="">
                         <div>
                             <span class="font-bold text-slate-700 mr-1">${index + 1}.</span>
                             <span class="text-slate-800 font-medium">${drug.name}</span>
@@ -1757,6 +1853,7 @@
             showToast("สำเร็จ", "บันทึกการจ่ายยาเรียบร้อยแล้ว ซิงค์ลง Google Sheet ทันที");
         }
 
+        // Render Catalog Cards with File Image Upload Option
         function renderDrugCatalog() {
             const grid = document.getElementById('drug-catalog-grid');
             if (!grid) return;
@@ -1772,8 +1869,49 @@
                         </div>
                         <p class="text-xs text-slate-500">จำนวนสูงสุดที่ขอเบิกได้: <strong class="text-slate-700">${d.maxQty} ${d.unit}</strong></p>
                     </div>
+                    <label class="w-full py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 cursor-pointer shadow-xs">
+                        <i class="fas fa-upload text-emerald-600"></i><span>อัปโหลดไฟล์รูปภาพยา</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="uploadDrugImage(event, ${d.id})">
+                    </label>
                 </div>
             `).join('');
+        }
+
+        // Drug Image Upload Handler & Sync to Google Sheets
+        function uploadDrugImage(event, id) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const imageBase64 = e.target.result;
+                const drug = DRUG_CATALOG.find(d => d.id === id);
+                if (drug) {
+                    drug.image = imageBase64;
+                    renderDrugCatalog();
+                    renderDrugItemsForm();
+
+                    const url = appState.settings.gssUrl;
+                    if (url) {
+                        showLoading(true, 85);
+                        try {
+                            await fetch(url, {
+                                method: 'POST',
+                                mode: 'no-cors',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ action: 'updateDrugImage', id: id, image: imageBase64 })
+                            });
+                            showToast("สำเร็จ", "อัปโหลดรูปภาพยาและซิงค์ลง Google Sheet เรียบร้อยแล้ว");
+                            setTimeout(() => fetchDataFromSheet(false), 1000);
+                        } catch (err) {
+                            showToast("ข้อผิดพลาด", "ไม่สามารถอัปโหลดรูปภาพไปยัง Google Sheetได้");
+                        } finally {
+                            showLoading(false);
+                        }
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
         async function savePeopleSettings() {
@@ -1786,7 +1924,7 @@
             const url = appState.settings.gssUrl;
             if (!url) return;
 
-            showLoading(true);
+            showLoading(true, 85);
             try {
                 const settingsMap = [
                     { key: 'Approver_Name', value: appState.settings.approverName },
@@ -1843,7 +1981,7 @@
             const url = appState.settings.gssUrl;
             if (!url) return;
 
-            showLoading(true);
+            showLoading(true, 85);
             try {
                 await fetch(url, {
                     method: 'POST',
@@ -1869,7 +2007,7 @@
             const url = appState.settings.gssUrl;
             if (!url) return;
 
-            showLoading(true);
+            showLoading(true, 85);
             try {
                 await fetch(url, {
                     method: 'POST',
@@ -1892,7 +2030,7 @@
                 const url = appState.settings.gssUrl;
                 if (!url) return;
 
-                showLoading(true);
+                showLoading(true, 85);
                 try {
                     await fetch(url, {
                         method: 'POST',
