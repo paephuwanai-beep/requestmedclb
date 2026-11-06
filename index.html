@@ -50,7 +50,7 @@
                 width: 210mm !important;
                 height: 297mm !important;
                 margin: 0 !important;
-                padding: 8mm 10mm !important;
+                padding: 6mm 8mm !important;
                 box-sizing: border-box !important;
                 box-shadow: none !important;
                 page-break-after: avoid !important;
@@ -162,16 +162,14 @@
     </nav>
 
     <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full pb-24 md:pb-6">
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full pb-24 md:pb-6 space-y-6">
 
         <!-- TAB 1: HOME DASHBOARD -->
         <section id="tab-home" class="tab-content space-y-6">
-            <!-- Hero Banner with Updated Description -->
             <div class="bg-gradient-to-r from-emerald-800 to-teal-700 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center">
                 <div class="space-y-3 mb-4 md:mb-0">
                     <span class="bg-emerald-600/60 text-emerald-100 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
                     <h2 class="text-2xl md:text-3xl font-bold">Request MED+ ระบบขอเบิกยาและเวชภัณฑ์</h2>
-                    <!-- Updated Text -->
                     <p class="text-emerald-100 text-sm max-w-2xl font-medium">
                         ระบบบันทึกขอเบิกยาและเวชภัณฑ์ออนไลน์ พัฒนาโดย สถานพยาบาลเขื่อนจุฬาภรณ์
                     </p>
@@ -188,7 +186,41 @@
                 </div>
             </div>
 
-            <!-- New Graphic Step-by-Step Flow Chart -->
+            <!-- Emergency Contact Section (Added from Image 2) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center">
+                        <i class="fas fa-phone-alt text-rose-600 mr-2"></i> โทรฉุกเฉิน
+                    </h3>
+                    <p class="text-xs text-slate-500">แตะที่การ์ดเพื่อโทรออกทันที</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Emergency 1669 Card -->
+                    <a href="tel:1669" class="bg-gradient-to-br from-rose-50 to-pink-50 p-5 rounded-2xl border border-rose-200 flex items-center space-x-4 shadow-xs hover:shadow-md transition group">
+                        <div class="w-14 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
+                            <i class="fas fa-phone-volume"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider">สายด่วนแพทย์ฉุกเฉิน</span>
+                            <h4 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">1669</h4>
+                        </div>
+                    </a>
+
+                    <!-- Clinic Contact Card -->
+                    <a href="tel:044861668" class="bg-gradient-to-br from-emerald-50 to-teal-50 p-5 rounded-2xl border border-emerald-200 flex items-center space-x-4 shadow-xs hover:shadow-md transition group">
+                        <div class="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
+                            <i class="fas fa-hospital-user"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
+                            <h4 class="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">044-861-668</h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5 font-medium">(ต่อเบอร์ภายใน 753-2561)</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Graphic Step-by-Step Flow Chart -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
                 <div class="border-b border-slate-100 pb-3 flex items-center space-x-2">
                     <div class="p-2 bg-emerald-100 text-emerald-700 rounded-xl text-sm font-bold"><i class="fas fa-stream"></i></div>
@@ -199,7 +231,6 @@
                 </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                    <!-- Step 1 -->
                     <div class="relative bg-gradient-to-b from-emerald-50/50 to-white p-5 rounded-2xl border border-emerald-100 flex flex-col justify-between hover:shadow-md transition">
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
@@ -214,7 +245,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 2 -->
                     <div class="relative bg-gradient-to-b from-blue-50/50 to-white p-5 rounded-2xl border border-blue-100 flex flex-col justify-between hover:shadow-md transition">
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
@@ -229,7 +259,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 3 -->
                     <div class="relative bg-gradient-to-b from-amber-50/50 to-white p-5 rounded-2xl border border-amber-100 flex flex-col justify-between hover:shadow-md transition">
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
@@ -244,7 +273,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 4 -->
                     <div class="relative bg-gradient-to-b from-purple-50/50 to-white p-5 rounded-2xl border border-purple-100 flex flex-col justify-between hover:shadow-md transition">
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
@@ -536,7 +564,7 @@
             </div>
         </section>
 
-        <!-- TAB 6: CATALOG (With Image Upload Feature) -->
+        <!-- TAB 6: CATALOG -->
         <section id="tab-catalog" class="tab-content hidden space-y-6">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
                 <div class="border-b border-slate-200 pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
@@ -774,7 +802,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC REALTIME -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         let DRUG_CATALOG = [
             { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด", image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80" },
@@ -806,7 +834,7 @@
                 approverSignature: "",
                 dispenserName: "นางสาววรรณภา รักษาดี",
                 dispenserPos: "เจ้าหน้าที่สถานพยาบาล",
-                gssUrl: "https://script.google.com/macros/s/AKfycbwknmo8owx2kHIeAN9D6nTx8HQ6CTDtySlJGFM4fcmDaT9XIk3JEPluRX1s1TaKMYeb/exec"
+                gssUrl: "https://script.google.com/macros/s/AKfycbzWEiCavg8g-oru4shcUvcSq4ufQXN48NefkmzWD5ilq8n1ilA4zDpEcll5T0gPRvdN/exec"
             },
             auth: { admin: false, dispense: false, approve: false },
             usersFromSheet: []
@@ -840,7 +868,6 @@
             switchTab('home');
         });
 
-        // Loading Overlay with Progress Bar % Animation
         function showLoading(show, targetPercent = 90) {
             const el = document.getElementById('loading-overlay');
             const bar = document.getElementById('loading-progress-bar');
@@ -848,7 +875,7 @@
 
             if (show) {
                 el.classList.remove('hidden');
-                let current = 10;
+                let current = 15;
                 bar.style.width = current + '%';
                 txt.innerText = current + '%';
 
@@ -889,7 +916,6 @@
                 const res = await fetch(`${url}?action=getData`, { method: 'GET' });
                 const data = await res.json();
                 
-                // 1. Settings Data
                 if (data && data.settings && data.settings.length > 0) {
                     data.settings.forEach(s => {
                         const k = (s.Key || s.key || "").toString().trim();
@@ -921,20 +947,17 @@
                     }
                 }
                 
-                // 2. Users Data
                 if (data && data.users) {
                     appState.usersFromSheet = data.users;
                     if (appState.auth.admin) renderPendingUsersTable();
                 }
 
-                // 3. Departments Data
                 if (data && data.departments && data.departments.length > 0) {
                     appState.departments = data.departments.map(d => d.DepartmentName || d.DeptName || Object.values(d)[0]).filter(Boolean);
                     renderDepartmentsSelect();
                     if (appState.auth.admin) renderDepartmentTable();
                 }
 
-                // 4. MedicineCatalog Data
                 if (data && data.medicines && data.medicines.length > 0) {
                     DRUG_CATALOG = data.medicines.map((m, idx) => ({
                         id: m.ItemID || idx + 1,
@@ -947,7 +970,6 @@
                     renderDrugCatalog();
                 }
 
-                // 5. Requests Data
                 if (data && data.requests) {
                     appState.requests = data.requests.map(r => {
                         let parsedItems = [];
@@ -1281,7 +1303,7 @@
             }
             const mobAppr = document.getElementById('mob-badge-approve');
             if (mobAppr) {
-                if (pendingApproveCount > 0) { mobAppr.innerText = pendingApproveCount; mobAppr.classList.remove('hidden'); }
+                if (pendingApproveCount > 0) { mobAppr.innerText = pendingApproveCount; mobAppr.classList.add('hidden'); }
                 else mobAppr.classList.add('hidden');
             }
         }
@@ -1399,9 +1421,9 @@
         }
 
         function loadSampleData() {
-            document.getElementById('req-name').value = "นายภูวนัย จุลนัน";
-            document.getElementById('req-idcard').value = "56789";
-            document.getElementById('req-phone').value = "0956465205";
+            document.getElementById('req-name').value = "นายพุฒิพงศ์ ไพรสิริ";
+            document.getElementById('req-idcard').value = "591051";
+            document.getElementById('req-phone').value = "753-2610";
             document.getElementById('req-recipient').value = "หธฬอ.ฟ";
             document.getElementById('req-position').value = "ช.6";
             document.getElementById('req-section').value = "หธฬอ.ฟ";
@@ -1412,7 +1434,7 @@
                 if (chk) {
                     chk.checked = true;
                     toggleDrugQty(id);
-                    document.getElementById(`drug-qty-${id}`).value = 10;
+                    document.getElementById(`drug-qty-${id}`).value = 30;
                 }
             });
             showToast("สำเร็จ", "เติมข้อมูลตัวอย่างแล้ว");
@@ -1443,7 +1465,7 @@
             let staffCount = 1;
 
             if (purposeType === 'reserve') {
-                staffCount = document.getElementById('purpose-workers').value || 10;
+                staffCount = document.getElementById('purpose-workers').value || 15;
                 purposeText = `เพื่อสำรองไว้ใช้ประจำหน่วยงาน (ผู้ปฏิบัติงาน ${staffCount} คน)`;
             } else {
                 const loc = document.getElementById('purpose-location').value || "ระบุสถานที่";
@@ -1853,7 +1875,6 @@
             showToast("สำเร็จ", "บันทึกการจ่ายยาเรียบร้อยแล้ว ซิงค์ลง Google Sheet ทันที");
         }
 
-        // Render Catalog Cards with File Image Upload Option
         function renderDrugCatalog() {
             const grid = document.getElementById('drug-catalog-grid');
             if (!grid) return;
@@ -1877,7 +1898,6 @@
             `).join('');
         }
 
-        // Drug Image Upload Handler & Sync to Google Sheets
         function uploadDrugImage(event, id) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2048,6 +2068,7 @@
             }
         }
 
+        // PDF Generation Code - Optimized EXACT FIT Form layout matching Image 1
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
@@ -2057,39 +2078,40 @@
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"][dateObj.getMonth()];
             const thaiYears = dateObj.getFullYear() + 543;
 
+            // 11 Rows Fixed Height for PDF Layout matching physical form
             let rowsHtml = '';
             for (let i = 0; i < 11; i++) {
                 const item = r.items && r.items[i] ? r.items[i] : null;
                 let isDispensed = r.status === 'completed' || r.status === 'pending_dispense';
                 rowsHtml += `
-                    <tr class="h-6 border-b border-slate-300 text-[12px] leading-tight">
-                        <td class="border-r border-slate-300 p-0.5 text-center w-7 font-sarabun">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-300 p-0.5 px-1.5 truncate max-w-[130px] font-sarabun">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-300 p-0.5 text-center font-bold w-12 font-sarabun">${item ? item.qty : ''}</td>
-                        <td class="border-r border-slate-300 p-0.5 text-center w-12 font-sarabun">${item ? item.unit : ''}</td>
-                        <td class="border-r border-slate-300 p-0.5 text-center w-7 font-sarabun">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-300 p-0.5 px-1.5 truncate max-w-[130px] font-sarabun">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-300 p-0.5 text-center font-bold text-emerald-800 w-12 font-sarabun">${isDispensed && item ? item.qty : ''}</td>
-                        <td class="p-0.5 text-center w-12 font-sarabun">${item ? item.unit : ''}</td>
+                    <tr class="h-6 border-b border-slate-400 text-[11px] leading-tight">
+                        <td class="border-r border-slate-400 p-0.5 text-center w-6 font-sarabun">${item ? (i + 1) : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[130px] font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 text-center font-bold w-10 font-sarabun">${item ? item.qty : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 text-center w-6 font-sarabun">${item ? (i + 1) : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[130px] font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 text-center font-bold text-emerald-900 w-10 font-sarabun">${isDispensed && item ? item.qty : ''}</td>
+                        <td class="p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
                     </tr>
                 `;
             }
 
             let purposeRaw = r.purpose ? r.purpose.text : '';
             let deptName = r.departmentGroup || 'หน่วยงานผู้ขอเบิก';
-            let workerCount = r.staffCount || 10;
+            let workerCount = r.staffCount || 15;
             
             const matchWorkers = purposeRaw.match(/ผู้ปฏิบัติงาน\s*(\d+)\s*คน/);
             if (matchWorkers && matchWorkers[1]) workerCount = matchWorkers[1];
 
             let purposeHtml = `
-                <div class="space-y-1 text-xs">
+                <div class="space-y-0.5 text-[11px] font-sarabun">
                     <div class="flex items-center space-x-2">
-                        <span class="inline-block w-4 h-4 border border-black text-center text-[10px] leading-3 font-bold">✓</span>
+                        <span class="inline-block w-3.5 h-3.5 border border-black text-center text-[9px] leading-3 font-bold">✓</span>
                         <span>เพื่อสำรองไว้ใช้ประจำหน่วยงาน <strong class="underline">${deptName}</strong> ซึ่งมีผู้ปฏิบัติงานจำนวน <strong class="underline px-1">${workerCount}</strong> คน</span>
                     </div>
-                    <div class="flex items-center space-x-2 text-slate-400">
-                        <span class="inline-block w-4 h-4 border border-slate-400 text-center text-[10px] leading-3"></span>
+                    <div class="flex items-center space-x-2 text-slate-500">
+                        <span class="inline-block w-3.5 h-3.5 border border-slate-400 text-center text-[9px] leading-3"></span>
                         <span>เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ ................................................... ประมาณ ......... วัน สำหรับผู้เดินทางจำนวน ......... คน</span>
                     </div>
                 </div>
@@ -2097,58 +2119,57 @@
 
             const printableArea = document.getElementById('printable-area');
             printableArea.innerHTML = `
-                <div class="sarabun-font text-[13px] leading-tight">
-                    <div class="flex justify-between items-start font-bold mb-1">
+                <div class="sarabun-font text-[12px] leading-tight">
+                    <div class="flex justify-between items-start font-bold mb-0.5">
                         <div></div>
                         <div class="text-right">
-                            <p class="text-base font-bold leading-tight">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
-                            <p class="text-xs font-normal text-slate-600">แบบ กฟผ.-รพ.74</p>
+                            <p class="text-sm font-bold leading-tight">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
+                            <p class="text-[11px] font-normal text-slate-700">แบบ กฟผ.-รพ.74</p>
                         </div>
                     </div>
-                    <h2 class="text-center font-bold text-base mb-2 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
+                    <h2 class="text-center font-bold text-sm mb-1 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
                     
-                    <div class="flex justify-between text-xs mb-2 border-b border-slate-300 pb-1">
-                        <span>เลขที่ใบเบิก: <strong class="text-emerald-900">${r.id}</strong></span>
+                    <div class="flex justify-end text-[11px] mb-1">
                         <span>วันที่ <strong>${thaiDays}</strong> เดือน <strong>${thaiMonths}</strong> พ.ศ. <strong>${thaiYears}</strong></span>
                     </div>
 
-                    <div class="space-y-1 text-xs mb-2">
+                    <div class="space-y-0.5 text-[11px] mb-1">
                         <p>เรียน <strong>${r.recipient || 'หธฬอ.ฟ'}</strong></p>
-                        <div class="flex flex-wrap items-center gap-4">
+                        <div class="flex flex-wrap items-center justify-between">
                             <span>ข้าพเจ้า <strong>${r.name}</strong></span>
-                            <span>รหัสพนักงาน <strong>${r.idCard}</strong></span>
+                            <span>หมายเลขประจำตัว <strong>${r.idCard}</strong></span>
                         </div>
-                        <div class="flex flex-wrap gap-3">
+                        <div class="flex flex-wrap justify-between">
                             <span>ตำแหน่ง <strong>${r.position || 'ช.6'}</strong></span>
                             <span>แผนก <strong>${r.section || 'หธฬอ.ฟ'}</strong></span>
                             <span>กอง <strong>${r.division || 'กอง กฬอ-ฟ'}</strong></span>
-                            <span>ฝ่าย/หน่วยงาน <strong>${r.departmentSub || 'ฝ่าย อฟอ.'}</strong></span>
+                            <span>ฝ่าย <strong>${r.departmentSub || 'ฝ่าย อฟอ.'}</strong></span>
                             <span>โทรศัพท์ <strong>${r.phone}</strong></span>
                         </div>
-                        <p class="mt-1 font-semibold">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
+                        <p class="mt-0.5 font-semibold">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
                         
-                        <div class="pl-2 mt-1">
+                        <div class="pl-2">
                             ${purposeHtml}
                         </div>
                     </div>
                 </div>
 
-                <div class="my-1 flex-1 sarabun-font">
-                    <table class="w-full border-collapse border border-slate-400 text-xs">
+                <div class="my-0.5 sarabun-font">
+                    <table class="w-full border-collapse border border-slate-500 text-[11px]">
                         <thead>
-                            <tr class="bg-slate-100 border-b border-slate-400">
-                                <th colspan="4" class="border-r border-slate-400 p-1 text-center font-bold bg-emerald-50/60 text-emerald-950">รายการยาและเวชภัณฑ์ที่ขอเบิก</th>
-                                <th colspan="4" class="p-1 text-center font-bold bg-blue-50/60 text-blue-950">รายการยาและเวชภัณฑ์ที่สั่งจ่าย</th>
+                            <tr class="bg-slate-100 border-b border-slate-500">
+                                <th colspan="4" class="border-r border-slate-500 p-0.5 text-center font-bold text-slate-900">รายการยาและเวชภัณฑ์ที่ขอเบิก</th>
+                                <th colspan="4" class="p-0.5 text-center font-bold text-slate-900">รายการยาและเวชภัณฑ์ที่สั่งจ่าย</th>
                             </tr>
-                            <tr class="bg-slate-50 border-b border-slate-400 text-[11px]">
-                                <th class="border-r border-slate-400 p-0.5 w-7">ที่</th>
-                                <th class="border-r border-slate-400 p-0.5">รายการ</th>
-                                <th class="border-r border-slate-400 p-0.5 w-12">จำนวน</th>
-                                <th class="border-r border-slate-400 p-0.5 w-12">หน่วย</th>
-                                <th class="border-r border-slate-400 p-0.5 w-7">ที่</th>
-                                <th class="border-r border-slate-400 p-0.5">รายการ</th>
-                                <th class="border-r border-slate-400 p-0.5 w-12">จ่าย</th>
-                                <th class="p-0.5 w-12">หน่วย</th>
+                            <tr class="bg-slate-50 border-b border-slate-500 text-[10px]">
+                                <th class="border-r border-slate-500 p-0.5 w-6">ที่</th>
+                                <th class="border-r border-slate-500 p-0.5">รายการ</th>
+                                <th class="border-r border-slate-500 p-0.5 w-10">จำนวน</th>
+                                <th class="border-r border-slate-500 p-0.5 w-10">หน่วย</th>
+                                <th class="border-r border-slate-500 p-0.5 w-6">ที่</th>
+                                <th class="border-r border-slate-500 p-0.5">รายการ</th>
+                                <th class="border-r border-slate-500 p-0.5 w-10">จ่าย</th>
+                                <th class="p-0.5 w-10">หน่วย</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2157,42 +2178,49 @@
                     </table>
                 </div>
 
-                <!-- Signatures Section -->
-                <div class="space-y-2 mt-1 sarabun-font text-xs">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="border border-slate-400 p-2 rounded flex flex-col justify-between h-22 relative">
-                            <div class="text-center relative h-9 flex items-center justify-center">
-                                ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") ? `<img src="${r.signatures.requestor}" class="h-8 object-contain">` : '<span class="text-slate-400 text-[10px]">(ลงชื่อเรียบร้อยแล้ว)</span>'}
+                <!-- Exact Match Signature & Footnotes Layout matching Image 1 -->
+                <div class="sarabun-font text-[11px] mt-1 space-y-1">
+                    <div class="grid grid-cols-2 gap-2">
+                        <!-- Left Requestor Signature Box -->
+                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-20 relative">
+                            <div class="text-center text-[10px] text-slate-600">**(ลงชื่อ)...................................................ผู้ขอเบิก</div>
+                            <div class="text-center relative h-7 flex items-center justify-center">
+                                ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") ? `<img src="${r.signatures.requestor}" class="h-7 object-contain">` : `<span class="font-bold text-slate-900 text-xs">(${r.name})</span>`}
                             </div>
-                            <div class="text-center text-[11px]">
-                                <p>(ลงชื่อ)...................................................ผู้ขอเบิก</p>
-                                <p class="font-bold">(${r.name})</p>
-                            </div>
+                            <div class="text-center text-[10px] font-bold">(${r.name})</div>
                         </div>
 
-                        <div class="border border-slate-400 p-2 rounded flex flex-col justify-between h-22 relative">
-                            <div class="text-center relative h-9 flex items-center justify-center">
-                                ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") ? `<img src="${r.signatures.approver}" class="h-8 object-contain">` : (r.signatures.approver ? '<span class="text-slate-600 text-[10px] font-bold">(อนุมัติเรียบร้อยแล้ว)</span>' : '')}
+                        <!-- Right Approver Signature Box -->
+                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-20 relative">
+                            <div class="text-center text-[10px] text-slate-600">**(ลงชื่อ)...................................................ผู้อนุมัติ</div>
+                            <div class="text-center relative h-7 flex items-center justify-center">
+                                ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") ? `<img src="${r.signatures.approver}" class="h-7 object-contain">` : `<span class="font-bold text-slate-900 text-xs">(${appState.settings.approverName})</span>`}
                             </div>
-                            <div class="text-center text-[11px]">
-                                <p>(ลงชื่อ)...................................................ผู้อนุมัติ</p>
-                                <p class="font-bold">(${appState.settings.approverName})</p>
-                                <p class="text-[9px] text-slate-600">${appState.settings.approverPos}</p>
+                            <div class="text-center text-[10px]">
+                                <span class="font-bold">(${appState.settings.approverName})</span><br>
+                                <span class="text-[9px]">ตำแหน่ง <strong>${appState.settings.approverPos}</strong></span><br>
+                                <span class="text-[9px]">.........../........../..........</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 pt-0.5">
-                        <div class="border border-slate-400 p-2 rounded flex flex-col justify-between h-18">
-                            <p class="font-medium text-[10px]">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
-                            <div class="text-center relative text-[11px]">
-                                ${r.signatures && r.signatures.receiver && r.signatures.receiver.startsWith("data:image") ? `<img src="${r.signatures.receiver}" class="h-6 object-contain mx-auto">` : ''}
-                                <p>(ลงชื่อ)...................................................ผู้รับยา (${r.name})</p>
+                    <div class="grid grid-cols-2 gap-2 pt-0.5">
+                        <!-- Received Box -->
+                        <div class="border border-slate-500 p-1.5 rounded flex flex-col justify-between h-18 text-[10px]">
+                            <p class="leading-tight">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
+                            <div class="text-center relative">
+                                ${r.signatures && r.signatures.receiver && r.signatures.receiver.startsWith("data:image") ? `<img src="${r.signatures.receiver}" class="h-5 object-contain mx-auto">` : ''}
+                                <p class="mt-0.5">(ลงชื่อ)...................................................ผู้รับยา</p>
+                                <p class="font-bold">(${r.name})</p>
                             </div>
                         </div>
-                        <div class="text-[10px] text-slate-700 p-1.5 border border-slate-300 rounded bg-slate-50 flex flex-col justify-center leading-tight">
+
+                        <!-- Footnotes Box (Exact text matching physical form) -->
+                        <div class="text-[9px] text-slate-800 p-1 border border-slate-400 rounded bg-slate-50/80 leading-tight space-y-0.5">
                             <p class="font-bold">หมายเหตุ</p>
-                            <p>(1) แบบ กฟผ.-รพ.74 ให้จัดทำครั้งละ 2 ฉบับ ต้นฉบับ - สถานพยาบาล / สำเนา - ผู้ขอเบิก</p>
+                            <p>(1) <strong>*</strong> อพอ. ผู้ที่ อพอ. มอบหมาย กกม-ห. หัวหน้าแผนกสุขภาพอนามัยในส่วนภูมิภาค หรือผู้ปฏิบัติงานด้านการแพทย์และอนามัยที่ผู้อำนวยการฝ่ายแพทย์และอนามัย มอบหมาย</p>
+                            <p>(2) <strong>**</strong> หัวหน้าแผนกขึ้นไป หรือหัวหน้าสถานีไฟฟ้าแรงสูง</p>
+                            <p>(3) แบบ กฟผ.-รพ.74 ให้จัดทำครั้งละ 2 ฉบับ ต้นฉบับ - สถานพยาบาลของ กฟผ. ที่จ่ายยาและหรือเวชภัณฑ์ / สำเนา - ผู้ขอเบิก</p>
                         </div>
                     </div>
                 </div>
