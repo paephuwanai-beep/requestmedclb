@@ -50,7 +50,7 @@
                 width: 210mm !important;
                 height: 297mm !important;
                 margin: 0 !important;
-                padding: 6mm 8mm !important;
+                padding: 5mm 8mm !important;
                 box-sizing: border-box !important;
                 box-shadow: none !important;
                 page-break-after: avoid !important;
@@ -73,7 +73,7 @@
         </div>
     </div>
 
-    <!-- Loading Overlay with Progress Bar & Updated Text -->
+    <!-- Loading Overlay with Progress Bar & Text -->
     <div id="loading-overlay" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
         <div class="bg-white px-8 py-6 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full space-y-4 text-center">
             <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl animate-pulse">
@@ -83,7 +83,6 @@
                 <h3 class="font-bold text-slate-800 text-base">กำลังเชื่อมต่อ กรุณารอสักครู่</h3>
                 <p id="loading-subtext" class="text-xs text-slate-500 mt-1">กำลังโหลดและซิงค์ข้อมูลกับฐานข้อมูล...</p>
             </div>
-            <!-- Progress Bar % -->
             <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden p-0.5 border border-slate-200">
                 <div id="loading-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-600 h-full rounded-full transition-all duration-300" style="width: 15%;"></div>
             </div>
@@ -186,40 +185,6 @@
                 </div>
             </div>
 
-            <!-- Emergency Contact Section (Added from Image 2) -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                <div>
-                    <h3 class="font-bold text-slate-900 text-lg flex items-center">
-                        <i class="fas fa-phone-alt text-rose-600 mr-2"></i> โทรฉุกเฉิน
-                    </h3>
-                    <p class="text-xs text-slate-500">แตะที่การ์ดเพื่อโทรออกทันที</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Emergency 1669 Card -->
-                    <a href="tel:1669" class="bg-gradient-to-br from-rose-50 to-pink-50 p-5 rounded-2xl border border-rose-200 flex items-center space-x-4 shadow-xs hover:shadow-md transition group">
-                        <div class="w-14 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
-                            <i class="fas fa-phone-volume"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider">สายด่วนแพทย์ฉุกเฉิน</span>
-                            <h4 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">1669</h4>
-                        </div>
-                    </a>
-
-                    <!-- Clinic Contact Card -->
-                    <a href="tel:044861668" class="bg-gradient-to-br from-emerald-50 to-teal-50 p-5 rounded-2xl border border-emerald-200 flex items-center space-x-4 shadow-xs hover:shadow-md transition group">
-                        <div class="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
-                            <i class="fas fa-hospital-user"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
-                            <h4 class="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">044-861-668</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5 font-medium">(ต่อเบอร์ภายใน 753-2561)</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
             <!-- Graphic Step-by-Step Flow Chart -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
                 <div class="border-b border-slate-100 pb-3 flex items-center space-x-2">
@@ -318,6 +283,38 @@
                         <p class="text-slate-500 text-xs font-medium">รายการยาในระบบ</p>
                         <h3 id="stat-catalog-count" class="text-2xl font-bold text-slate-800">11 รายการ</h3>
                     </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact Section (Moved to Bottom of HOME as requested) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center">
+                        <i class="fas fa-phone-alt text-rose-600 mr-2"></i> โทรฉุกเฉิน
+                    </h3>
+                    <p class="text-xs text-slate-500">แตะที่การ์ดเพื่อโทรออกทันที</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="tel:1669" class="bg-gradient-to-br from-rose-50 to-pink-50 p-5 rounded-2xl border border-rose-200 flex items-center space-x-4 shadow-xs hover:shadow-md transition group">
+                        <div class="w-14 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
+                            <i class="fas fa-phone-volume"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider">สายด่วนแพทย์ฉุกเฉิน</span>
+                            <h4 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">1669</h4>
+                        </div>
+                    </a>
+
+                    <a href="tel:044861668" class="bg-gradient-to-br from-emerald-50 to-teal-50 p-5 rounded-2xl border border-emerald-200 flex items-center space-x-4 shadow-xs hover:shadow-md transition group">
+                        <div class="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition">
+                            <i class="fas fa-hospital-user"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สถานพยาบาลเขื่อนจุฬาภรณ์</span>
+                            <h4 class="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">044-861-668</h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5 font-medium">(ต่อเบอร์ภายใน 753-2561)</p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </section>
@@ -760,7 +757,7 @@
                 </div>
             </div>
             <div class="p-6 overflow-y-auto bg-slate-100 flex justify-center">
-                <div id="printable-area" class="bg-white w-[210mm] h-[296mm] p-[8mm_10mm] shadow-xl text-slate-900 text-[13px] leading-snug font-sans relative flex flex-col justify-between box-border overflow-hidden"></div>
+                <div id="printable-area" class="bg-white w-[210mm] h-[296mm] p-[6mm_10mm] shadow-xl text-slate-900 text-[12px] leading-snug font-sans relative flex flex-col justify-between box-border overflow-hidden"></div>
             </div>
         </div>
     </div>
@@ -829,8 +826,8 @@
                 "โรงไฟฟ้าเขื่อนจุฬาภรณ์"
             ],
             settings: {
-                approverName: "นายสมศักดิ์ ผู้ทรงคุณ",
-                approverPos: "หัวหน้าแผนกธุรการ",
+                approverName: "นางจินตนา ตามูล",
+                approverPos: "พช.6 (หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์)",
                 approverSignature: "",
                 dispenserName: "นางสาววรรณภา รักษาดี",
                 dispenserPos: "เจ้าหน้าที่สถานพยาบาล",
@@ -1303,7 +1300,7 @@
             }
             const mobAppr = document.getElementById('mob-badge-approve');
             if (mobAppr) {
-                if (pendingApproveCount > 0) { mobAppr.innerText = pendingApproveCount; mobAppr.classList.add('hidden'); }
+                if (pendingApproveCount > 0) { mobAppr.innerText = pendingApproveCount; mobAppr.classList.remove('hidden'); }
                 else mobAppr.classList.add('hidden');
             }
         }
@@ -1421,9 +1418,9 @@
         }
 
         function loadSampleData() {
-            document.getElementById('req-name').value = "นายพุฒิพงศ์ ไพรสิริ";
-            document.getElementById('req-idcard').value = "591051";
-            document.getElementById('req-phone').value = "753-2610";
+            document.getElementById('req-name').value = "นายนคร มากับใคร";
+            document.getElementById('req-idcard').value = "510012";
+            document.getElementById('req-phone').value = "0956465208";
             document.getElementById('req-recipient').value = "หธฬอ.ฟ";
             document.getElementById('req-position').value = "ช.6";
             document.getElementById('req-section').value = "หธฬอ.ฟ";
@@ -1465,7 +1462,7 @@
             let staffCount = 1;
 
             if (purposeType === 'reserve') {
-                staffCount = document.getElementById('purpose-workers').value || 15;
+                staffCount = document.getElementById('purpose-workers').value || 10;
                 purposeText = `เพื่อสำรองไว้ใช้ประจำหน่วยงาน (ผู้ปฏิบัติงาน ${staffCount} คน)`;
             } else {
                 const loc = document.getElementById('purpose-location').value || "ระบุสถานที่";
@@ -2068,7 +2065,7 @@
             }
         }
 
-        // PDF Generation Code - Optimized EXACT FIT Form layout matching Image 1
+        // Perfect Proportion PDF Generation matching Request No. top-left & clean single-name signatures
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
@@ -2078,28 +2075,27 @@
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"][dateObj.getMonth()];
             const thaiYears = dateObj.getFullYear() + 543;
 
-            // 11 Rows Fixed Height for PDF Layout matching physical form
             let rowsHtml = '';
             for (let i = 0; i < 11; i++) {
                 const item = r.items && r.items[i] ? r.items[i] : null;
                 let isDispensed = r.status === 'completed' || r.status === 'pending_dispense';
                 rowsHtml += `
-                    <tr class="h-6 border-b border-slate-400 text-[11px] leading-tight">
+                    <tr class="h-5 border-b border-slate-400 text-[11px] leading-tight">
                         <td class="border-r border-slate-400 p-0.5 text-center w-6 font-sarabun">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[130px] font-sarabun">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 text-center font-bold w-10 font-sarabun">${item ? item.qty : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[125px] font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 text-center font-bold w-9 font-sarabun">${item ? item.qty : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 text-center w-9 font-sarabun">${item ? item.unit : ''}</td>
                         <td class="border-r border-slate-400 p-0.5 text-center w-6 font-sarabun">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[130px] font-sarabun">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 text-center font-bold text-emerald-900 w-10 font-sarabun">${isDispensed && item ? item.qty : ''}</td>
-                        <td class="p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[125px] font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-slate-400 p-0.5 text-center font-bold text-emerald-900 w-9 font-sarabun">${isDispensed && item ? item.qty : ''}</td>
+                        <td class="p-0.5 text-center w-9 font-sarabun">${item ? item.unit : ''}</td>
                     </tr>
                 `;
             }
 
             let purposeRaw = r.purpose ? r.purpose.text : '';
             let deptName = r.departmentGroup || 'หน่วยงานผู้ขอเบิก';
-            let workerCount = r.staffCount || 15;
+            let workerCount = r.staffCount || 10;
             
             const matchWorkers = purposeRaw.match(/ผู้ปฏิบัติงาน\s*(\d+)\s*คน/);
             if (matchWorkers && matchWorkers[1]) workerCount = matchWorkers[1];
@@ -2121,7 +2117,9 @@
             printableArea.innerHTML = `
                 <div class="sarabun-font text-[12px] leading-tight">
                     <div class="flex justify-between items-start font-bold mb-0.5">
-                        <div></div>
+                        <div class="text-[11px] text-emerald-900 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            เลขที่คำขอ: ${r.id}
+                        </div>
                         <div class="text-right">
                             <p class="text-sm font-bold leading-tight">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
                             <p class="text-[11px] font-normal text-slate-700">แบบ กฟผ.-รพ.74</p>
@@ -2164,12 +2162,12 @@
                             <tr class="bg-slate-50 border-b border-slate-500 text-[10px]">
                                 <th class="border-r border-slate-500 p-0.5 w-6">ที่</th>
                                 <th class="border-r border-slate-500 p-0.5">รายการ</th>
-                                <th class="border-r border-slate-500 p-0.5 w-10">จำนวน</th>
-                                <th class="border-r border-slate-500 p-0.5 w-10">หน่วย</th>
+                                <th class="border-r border-slate-500 p-0.5 w-9">จำนวน</th>
+                                <th class="border-r border-slate-500 p-0.5 w-9">หน่วย</th>
                                 <th class="border-r border-slate-500 p-0.5 w-6">ที่</th>
                                 <th class="border-r border-slate-500 p-0.5">รายการ</th>
-                                <th class="border-r border-slate-500 p-0.5 w-10">จ่าย</th>
-                                <th class="p-0.5 w-10">หน่วย</th>
+                                <th class="border-r border-slate-500 p-0.5 w-9">จ่าย</th>
+                                <th class="p-0.5 w-9">หน่วย</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2178,35 +2176,34 @@
                     </table>
                 </div>
 
-                <!-- Exact Match Signature & Footnotes Layout matching Image 1 -->
+                <!-- Balanced Signature & Clean Name Structure -->
                 <div class="sarabun-font text-[11px] mt-1 space-y-1">
                     <div class="grid grid-cols-2 gap-2">
                         <!-- Left Requestor Signature Box -->
-                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-20 relative">
+                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-18 relative">
                             <div class="text-center text-[10px] text-slate-600">**(ลงชื่อ)...................................................ผู้ขอเบิก</div>
-                            <div class="text-center relative h-7 flex items-center justify-center">
-                                ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") ? `<img src="${r.signatures.requestor}" class="h-7 object-contain">` : `<span class="font-bold text-slate-900 text-xs">(${r.name})</span>`}
+                            <div class="text-center relative h-6 flex items-center justify-center">
+                                ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") ? `<img src="${r.signatures.requestor}" class="h-6 object-contain">` : ''}
                             </div>
                             <div class="text-center text-[10px] font-bold">(${r.name})</div>
                         </div>
 
                         <!-- Right Approver Signature Box -->
-                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-20 relative">
+                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-18 relative">
                             <div class="text-center text-[10px] text-slate-600">**(ลงชื่อ)...................................................ผู้อนุมัติ</div>
-                            <div class="text-center relative h-7 flex items-center justify-center">
-                                ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") ? `<img src="${r.signatures.approver}" class="h-7 object-contain">` : `<span class="font-bold text-slate-900 text-xs">(${appState.settings.approverName})</span>`}
+                            <div class="text-center relative h-6 flex items-center justify-center">
+                                ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") ? `<img src="${r.signatures.approver}" class="h-6 object-contain">` : ''}
                             </div>
                             <div class="text-center text-[10px]">
                                 <span class="font-bold">(${appState.settings.approverName})</span><br>
-                                <span class="text-[9px]">ตำแหน่ง <strong>${appState.settings.approverPos}</strong></span><br>
-                                <span class="text-[9px]">.........../........../..........</span>
+                                <span class="text-[9px]">ตำแหน่ง <strong>${appState.settings.approverPos}</strong></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 pt-0.5">
                         <!-- Received Box -->
-                        <div class="border border-slate-500 p-1.5 rounded flex flex-col justify-between h-18 text-[10px]">
+                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-17 text-[10px]">
                             <p class="leading-tight">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
                             <div class="text-center relative">
                                 ${r.signatures && r.signatures.receiver && r.signatures.receiver.startsWith("data:image") ? `<img src="${r.signatures.receiver}" class="h-5 object-contain mx-auto">` : ''}
@@ -2215,7 +2212,7 @@
                             </div>
                         </div>
 
-                        <!-- Footnotes Box (Exact text matching physical form) -->
+                        <!-- Footnotes Box -->
                         <div class="text-[9px] text-slate-800 p-1 border border-slate-400 rounded bg-slate-50/80 leading-tight space-y-0.5">
                             <p class="font-bold">หมายเหตุ</p>
                             <p>(1) <strong>*</strong> อพอ. ผู้ที่ อพอ. มอบหมาย กกม-ห. หัวหน้าแผนกสุขภาพอนามัยในส่วนภูมิภาค หรือผู้ปฏิบัติงานด้านการแพทย์และอนามัยที่ผู้อำนวยการฝ่ายแพทย์และอนามัย มอบหมาย</p>
