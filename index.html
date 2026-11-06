@@ -416,7 +416,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-bold text-slate-800">
-                                <i class="fas fa-pills text-emerald-600 mr-1"></i> รายการยาและเวชภัณฑ์ที่ขอเบิก (จำกัดไม่เกินจำนวนสูงสุด)
+                                <i class="fas fa-pills text-emerald-600 mr-1"></i> รายการยาและเวชภัณฑ์ที่ขอเบิก (เลือกอย่างน้อย 1 รายการ ไม่จำกัดจำนวน)
                             </label>
                         </div>
                         <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -861,8 +861,9 @@
             fetchDataFromSheet(true);
 
             setInterval(() => {
+                // Background sync without disrupting form input state
                 fetchDataFromSheet(false);
-            }, 8000);
+            }, 10000);
 
             switchTab('home');
         });
@@ -965,7 +966,6 @@
                         unit: m.Unit || "เม็ด",
                         image: m.Image || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80"
                     }));
-                    renderDrugItemsForm();
                     renderDrugCatalog();
                 }
 
@@ -1313,33 +1313,51 @@
             if (dateEl) dateEl.value = today;
         }
 
+        // Render Drug Items Form with State Preservation (Prevents bouncing/resetting)
         function renderDrugItemsForm() {
             const container = document.getElementById('drug-items-container');
             if (!container) return;
-            container.innerHTML = DRUG_CATALOG.map((drug, index) => `
-                <tr class="hover:bg-slate-50 border-b border-slate-100 cursor-pointer" onclick="handleRowClick(event, ${drug.id})">
-                    <td class="p-3 text-center" onclick="event.stopPropagation()">
-                        <input type="checkbox" id="drug-chk-${drug.id}" onchange="toggleDrugQty(${drug.id})" class="w-4 h-4 text-emerald-600 rounded cursor-pointer">
-                    </td>
-                    <td class="p-3 flex items-center space-x-3">
-                        <img src="${drug.image}" class="w-10 h-10 object-cover rounded-lg border border-slate-200 shadow-sm" alt="">
-                        <div>
-                            <span class="font-bold text-slate-700 mr-1">${index + 1}.</span>
-                            <span class="text-slate-800 font-medium">${drug.name}</span>
-                            <span class="block text-[11px] text-slate-400">สูงสุด: ${drug.maxQty} ${drug.unit}</span>
-                        </div>
-                    </td>
-                    <td class="p-3 text-center" onclick="event.stopPropagation()">
-                        <input type="number" id="drug-qty-${drug.id}" min="1" max="${drug.maxQty}" value="1" oninput="validateDrugQty(this, ${drug.maxQty})" disabled class="w-24 px-2 py-1 border border-slate-300 rounded text-center bg-slate-100 text-sm font-bold">
-                    </td>
-                    <td class="p-3 text-center text-slate-600 text-xs">${drug.unit}</td>
-                </tr>
-            `).join('');
+
+            // Save existing user selections before re-rendering
+            const currentSelections = {};
+            DRUG_CATALOG.forEach(drug => {
+                const chk = document.getElementById(`drug-chk-${drug.id}`);
+                const qty = document.getElementById(`drug-qty-${drug.id}`);
+                if (chk) {
+                    currentSelections[drug.id] = {
+                        checked: chk.checked,
+                        qty: qty ? qty.value : 1
+                    };
+                }
+            });
+
+            container.innerHTML = DRUG_CATALOG.map((drug, index) => {
+                const saved = currentSelections[drug.id] || { checked: false, qty: 1 };
+                return `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100 cursor-pointer" onclick="handleRowClick(event, ${drug.id})">
+                        <td class="p-3 text-center" onclick="event.stopPropagation()">
+                            <input type="checkbox" id="drug-chk-${drug.id}" ${saved.checked ? 'checked' : ''} onchange="toggleDrugQty(${drug.id})" class="w-4 h-4 text-emerald-600 rounded cursor-pointer">
+                        </td>
+                        <td class="p-3 flex items-center space-x-3">
+                            <img src="${drug.image}" class="w-10 h-10 object-cover rounded-lg border border-slate-200 shadow-sm" alt="">
+                            <div>
+                                <span class="font-bold text-slate-700 mr-1">${index + 1}.</span>
+                                <span class="text-slate-800 font-medium">${drug.name}</span>
+                                <span class="block text-[11px] text-slate-400">สูงสุด: ${drug.maxQty} ${drug.unit}</span>
+                            </div>
+                        </td>
+                        <td class="p-3 text-center" onclick="event.stopPropagation()">
+                            <input type="number" id="drug-qty-${drug.id}" min="1" max="${drug.maxQty}" value="${saved.qty}" oninput="validateDrugQty(this, ${drug.maxQty})" ${saved.checked ? '' : 'disabled'} class="w-24 px-2 py-1 border border-slate-300 rounded text-center ${saved.checked ? 'bg-white font-bold' : 'bg-slate-100 text-slate-400'} text-sm">
+                        </td>
+                        <td class="p-3 text-center text-slate-600 text-xs">${drug.unit}</td>
+                    </tr>
+                `;
+            }).join('');
             updateSelectAllState();
         }
 
         function handleRowClick(event, id) {
-            if (event.target.tagName === 'INPUT') return;
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'LABEL') return;
             const chk = document.getElementById(`drug-chk-${id}`);
             if (chk) {
                 chk.checked = !chk.checked;
@@ -1383,12 +1401,12 @@
 
             if (chk.checked) {
                 input.disabled = false;
-                input.classList.remove('bg-slate-100');
-                input.classList.add('bg-white');
+                input.classList.remove('bg-slate-100', 'text-slate-400');
+                input.classList.add('bg-white', 'font-bold');
             } else {
                 input.disabled = true;
-                input.classList.add('bg-slate-100');
-                input.classList.remove('bg-white');
+                input.classList.add('bg-slate-100', 'text-slate-400');
+                input.classList.remove('bg-white', 'font-bold');
             }
             if (checkSelectAll) {
                 updateSelectAllState();
@@ -1943,7 +1961,6 @@
                 if (drug) {
                     drug.image = imageBase64;
                     renderDrugCatalog();
-                    renderDrugItemsForm();
 
                     const url = appState.settings.gssUrl;
                     if (url) {
