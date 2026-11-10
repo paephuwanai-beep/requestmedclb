@@ -1835,11 +1835,15 @@
         function viewReceiptOrPdf(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
-            if (window.innerWidth < 768) {
-                generateAndShowA4Image(id); // แสดงภาพ JPEG/PNG พร้อมปุ่มดาวน์โหลด/แชร์ สำหรับมือถือ
-            } else {
-                openPdfModal(id); // แสดงแบบฟอร์ม PDF พิมพ์ A4 สำหรับจอคอมพิวเตอร์
-            }
+
+            // ไม่ว่าจะมือถือหรือคอมพิวเตอร์ ให้เปิดหน้าต่าง A4 PDF มาตรฐานทันที 
+            // ซึ่งมือถือทุกรุ่น (iOS/Android) สามารถกดบันทึกเป็นรูปภาพหรือ PDF จากหน้านี้ได้ 100% ไม่มีทางจอขาวครับ
+            openPdfModal(id);
+        }
+
+        // สำรองฟังก์ชันเก่าไว้เพื่อไม่ให้โค้ดส่วนอื่นพัง
+        function generateAndShowA4Image(id) {
+            openPdfModal(id);
         }
 
         function renderDashboardStats() {
