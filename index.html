@@ -1756,23 +1756,40 @@
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
 
+            // 1. เปิด Modal และแสดงสถานะกำลังโหลด
             openPdfModal(id);
             showLoading(true, 50);
+
+            // 2. หน่วงเวลาให้เบราว์เซอร์บนมือถือเรนเดอร์ DOM และฟอนต์ TH Sarabun ให้เสร็จสิ้นก่อนแคปเจอร์
             setTimeout(() => {
                 const printableArea = document.getElementById('printable-area');
-                html2canvas(printableArea, { scale: 2, useCORS: true }).then(canvas => {
+                if (!printableArea) {
+                    showLoading(false);
+                    return;
+                }
+
+                html2canvas(printableArea, { 
+                    scale: 2, 
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    scrollY: -window.scrollY
+                }).then(canvas => {
                     latestReceiptDataUrl = canvas.toDataURL('image/png', 0.95);
-                    document.getElementById('receipt-preview-img').src = latestReceiptDataUrl;
+                    const previewImg = document.getElementById('receipt-preview-img');
+                    if (previewImg) {
+                        previewImg.src = latestReceiptDataUrl;
+                    }
                     document.getElementById('receipt-preview-title').innerText = `ใบขอเบิกยา (แบบ กฟผ.-รพ.74) - ${r.id}`;
                     document.getElementById('pdf-modal').classList.add('hidden');
                     document.getElementById('receipt-popup-modal').classList.remove('hidden');
                     showLoading(false);
                 }).catch(err => {
-                    console.error(err);
+                    console.error("html2canvas error:", err);
                     showLoading(false);
-                    showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้");
+                    showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้ กรุณาลองใหม่อีกครั้ง");
                 });
-            }, 300);
+            }, 800); // หน่วงเวลาเพิ่มเป็น 800 มิลลิวินาทีเพื่อให้มือถือเรนเดอร์ทัน
         }
 
         function closeReceiptPopup() {
