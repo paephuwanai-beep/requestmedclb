@@ -818,20 +818,41 @@
                 </div>
             </div>
             <div class="p-2 sm:p-6 overflow-y-auto bg-slate-100 flex justify-center">
-                <!-- A4 printable layout container strictly styled to match Form กฟผ.-รพ.74 -->
-                <div id="printable-area" class="bg-white w-[210mm] h-[297mm] p-[10mm_15mm] shadow-xl text-slate-900 text-[13px] leading-tight font-sarabun relative flex flex-col justify-between box-border overflow-hidden"></div>
+                <!-- Container hidden offscreen during render or styled inside modal -->
+                <div id="printable-area-wrapper" class="w-full flex justify-center">
+                    <div id="printable-area" class="bg-white w-[210mm] min-h-[297mm] p-[10mm_15mm] shadow-xl text-slate-900 text-[13px] leading-tight font-sarabun relative flex flex-col justify-between box-border overflow-hidden"></div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Dispense Modal -->
-    <div id="dispense-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-            <div class="bg-blue-900 text-white px-5 py-3.5 flex justify-between items-center">
-                <h3 class="font-bold text-sm sm:text-base">บันทึกการจ่ายยาและเวชภัณฑ์</h3>
-                <button onclick="closeDispenseModal()" class="text-white"><i class="fas fa-times"></i></button>
+    <!-- Receipt/Document Popup Modal (PNG/JPEG Preview for Mobile & Desktop Share) -->
+    <div id="receipt-popup-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden p-4 sm:p-5 space-y-3.5 flex flex-col max-h-[92vh]">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2 flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate max-w-[220px] sm:max-w-xs" id="receipt-preview-title">ใบขอเบิกยา (แบบ กฟผ.-รพ.74)</h3>
+                </div>
+                <button onclick="closeReceiptPopup()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition"><i class="fas fa-times"></i></button>
             </div>
-            <div class="p-4 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto" id="dispense-modal-content"></div>
+            
+            <div id="receipt-preview-container" class="flex-1 flex justify-center items-center border border-slate-200 rounded-2xl p-2 bg-slate-900/5 overflow-y-auto min-h-[300px]">
+                <img id="receipt-preview-img" class="rounded-xl shadow-md max-w-full h-auto object-contain max-h-[60vh]" src="" alt="Document Preview">
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 pt-1 flex-shrink-0">
+                <button onclick="shareReceiptImage()" class="py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-1.5 transition">
+                    <i class="fas fa-share-alt"></i><span>แชร์ภาพ</span>
+                </button>
+                <button onclick="downloadReceiptImage('jpeg')" class="py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-1.5 transition">
+                    <i class="fas fa-file-image"></i><span>ดาวน์โหลด JPG</span>
+                </button>
+                <button onclick="downloadReceiptImage('png')" class="py-2.5 bg-teal-600 hover:bg-teal-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-1.5 transition">
+                    <i class="fas fa-download"></i><span>ดาวน์โหลด PNG</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2236,109 +2257,109 @@
             const select = document.getElementById('req-department-group');
             if (select) select.innerHTML = appState.departments.map(d => `<option value="${d}">${d}</option>`).join('');
         }
+        let latestReceiptJpegDataUrl = null;
+        let latestReceiptPngDataUrl = null;
 
-        function renderDepartmentTable() {
-            const tbody = document.getElementById('department-list-table');
-            if (!tbody) return;
+        // Render & Capture A4 strictly styled as 210mm x 297mm for HD JPEG/PNG Export on iOS & Mobile
+        function generateAndShowA4Image(id) {
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
 
-            tbody.innerHTML = appState.departments.map((dept, index) => `
-                <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="p-2.5 text-center text-xs font-bold text-slate-400">${index + 1}</td>
-                    <td class="p-2.5">
-                        <input type="text" id="dept-input-${index}" value="${dept}" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm">
-                    </td>
-                    <td class="p-2.5 text-center space-x-1">
-                        <button onclick="editDepartment(${index})" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs" title="บันทึก"><i class="fas fa-save"></i></button>
-                        <button onclick="deleteDepartment(${index})" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs" title="ลบ"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
+            showLoading(true, 40);
+            
+            // Render content to printable area first
+            populatePrintableArea(r);
 
-        async function addDepartment() {
-            const name = document.getElementById('new-dept-name').value.trim();
-            if (!name) return showToast("ข้อผิดพลาด", "กรุณากรอกชื่อหน่วยงาน");
+            const printableArea = document.getElementById('printable-area');
 
-            const url = appState.settings.gssUrl;
-            if (!url) return;
+            // Save original inline styles
+            const originalStyle = printableArea.getAttribute('style') || '';
+            
+            // Force strict A4 pixel width & height (794px x 1123px) during html2canvas rendering
+            printableArea.style.width = '794px';
+            printableArea.style.height = '1123px';
+            printableArea.style.position = 'fixed';
+            printableArea.style.left = '-9999px';
+            printableArea.style.top = '0';
+            printableArea.style.transform = 'none';
 
-            showLoading(true, 85);
-            try {
-                await fetch(url, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'saveDepartment', name: name })
-                });
-                document.getElementById('new-dept-name').value = '';
-                showToast("สำเร็จ", "เพิ่มหน่วยงานเรียบร้อยแล้ว");
-                setTimeout(() => fetchDataFromSheet(false), 1000);
-            } catch (e) {
-                showToast("ข้อผิดพลาด", "ไม่สามารถเพิ่มหน่วยงานได้");
-            } finally {
-                showLoading(false);
-            }
-        }
+            setTimeout(() => {
+                html2canvas(printableArea, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    width: 794,
+                    height: 1123,
+                    windowWidth: 1024
+                }).then(canvas => {
+                    // Restore original styling
+                    printableArea.setAttribute('style', originalStyle);
 
-        async function editDepartment(index) {
-            const oldName = appState.departments[index];
-            const newName = document.getElementById(`dept-input-${index}`).value.trim();
-            if (!newName) return showToast("ข้อผิดพลาด", "ชื่อหน่วยงานต้องไม่เป็นค่าว่าง");
+                    latestReceiptPngDataUrl = canvas.toDataURL('image/png', 1.0);
+                    latestReceiptJpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
-            const url = appState.settings.gssUrl;
-            if (!url) return;
-
-            showLoading(true, 85);
-            try {
-                await fetch(url, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'saveDepartment', name: newName, oldName: oldName })
-                });
-                showToast("สำเร็จ", "อัปเดตชื่อหน่วยงานแล้ว");
-                setTimeout(() => fetchDataFromSheet(false), 1000);
-            } catch (e) {
-                showToast("ข้อผิดพลาด", "ไม่สามารถแก้ไขชื่อหน่วยงานได้");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function deleteDepartment(index) {
-            const name = appState.departments[index];
-            if (confirm(`คุณต้องการลบหน่วยงาน "${name}" ใช่หรือไม่?`)) {
-                const url = appState.settings.gssUrl;
-                if (!url) return;
-
-                showLoading(true, 85);
-                try {
-                    await fetch(url, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'deleteDepartment', name: name })
-                    });
-                    showToast("สำเร็จ", "ลบหน่วยงานเรียบร้อยแล้ว");
-                    setTimeout(() => fetchDataFromSheet(false), 1000);
-                } catch (e) {
-                    showToast("ข้อผิดพลาด", "ไม่สามารถลบหน่วยงานได้");
-                } finally {
+                    document.getElementById('receipt-preview-img').src = latestReceiptJpegDataUrl;
+                    document.getElementById('receipt-preview-title').innerText = `แบบ กฟผ.-รพ.74 (${r.id})`;
+                    document.getElementById('receipt-popup-modal').classList.remove('hidden');
                     showLoading(false);
+                }).catch(err => {
+                    printableArea.setAttribute('style', originalStyle);
+                    console.error("html2canvas error:", err);
+                    showLoading(false);
+                    showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้");
+                });
+            }, 300);
+        }
+
+        function generateAndShowA4ImageForReq(r) {
+            generateAndShowA4Image(r.id);
+        }
+
+        function downloadReceiptImage(format = 'jpeg') {
+            const dataUrl = format === 'png' ? latestReceiptPngDataUrl : latestReceiptJpegDataUrl;
+            if (!dataUrl) return;
+
+            const ext = format === 'png' ? 'png' : 'jpg';
+            const link = document.createElement('a');
+            link.download = `ใบขอเบิกยา_กฟผ-รพ74.${ext}`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function shareReceiptImage() {
+            const dataUrl = latestReceiptJpegDataUrl || latestReceiptPngDataUrl;
+            if (!dataUrl) return;
+
+            try {
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], "ใบขอเบิกยา_กฟผ-รพ74.jpg", { type: "image/jpeg" });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)',
+                        text: 'เอกสารใบขอเบิกยาและเวชภัณฑ์ Request MED+ สถานพยาบาลเขื่อนจุฬาภรณ์',
+                        files: [file]
+                    });
+                } else {
+                    downloadReceiptImage('jpeg');
+                    showToast("แจ้งเตือน", "ดาวน์โหลดภาพเรียบร้อยแล้ว (อุปกรณ์ไม่รองรับ Web Share API)");
                 }
+            } catch (err) {
+                console.log('Share error:', err);
+                downloadReceiptImage('jpeg');
             }
         }
 
-        // ==========================================
-        // สร้างเลย์เอาต์ A4 ตามแบบ กฟผ.-รพ.74 (ภาพที่ 2 เป๊ะ)
-        // ==========================================
         function populatePrintableArea(r) {
             const dateObj = new Date(r.date || Date.now());
             const thaiDays = dateObj.getDate();
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"][dateObj.getMonth()];
             const thaiYears = dateObj.getFullYear() + 543;
 
-            // ตารางคงที่ 11 แถวตามแบบ กฟผ.-รพ.74
+            // ตารางคงที่ 11 แถวตามแบบ กฟผ.-รพ.74 เป๊ะ
             let rowsHtml = '';
             for (let i = 0; i < 11; i++) {
                 const item = r.items && r.items[i] ? r.items[i] : null;
@@ -2346,11 +2367,11 @@
                 rowsHtml += `
                     <tr class="h-6 border-b border-black text-[12px] leading-snug">
                         <td class="border-r border-black p-0.5 text-center w-7 font-sarabun">${i + 1}</td>
-                        <td class="border-r border-black p-0.5 px-1 truncate font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-black p-0.5 px-1 truncate font-sarabun max-w-[140px]">${item ? item.name : ''}</td>
                         <td class="border-r border-black p-0.5 text-center font-bold w-10 font-sarabun">${item ? item.qty : ''}</td>
                         <td class="border-r border-black p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
                         <td class="border-r border-black p-0.5 text-center w-7 font-sarabun">${i + 1}</td>
-                        <td class="border-r border-black p-0.5 px-1 truncate font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-black p-0.5 px-1 truncate font-sarabun max-w-[140px]">${item ? item.name : ''}</td>
                         <td class="border-r border-black p-0.5 text-center font-bold text-slate-900 w-10 font-sarabun">${isDispensed && item ? item.qty : ''}</td>
                         <td class="p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
                     </tr>
@@ -2369,11 +2390,11 @@
             let purposeHtml = `
                 <div class="space-y-1 text-[13px] font-sarabun">
                     <div class="flex items-center space-x-2">
-                        <span class="circle-option">${isReserve ? '✓' : ''}</span>
+                        <span class="circle-option flex-shrink-0">${isReserve ? '✓' : ''}</span>
                         <span>เพื่อสำรองไว้ใช้ประจำหน่วยงาน <strong class="underline">${deptName}</strong> ซึ่งมีผู้ปฏิบัติงานจำนวน <strong class="underline px-1">${workerCount}</strong> คน</span>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="circle-option">${!isReserve ? '✓' : ''}</span>
+                        <span class="circle-option flex-shrink-0">${!isReserve ? '✓' : ''}</span>
                         <span>เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ ................................................................ ประมาณ ......... วัน สำหรับผู้เดินทางจำนวน ......... คน</span>
                     </div>
                 </div>
@@ -2410,7 +2431,7 @@
                         
                         <div class="flex flex-wrap items-center justify-between">
                             <span>ข้าพเจ้า <strong class="underline px-1">${r.name}</strong></span>
-                            <span>หมายเลขประจำตัว <strong class="underline px-1 border border-black px-1 tracking-widest font-mono">${r.idCard}</strong></span>
+                            <span>หมายเลขประจำตัว <strong class="underline px-1 border border-black px-1.5 tracking-widest font-mono font-bold">${r.idCard}</strong></span>
                         </div>
                         
                         <div class="flex flex-wrap justify-between items-center">
@@ -2454,7 +2475,7 @@
                     </table>
                 </div>
 
-                <!-- Signatures & Notes Block (โครงสร้างเป๊ะตามภาพที่ 2) -->
+                <!-- Signatures & Notes Block -->
                 <div class="sarabun-font text-[12px] space-y-1">
                     <!-- Upper Box Row (ผู้ขอเบิก / ผู้อนุมัติ) -->
                     <div class="grid grid-cols-2 border border-black">
