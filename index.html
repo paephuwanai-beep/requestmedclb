@@ -39,27 +39,7 @@
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-#pdf-modal .printable-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    overflow-x: auto;
-    overflow-y: auto;
-    padding: 10px 0;
-}
 
-/* บังคับขนาดกระดาษ A4 ไม่ให้โดน Flexbox หรือ Grid ในมือถือบีบขนาด */
-#printable-area {
-    width: 210mm !important;
-    min-width: 210mm !important;
-    max-width: 210mm !important;
-    height: 297mm !important;
-    min-height: 297mm !important;
-    transform-origin: top center;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    background: #ffffff !important;
-}
         /* Style สำหรับพิมพ์เอกสาร A4 สัดส่วนตามแบบ กฟผ.-รพ.74 เป๊ะ */
         @media print {
             @page { size: A4 portrait; margin: 0; }
@@ -826,24 +806,18 @@
     </div>
 
     <!-- PDF Modal (Desktop A4 Format Layout) -->
-   <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs hidden flex flex-col justify-between overflow-hidden">
-    <!-- Header Bar -->
-    <div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center no-print z-10 shadow-md">
-        <h3 class="font-bold text-xs sm:text-sm">ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)</h3>
-        <div class="flex items-center space-x-2">
-            <button onclick="printA4()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow flex items-center space-x-1">
-                <i class="fas fa-print"></i><span>พิมพ์/PDF</span>
-            </button>
-            <button onclick="closePdfModal()" class="bg-slate-700 text-white p-1.5 rounded-lg text-xs"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
-    
-    <!-- Printable Scrollable Area -->
-    <div class="printable-wrapper flex-1 overflow-y-auto bg-slate-800 p-2 sm:p-6">
-        <div id="printable-area" class="bg-white p-[6mm_10mm] text-slate-900 text-[12px] leading-snug relative flex flex-col justify-between box-border"></div>
-    </div>
-</div> 
-    <div class="p-2 sm:p-6 overflow-y-auto bg-slate-100 flex justify-center">
+    <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+            <div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center no-print">
+                <h3 class="font-bold text-xs sm:text-sm">ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)</h3>
+                <div class="flex items-center space-x-2">
+                    <button onclick="printA4()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow flex items-center space-x-1">
+                        <i class="fas fa-print"></i><span>พิมพ์/ดาวน์โหลด PDF</span>
+                    </button>
+                    <button onclick="closePdfModal()" class="bg-slate-700 text-white p-1.5 rounded-lg text-xs"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="p-2 sm:p-6 overflow-y-auto bg-slate-100 flex justify-center">
                 <!-- Container hidden offscreen during render or styled inside modal -->
                 <div id="printable-area-wrapper" class="w-full flex justify-center">
                     <div id="printable-area" class="bg-white w-[210mm] min-h-[297mm] p-[10mm_15mm] shadow-xl text-slate-900 text-[13px] leading-tight font-sarabun relative flex flex-col justify-between box-border overflow-hidden"></div>
@@ -2598,40 +2572,9 @@
         function openPdfModal(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
-            
-            // 1. ใส่ข้อมูลลงแบบฟอร์ม A4
             populatePrintableArea(r);
-            
-            // 2. แสดง Modal
-            const pdfModal = document.getElementById('pdf-modal');
-            pdfModal.classList.remove('hidden');
-
-            // 3. ปรับสเกลย่อกระดาษ A4 ให้พอดีกับหน้าจอมือถือทันที
-            setTimeout(() => {
-                adjustA4Scale();
-            }, 50);
+            document.getElementById('pdf-modal').classList.remove('hidden');
         }
-
-        function adjustA4Scale() {
-            const printableArea = document.getElementById('printable-area');
-            if (!printableArea) return;
-
-            const a4Width = printableArea.offsetWidth || 794; 
-            const screenWidth = window.innerWidth;
-
-            if (screenWidth < 794) {
-                // หากจอมือถือแคบกว่า A4 ให้ย่อ Scale ลงมาให้พอดีจอ
-                const scale = (screenWidth - 32) / a4Width;
-                printableArea.style.transform = `scale(${scale})`;
-                printableArea.style.marginBottom = `-${(1 - scale) * 1123}px`;
-            } else {
-                printableArea.style.transform = 'scale(1)';
-                printableArea.style.marginBottom = '0px';
-            }
-        }
-
-        // คำนวณสเกลใหม่เมื่อมีการหมุนหน้าจอมือถือ
-        window.addEventListener('resize', adjustA4Scale);
 
         function closePdfModal() { document.getElementById('pdf-modal').classList.add('hidden'); }
         function printA4() { window.print(); }
