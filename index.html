@@ -1757,69 +1757,47 @@
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
 
-            showLoading(true, 40);
+            // 1. เปิด Modal ปกติเพื่อให้ DOM โหลดอยู่บนหน้าจอจริง (มือถือจะเรนเดอร์ได้แน่นอน)
+            openPdfModal(id);
+            showLoading(true, 50);
 
-            // 1. วาดเนื้อหาเอกสารลง Printable Area ตามปกติ
-            populatePrintableArea(r);
-            const sourceElem = document.getElementById('printable-area');
-            const renderContainer = document.getElementById('canvas-render-container');
-
-            if (!sourceElem || !renderContainer) {
-                showLoading(false);
-                return;
-            }
-
-            // 2. คัดลอกกระดาษ A4 ไปใส่ใน Off-screen Container นอกจอ (บังคับขนาด A4 พิกเซลเป๊ะ)
-            renderContainer.innerHTML = sourceElem.outerHTML;
-            const targetElem = renderContainer.firstElementChild;
-            
-            // ตั้งค่าสไตล์ A4 แบบตายตัวให้ iOS ไม่บีบขนาด
-            targetElem.style.position = 'relative';
-            targetElem.style.left = '0';
-            targetElem.style.top = '0';
-            targetElem.style.width = '794px';
-            targetElem.style.minHeight = '1123px';
-            targetElem.style.visibility = 'visible';
-            targetElem.style.display = 'block';
-            targetElem.style.margin = '0';
-            targetElem.style.boxSizing = 'border-box';
-            targetElem.style.background = '#ffffff';
-
-            // 3. รอให้เบราว์เซอร์มือถือโหลดฟอนต์และรูปภาพลายเซ็น 400ms
+            // 2. หน่วงเวลา 900ms เพื่อให้ iOS Safari วาดฟอนต์ TH Sarabun และลายเซ็นต์ลงบน DOM ให้เสร็จสมบูรณ์
             setTimeout(() => {
-                html2canvas(targetElem, {
-                    scale: 2,               // ความคมชัดระดับ HD (2x)
-                    useCORS: true,           // รองรับรูปภาพข้ามโดเมน
-                    allowTaint: false,       // ป้องกัน Canvas Security Lockout
+                const printableArea = document.getElementById('printable-area');
+                if (!printableArea) {
+                    showLoading(false);
+                    return;
+                }
+
+                html2canvas(printableArea, { 
+                    scale: 2,                  // ความคมชัด HD
+                    useCORS: true,             // รองรับภาพข้ามโดเมน / ลายเซ็น Base64
+                    allowTaint: false,
                     backgroundColor: '#ffffff',
-                    width: 794,
-                    height: 1123,
-                    windowWidth: 794,
-                    windowHeight: 1123,
-                    scrollX: 0,
-                    scrollY: 0
+                    logging: false
                 }).then(canvas => {
-                    latestReceiptDataUrl = canvas.toDataURL('image/jpeg', 0.92); // เปลี่ยนเป็น JPEG ป้องกันปัญหาการแสดงผล PNG บน iOS
+                    // แปลงเป็น JPEG เพื่อให้มือถือทุกรุ่นแสดงผลภาพได้เสถียรที่สุด
+                    latestReceiptDataUrl = canvas.toDataURL('image/jpeg', 0.92);
                     
                     const previewImg = document.getElementById('receipt-preview-img');
                     if (previewImg) {
                         previewImg.src = latestReceiptDataUrl;
                     }
-                    
+
                     document.getElementById('receipt-preview-title').innerText = `ใบขอเบิกยา (แบบ กฟผ.-รพ.74) - ${r.id}`;
+                    
+                    // ปิด Modal พิมพ์ PDF แล้วเปิด Modal แสดงภาพพรีวิวสำหรับมือถือแทน
                     document.getElementById('pdf-modal').classList.add('hidden');
                     document.getElementById('receipt-popup-modal').classList.remove('hidden');
-
-                    // ล้างข้อมูลใน Container ชั่วคราว
-                    renderContainer.innerHTML = '';
+                    
                     showLoading(false);
                 }).catch(err => {
                     console.error("html2canvas error:", err);
-                    renderContainer.innerHTML = '';
                     showLoading(false);
+                    document.getElementById('pdf-modal').classList.add('hidden');
                     showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้ กรุณาลองใหม่อีกครั้ง");
                 });
-            }, 400);
+            }, 900);
         }
 
         function closeReceiptPopup() {
