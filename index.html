@@ -6,8 +6,8 @@
     <title>Request MED+ สถานพยาบาลเขื่อนจุฬาภรณ์</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Prompt, Kanit, Sarabun (TH Sarabun) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2canvas for Image/PNG Export -->
@@ -16,7 +16,10 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Prompt', 'Kanit', 'sans-serif'], sarabun: ['Sarabun', 'sans-serif'] },
+                    fontFamily: { 
+                        sans: ['Prompt', 'Kanit', 'sans-serif'], 
+                        sarabun: ['Sarabun', 'THSarabunNew', 'TH Sarabun PSK', 'sans-serif'] 
+                    },
                     colors: {
                         egat: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#16a34a', 600: '#15803d', 700: '#166534', 800: '#14532d', 900: '#064e3b' }
                     }
@@ -30,11 +33,14 @@
             -webkit-tap-highlight-color: transparent; 
             overscroll-behavior-y: none;
         }
-        .sarabun-font { font-family: 'Sarabun', sans-serif !important; }
+        .sarabun-font { 
+            font-family: 'Sarabun', 'THSarabunNew', 'TH Sarabun PSK', sans-serif !important; 
+        }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Style สำหรับพิมพ์เอกสาร A4 สัดส่วนตามแบบ กฟผ.-รพ.74 เป๊ะ */
         @media print {
             @page { size: A4 portrait; margin: 0; }
             html, body {
@@ -47,7 +53,7 @@
             #printable-area {
                 position: absolute !important; left: 0 !important; top: 0 !important;
                 width: 210mm !important; height: 297mm !important;
-                margin: 0 !important; padding: 5mm 8mm !important;
+                margin: 0 !important; padding: 10mm 15mm !important;
                 box-sizing: border-box !important; box-shadow: none !important;
                 page-break-after: avoid !important; page-break-inside: avoid !important;
                 background: #ffffff !important;
@@ -55,6 +61,17 @@
             .no-print { display: none !important; }
         }
         .signature-canvas { touch-action: none; border: 2px dashed #cbd5e1; border-radius: 0.75rem; background-color: #f8fafc; }
+        .circle-option {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-full flex flex-col antialiased">
@@ -337,7 +354,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">เรียน (ผู้รับ/สถานพยาบาล) <span class="text-rose-500">*</span></label>
-                                <input type="text" id="req-recipient" value="หธฬอ.ฟ" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-xs">
+                                <input type="text" id="req-recipient" value="หธฬอ.ฟ / หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-xs">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">หน่วยงานผู้ขอเบิก <span class="text-rose-500">*</span></label>
@@ -359,7 +376,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">รหัสพนักงาน <span class="text-rose-500">*</span></label>
-                                <input type="text" id="req-idcard" maxlength="10" placeholder="เช่น 56789" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-xs">
+                                <input type="text" id="req-idcard" maxlength="10" placeholder="เช่น 596749" required class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-xs">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">เบอร์โทรศัพท์ <span class="text-rose-500">*</span></label>
@@ -367,17 +384,17 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">ตำแหน่ง</label>
-                                <input type="text" id="req-position" value="ช.6" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs">
+                                <input type="text" id="req-position" value="ช.5" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">แผนก</label>
-                                <input type="text" id="req-section" value="หธฬอ.ฟ" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs">
+                                <input type="text" id="req-section" value="หน.พือ-ฟ." class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">กอง / ฝ่าย</label>
                                 <div class="flex gap-2">
-                                    <input type="text" id="req-division" value="กอง กฬอ-ฟ" class="w-1/2 px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs" placeholder="กอง">
-                                    <input type="text" id="req-department-sub" value="ฝ่าย อฟอ." class="w-1/2 px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs" placeholder="ฝ่าย">
+                                    <input type="text" id="req-division" value="กพือ-ฟ" class="w-1/2 px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs" placeholder="กอง">
+                                    <input type="text" id="req-department-sub" value="อฟอ." class="w-1/2 px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-sm shadow-xs" placeholder="ฝ่าย">
                                 </div>
                             </div>
                         </div>
@@ -395,7 +412,7 @@
                                     <span class="font-semibold text-slate-800">สำรองไว้ใช้ประจำหน่วยงาน</span>
                                     <div class="mt-1.5 flex items-center space-x-2 text-xs text-slate-600">
                                         <span>จำนวนผู้ปฏิบัติงาน</span>
-                                        <input type="number" id="purpose-workers" min="0" value="10" class="w-16 px-2 py-1 bg-slate-50 border border-slate-300 rounded-lg text-center font-bold">
+                                        <input type="number" id="purpose-workers" min="0" value="4" class="w-16 px-2 py-1 bg-slate-50 border border-slate-300 rounded-lg text-center font-bold">
                                         <span>คน</span>
                                     </div>
                                 </div>
@@ -432,10 +449,10 @@
                             </label>
                         </div>
 
-                        <!-- Mobile Card View -->
-                        <div id="drug-items-mobile-container" class="space-y-2.5"></div>
+                        <!-- 1. Mobile Card View (ซ่อนใน Desktop ด้วย md:hidden เพื่อไม่ให้แสดงผลซ้ำกัน) -->
+                        <div id="drug-items-mobile-container" class="space-y-2.5 md:hidden"></div>
 
-                        <!-- Desktop Table View -->
+                        <!-- 2. Desktop Table View (แสดงเฉพาะใน Desktop ด้วย hidden md:block) -->
                         <div class="hidden md:block overflow-hidden border border-slate-200/80 rounded-2xl bg-white shadow-xs">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -559,7 +576,7 @@
                         <h2 class="text-xl font-extrabold text-slate-900 mt-1">สถานะรายการขอเบิก</h2>
                     </div>
                     <div class="flex overflow-x-auto no-scrollbar gap-1 bg-slate-100 p-1 rounded-2xl text-xs font-semibold w-full md:w-auto">
-                        <button onclick="filterStatus('all')" id="filter-all" class="px-3 py-1.5 rounded-xl bg-white text-slate-800 shadow-xs flex-shrink-0">ทั้งหมด</button>
+                        <button onclick="filterStatus('all')" id="filter-all" class="px-3 py-1.5 rounded-xl bg-white text-slate-800 shadow-xs flex-shrink-0 font-bold">ทั้งหมด</button>
                         <button onclick="filterStatus('pending_approve')" id="filter-pending_approve" class="px-3 py-1.5 rounded-xl text-slate-600 flex-shrink-0">รออนุมัติ</button>
                         <button onclick="filterStatus('pending_dispense')" id="filter-pending_dispense" class="px-3 py-1.5 rounded-xl text-slate-600 flex-shrink-0">รอจ่ายยา</button>
                         <button onclick="filterStatus('completed')" id="filter-completed" class="px-3 py-1.5 rounded-xl text-slate-600 flex-shrink-0">จ่ายยาแล้ว</button>
@@ -583,7 +600,7 @@
                                     <th class="p-3">วัตถุประสงค์</th>
                                     <th class="p-3 text-center">สถานะอนุมัติ</th>
                                     <th class="p-3 text-center">สถานะจ่ายยา</th>
-                                    <th class="p-3 text-center">จัดการ</th>
+                                    <th class="p-3 text-center">จัดการ / เอกสาร</th>
                                 </tr>
                             </thead>
                             <tbody id="status-table-body" class="divide-y divide-slate-100 text-xs sm:text-sm"></tbody>
@@ -770,9 +787,9 @@
         </div>
     </div>
 
-    <!-- Receipt/Document Popup Modal (PNG Preview) -->
+    <!-- Receipt/Document Popup Modal (PNG/JPEG Preview for Mobile & Desktop Share) -->
     <div id="receipt-popup-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden p-5 space-y-4 text-center">
+        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden p-4 sm:p-5 space-y-4 text-center">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                 <h3 class="font-bold text-base text-slate-900" id="receipt-preview-title">ใบขอเบิกยา (แบบ กฟผ.-รพ.74)</h3>
                 <button onclick="closeReceiptPopup()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
@@ -783,25 +800,26 @@
             <div class="flex justify-end space-x-2 pt-1">
                 <button onclick="closeReceiptPopup()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">ปิด</button>
                 <button onclick="shareReceiptImage()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1"><i class="fas fa-share-alt"></i><span>แชร์</span></button>
-                <button onclick="downloadReceiptImage()" class="px-4.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1"><i class="fas fa-download"></i><span>ดาวน์โหลด PNG</span></button>
+                <button onclick="downloadReceiptImage()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1"><i class="fas fa-download"></i><span>ดาวน์โหลด Image</span></button>
             </div>
         </div>
     </div>
 
-    <!-- PDF Modal (Desktop) -->
+    <!-- PDF Modal (Desktop A4 Format Layout) -->
     <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
             <div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center no-print">
                 <h3 class="font-bold text-xs sm:text-sm">ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)</h3>
                 <div class="flex items-center space-x-2">
                     <button onclick="printA4()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow flex items-center space-x-1">
-                        <i class="fas fa-print"></i><span>พิมพ์/PDF</span>
+                        <i class="fas fa-print"></i><span>พิมพ์/ดาวน์โหลด PDF</span>
                     </button>
                     <button onclick="closePdfModal()" class="bg-slate-700 text-white p-1.5 rounded-lg text-xs"><i class="fas fa-times"></i></button>
                 </div>
             </div>
             <div class="p-2 sm:p-6 overflow-y-auto bg-slate-100 flex justify-center">
-                <div id="printable-area" class="bg-white w-[210mm] h-[296mm] p-[6mm_10mm] shadow-xl text-slate-900 text-[12px] leading-snug font-sans relative flex flex-col justify-between box-border overflow-hidden"></div>
+                <!-- A4 printable layout container strictly styled to match Form กฟผ.-รพ.74 -->
+                <div id="printable-area" class="bg-white w-[210mm] h-[297mm] p-[10mm_15mm] shadow-xl text-slate-900 text-[13px] leading-tight font-sarabun relative flex flex-col justify-between box-border overflow-hidden"></div>
             </div>
         </div>
     </div>
@@ -819,6 +837,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Catalog ยาเริ่มต้น 11 รายการมาตรฐานตามใบเบิก
         let DRUG_CATALOG = [
             { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด", image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80" },
             { id: 2, name: "Chlorpheniramine 4 mg. (ยาแก้แพ้ ลดผื่นคัน ลดน้ำมูก)", maxQty: 30, unit: "เม็ด", image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&auto=format&fit=crop&q=80" },
@@ -826,11 +845,11 @@
             { id: 4, name: "ORS (ผงเกลือแร่ สำหรับท้องเสีย)", maxQty: 5, unit: "ซอง", image: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=300&auto=format&fit=crop&q=80" },
             { id: 5, name: "Brown Mixture 60 ml. (ยาจิบแก้ไอ)", maxQty: 2, unit: "ขวด", image: "https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?w=300&auto=format&fit=crop&q=80" },
             { id: 6, name: "Mix Carminative 180 ml. (ยาขับลม ท้องอืด)", maxQty: 2, unit: "ขวด", image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&auto=format&fit=crop&q=80" },
-            { id: 7, name: "Whitfield's ointment 15 g. (ยารักษากลากเกลื้อน)", maxQty: 1, unit: "หลอด", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&auto=format&fit=crop&q=80" },
+            { id: 7, name: "Whitfield's ointment 15 g. (ยารักษากลากเกลื้อน น้ำกัดเท้า)", maxQty: 1, unit: "หลอด", image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&auto=format&fit=crop&q=80" },
             { id: 8, name: "GPO Analgesic Balm 30 g. (บาล์มนวดแก้ปวด)", maxQty: 2, unit: "หลอด", image: "https://images.unsplash.com/photo-1608248597359-97424e65b75b?w=300&auto=format&fit=crop&q=80" },
-            { id: 9, name: "BETAMED solution 15 ml. (ยาทาแผลสด)", maxQty: 1, unit: "ขวด", image: "https://images.unsplash.com/photo-1583912267670-6677cbd5c7cc?w=300&auto=format&fit=crop&q=80" },
+            { id: 9, name: "BETAMED solution 15 ml. (เบต้าเมด โซลูชั่น ยาทาแผลสด)", maxQty: 1, unit: "ขวด", image: "https://images.unsplash.com/photo-1583912267670-6677cbd5c7cc?w=300&auto=format&fit=crop&q=80" },
             { id: 10, name: "Tigerplast (พลาสเตอร์ผ้าปิดแผล)", maxQty: 10, unit: "แผ่น", image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=300&auto=format&fit=crop&q=80" },
-            { id: 11, name: "Gauze Sterile Cotton balls (สำลีก้อนทำแผล)", maxQty: 2, unit: "แพ็ก", image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=300&auto=format&fit=crop&q=80" }
+            { id: 11, name: "Gauze Sterile Cotton balls (สำลีก้อน สำหรับเช็ดทำความสะอาดแผล)", maxQty: 2, unit: "แพ็ก", image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=300&auto=format&fit=crop&q=80" }
         ];
 
         let appState = {
@@ -849,7 +868,7 @@
                 approverSignature: "",
                 dispenserName: "นางสาววรรณภา รักษาดี",
                 dispenserPos: "เจ้าหน้าที่สถานพยาบาล",
-                gssUrl: "https://script.google.com/macros/s/AKfycbzWEiCavg8g-oru4shcUvcSq4ufQXN48NefkmzWD5ilq8n1ilA4zDpEcll5T0gPRvdN/exec"
+                gssUrl: "https://script.google.com/macros/s/AKfycbz3sgorRpTzAWa5HNwmUaf3Hg275_rOKiAXX6cR4MwdP3yr459kOR-LVACYKRQY7r4uYw/exec"
             },
             auth: { admin: false, dispense: false, approve: false },
             usersFromSheet: []
@@ -1002,17 +1021,17 @@
                         return {
                             id: r.RequestNo || r.id,
                             date: r.RequestDate || r.date,
-                            recipient: r.Recipient || "หธฬอ.ฟ",
+                            recipient: r.Recipient || "หธฬอ.ฟ / หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์",
                             departmentGroup: r.Dept || r.departmentGroup,
                             name: r.RequesterName || r.name,
                             idCard: r.EmpId || r.idCard,
                             phone: r.Phone || r.phone,
-                            position: r.Position || r.position || "ช.6",
-                            section: r.Section || r.section || "หธฬอ.ฟ",
-                            division: r.Division || r.division || "กอง กฬอ-ฟ",
-                            departmentSub: r.DepartmentSub || r.departmentSub || "ฝ่าย อฟอ.",
+                            position: r.Position || r.position || "ช.5",
+                            section: r.Section || r.section || "หน.พือ-ฟ.",
+                            division: r.Division || r.division || "กพือ-ฟ",
+                            departmentSub: r.DepartmentSub || r.departmentSub || "อฟอ.",
                             purpose: { text: r.Purpose || "เพื่อสำรองไว้ใช้ประจำหน่วยงาน" },
-                            staffCount: r.StaffCount || 1,
+                            staffCount: r.StaffCount || 4,
                             items: parsedItems,
                             status: parsedStatus,
                             signatures: {
@@ -1347,7 +1366,7 @@
             if (dateEl) dateEl.value = today;
         }
 
-        // Render Drug Items Form with Mobile Card & Desktop Table (Full drug name displayed)
+        // Render Drug Items Form with Mobile Card & Desktop Table
         function renderDrugItemsForm() {
             const container = document.getElementById('drug-items-container');
             const mobileContainer = document.getElementById('drug-items-mobile-container');
@@ -1389,7 +1408,7 @@
                 `;
             }).join('');
 
-            // Mobile App Style Card View HTML (Using whitespace-normal break-words to show full drug name)
+            // Mobile App Style Card View HTML
             mobileContainer.innerHTML = DRUG_CATALOG.map((drug, index) => {
                 const saved = currentSelections[drug.id] || { checked: false, qty: 0 };
                 return `
@@ -1403,7 +1422,6 @@
                             </div>
                         </div>
 
-                        <!-- Touch Stepper Input (0-based) -->
                         <div class="flex items-center space-x-1 flex-shrink-0 bg-slate-100 p-1 rounded-xl border border-slate-200">
                             <button type="button" onclick="adjustQtyStep(${drug.id}, -1)" ${saved.checked ? '' : 'disabled'} class="w-7 h-7 bg-white text-slate-700 rounded-lg font-bold text-sm shadow-xs active:scale-95 disabled:opacity-40 flex items-center justify-center">-</button>
                             <input type="number" id="drug-qty-mob-${drug.id}" min="0" max="${drug.maxQty}" value="${saved.qty}" oninput="syncMobileQtyInput(this, ${drug.id}, ${drug.maxQty})" ${saved.checked ? '' : 'disabled'} class="w-10 text-center font-bold text-xs bg-transparent focus:outline-none">
@@ -1602,25 +1620,25 @@
         }
 
         function loadSampleData() {
-            document.getElementById('req-name').value = "นายนคร มากับใคร";
-            document.getElementById('req-idcard').value = "510012";
-            document.getElementById('req-phone').value = "0956465208";
-            document.getElementById('req-recipient').value = "หธฬอ.ฟ";
-            document.getElementById('req-position').value = "ช.6";
-            document.getElementById('req-section').value = "หธฬอ.ฟ";
-            document.getElementById('req-division').value = "กอง กฬอ-ฟ";
-            document.getElementById('req-department-sub').value = "ฝ่าย อฟอ.";
-            [1, 2, 3].forEach(id => {
+            document.getElementById('req-name').value = "นายวีรพงษ์ เกตุมุกดา";
+            document.getElementById('req-idcard').value = "596749";
+            document.getElementById('req-phone').value = "081-5743778";
+            document.getElementById('req-recipient').value = "หธฬอ.ฟ / หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์";
+            document.getElementById('req-position').value = "ช.5";
+            document.getElementById('req-section').value = "หน.พือ-ฟ.";
+            document.getElementById('req-division').value = "กพือ-ฟ";
+            document.getElementById('req-department-sub').value = "อฟอ.";
+            [1, 2, 3, 4].forEach(id => {
                 const chk = document.getElementById(`drug-chk-${id}`);
                 if (chk) {
                     chk.checked = true;
                     toggleDrugQty(id);
-                    document.getElementById(`drug-qty-${id}`).value = 30;
+                    document.getElementById(`drug-qty-${id}`).value = id === 4 ? 5 : 20;
                     const mobInput = document.getElementById(`drug-qty-mob-${id}`);
-                    if (mobInput) mobInput.value = 30;
+                    if (mobInput) mobInput.value = id === 4 ? 5 : 20;
                 }
             });
-            showToast("สำเร็จ", "เติมข้อมูลตัวอย่างแล้ว");
+            showToast("สำเร็จ", "เติมข้อมูลตัวอย่างแบบ กฟผ.-รพ.74 เรียบร้อยแล้ว");
         }
 
         function handleFormSubmit(e) {
@@ -1646,10 +1664,10 @@
             const deptGroup = document.getElementById('req-department-group').value;
             const purposeType = document.querySelector('input[name="purpose"]:checked').value;
             let purposeText = "";
-            let staffCount = 1;
+            let staffCount = 4;
 
             if (purposeType === 'reserve') {
-                staffCount = document.getElementById('purpose-workers').value || 10;
+                staffCount = document.getElementById('purpose-workers').value || 4;
                 purposeText = `เพื่อสำรองไว้ใช้ประจำหน่วยงาน (ผู้ปฏิบัติงาน ${staffCount} คน)`;
             } else {
                 const loc = document.getElementById('purpose-location').value || "ระบุสถานที่";
@@ -1772,9 +1790,9 @@
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
             if (window.innerWidth < 768) {
-                generateAndShowA4Image(id); // บนมือถือแสดงภาพเอกสารทางการ A4 (.PNG)
+                generateAndShowA4Image(id); // แสดงภาพ JPEG/PNG พร้อมปุ่มดาวน์โหลด/แชร์ สำหรับมือถือ
             } else {
-                openPdfModal(id); // บนเดสก์ท็อปเปิดหน้าต่าง PDF/Print A4
+                openPdfModal(id); // แสดงแบบฟอร์ม PDF พิมพ์ A4 สำหรับจอคอมพิวเตอร์
             }
         }
 
@@ -1855,7 +1873,7 @@
                         <td class="p-3 text-center">${statusApproveBadge}</td>
                         <td class="p-3 text-center">${statusDispenseBadge}</td>
                         <td class="p-3 text-center space-x-1">
-                            <button onclick="viewReceiptOrPdf('${r.id}')" class="p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs" title="ดูภาพเอกสารทางการ/พิมพ์"><i class="fas fa-file-image"></i></button>
+                            <button onclick="viewReceiptOrPdf('${r.id}')" class="p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs" title="ดูภาพเอกสารทางการ/พิมพ์ (PDF/Image)"><i class="fas fa-file-invoice"></i></button>
                             <button onclick="editRequest('${r.id}')" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteRequest('${r.id}')" class="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-xs" title="ลบรายการ"><i class="fas fa-trash"></i></button>
                         </td>
@@ -1871,15 +1889,15 @@
             switchTab('request');
             document.getElementById('edit-id').value = r.id;
             document.getElementById('req-date').value = r.date;
-            document.getElementById('req-recipient').value = r.recipient || "หธฬอ.ฟ";
+            document.getElementById('req-recipient').value = r.recipient || "หธฬอ.ฟ / หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์";
             document.getElementById('req-department-group').value = r.departmentGroup;
             document.getElementById('req-name').value = r.name;
             document.getElementById('req-idcard').value = r.idCard;
             document.getElementById('req-phone').value = r.phone;
-            document.getElementById('req-position').value = r.position || 'ช.6';
-            document.getElementById('req-section').value = r.section || 'หธฬอ.ฟ';
-            document.getElementById('req-division').value = r.division || 'กอง กฬอ-ฟ';
-            document.getElementById('req-department-sub').value = r.departmentSub || 'ฝ่าย อฟอ.';
+            document.getElementById('req-position').value = r.position || 'ช.5';
+            document.getElementById('req-section').value = r.section || 'หน.พือ-ฟ.';
+            document.getElementById('req-division').value = r.division || 'กพือ-ฟ';
+            document.getElementById('req-department-sub').value = r.departmentSub || 'อฟอ.';
 
             renderDrugItemsForm();
             r.items.forEach(item => {
@@ -2096,7 +2114,7 @@
                 <div class="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80 flex flex-col justify-between space-y-3">
                     <div>
                         <div class="flex items-center space-x-3 mb-2">
-                            <img src="${d.image}" class="w-14 h-14 object-cover rounded-xl border border-slate-200 shadow-xs flex-shrink-0" alt="Drug">
+                            <img id="catalog-img-${d.id}" src="${d.image}" class="w-14 h-14 object-cover rounded-xl border border-slate-200 shadow-xs flex-shrink-0" alt="Drug">
                             <div class="min-w-0 flex-1">
                                 <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">รายการที่ ${i + 1}</span>
                                 <h4 class="font-bold text-slate-800 text-xs sm:text-sm mt-1 leading-snug whitespace-normal break-words">${d.name}</h4>
@@ -2112,9 +2130,9 @@
             `).join('');
         }
 
-        // Image compression helper to prevent oversized base64 payloads
-        function resizeImageToDataURL(file, maxWidth = 300, quality = 0.7) {
-            return new Promise((resolve) => {
+        // ฟังก์ชันบีบอัดรูปภาพให้ได้ขนาดพอเหมาะ ป้องกัน Payload Oversize ก่อนส่ง Google Apps Script
+        function resizeImageToDataURL(file, maxWidth = 320, quality = 0.75) {
+            return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = new Image();
@@ -2132,23 +2150,29 @@
                         ctx.drawImage(img, 0, 0, width, height);
                         resolve(canvas.toDataURL('image/jpeg', quality));
                     };
+                    img.onerror = reject;
                     img.src = e.target.result;
                 };
+                reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
         }
 
+        // แก้ไขระบบอัปโหลดรูปภาพรายการยา อัปเดต state ในเครื่องและส่ง POST ไปยัง Google Sheet
         async function uploadDrugImage(event, id) {
             const file = event.target.files[0];
             if (!file) return;
 
             showLoading(true, 50);
             try {
-                const compressedBase64 = await resizeImageToDataURL(file, 300, 0.7);
+                const compressedBase64 = await resizeImageToDataURL(file, 320, 0.75);
                 const drug = DRUG_CATALOG.find(d => d.id === parseInt(id));
                 if (drug) {
                     drug.image = compressedBase64;
-                    renderDrugCatalog();
+                    
+                    // อัปเดตภาพในหน้า Catalog และ Form ทันที
+                    const imgEl = document.getElementById(`catalog-img-${id}`);
+                    if (imgEl) imgEl.src = compressedBase64;
                     renderDrugItemsForm();
 
                     const url = appState.settings.gssUrl;
@@ -2160,11 +2184,11 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ action: 'updateDrugImage', id: id, image: compressedBase64 })
                         });
-                        showToast("สำเร็จ", "อัปโหลดรูปภาพยาและซิงค์เรียบร้อยแล้ว");
-                        setTimeout(() => fetchDataFromSheet(false), 1000);
+                        showToast("สำเร็จ", "อัปโหลดรูปภาพยาและซิงค์ข้อมูลลง Google Sheets เรียบร้อยแล้ว");
                     }
                 }
             } catch (err) {
+                console.error("Upload Error:", err);
                 showToast("ข้อผิดพลาด", "ไม่สามารถอัปโหลดรูปภาพได้");
             } finally {
                 showLoading(false);
@@ -2305,82 +2329,99 @@
             }
         }
 
+        // ==========================================
+        // สร้างเลย์เอาต์ A4 ตามแบบ กฟผ.-รพ.74 (ภาพที่ 2 เป๊ะ)
+        // ==========================================
         function populatePrintableArea(r) {
             const dateObj = new Date(r.date || Date.now());
             const thaiDays = dateObj.getDate();
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"][dateObj.getMonth()];
             const thaiYears = dateObj.getFullYear() + 543;
 
+            // ตารางคงที่ 11 แถวตามแบบ กฟผ.-รพ.74
             let rowsHtml = '';
             for (let i = 0; i < 11; i++) {
                 const item = r.items && r.items[i] ? r.items[i] : null;
                 let isDispensed = r.status === 'completed' || r.status === 'pending_dispense';
                 rowsHtml += `
-                    <tr class="h-5 border-b border-slate-400 text-[11px] leading-tight">
-                        <td class="border-r border-slate-400 p-0.5 text-center w-6 font-sarabun">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[125px] font-sarabun">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 text-center font-bold w-9 font-sarabun">${item ? item.qty : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 text-center w-9 font-sarabun">${item ? item.unit : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 text-center w-6 font-sarabun">${item ? (i + 1) : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 px-1 truncate max-w-[125px] font-sarabun">${item ? item.name : ''}</td>
-                        <td class="border-r border-slate-400 p-0.5 text-center font-bold text-emerald-900 w-9 font-sarabun">${isDispensed && item ? item.qty : ''}</td>
-                        <td class="p-0.5 text-center w-9 font-sarabun">${item ? item.unit : ''}</td>
+                    <tr class="h-6 border-b border-black text-[12px] leading-snug">
+                        <td class="border-r border-black p-0.5 text-center w-7 font-sarabun">${i + 1}</td>
+                        <td class="border-r border-black p-0.5 px-1 truncate font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-black p-0.5 text-center font-bold w-10 font-sarabun">${item ? item.qty : ''}</td>
+                        <td class="border-r border-black p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
+                        <td class="border-r border-black p-0.5 text-center w-7 font-sarabun">${i + 1}</td>
+                        <td class="border-r border-black p-0.5 px-1 truncate font-sarabun">${item ? item.name : ''}</td>
+                        <td class="border-r border-black p-0.5 text-center font-bold text-slate-900 w-10 font-sarabun">${isDispensed && item ? item.qty : ''}</td>
+                        <td class="p-0.5 text-center w-10 font-sarabun">${item ? item.unit : ''}</td>
                     </tr>
                 `;
             }
 
             let purposeRaw = r.purpose ? r.purpose.text : '';
-            let deptName = r.departmentGroup || 'หน่วยงานผู้ขอเบิก';
-            let workerCount = r.staffCount || 10;
+            let deptName = r.departmentGroup || 'โรงไฟฟ้าเขื่อนจุฬาภรณ์';
+            let workerCount = r.staffCount || 4;
             
             const matchWorkers = purposeRaw.match(/ผู้ปฏิบัติงาน\s*(\d+)\s*คน/);
             if (matchWorkers && matchWorkers[1]) workerCount = matchWorkers[1];
 
+            const isReserve = !purposeRaw.includes('เดินทางไปปฏิบัติงาน');
+
             let purposeHtml = `
-                <div class="space-y-0.5 text-[11px] font-sarabun">
+                <div class="space-y-1 text-[13px] font-sarabun">
                     <div class="flex items-center space-x-2">
-                        <span class="inline-block w-3.5 h-3.5 border border-black text-center text-[9px] leading-3 font-bold">✓</span>
+                        <span class="circle-option">${isReserve ? '✓' : ''}</span>
                         <span>เพื่อสำรองไว้ใช้ประจำหน่วยงาน <strong class="underline">${deptName}</strong> ซึ่งมีผู้ปฏิบัติงานจำนวน <strong class="underline px-1">${workerCount}</strong> คน</span>
                     </div>
-                    <div class="flex items-center space-x-2 text-slate-500">
-                        <span class="inline-block w-3.5 h-3.5 border border-slate-400 text-center text-[9px] leading-3"></span>
-                        <span>เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ ................................................... ประมาณ ......... วัน สำหรับผู้เดินทางจำนวน ......... คน</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="circle-option">${!isReserve ? '✓' : ''}</span>
+                        <span>เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ ................................................................ ประมาณ ......... วัน สำหรับผู้เดินทางจำนวน ......... คน</span>
                     </div>
                 </div>
             `;
 
+            // ลายเซ็นผู้อนุมัติ & วันที่อนุมัติ
+            let approverDateStr = "....... / ....... / .......";
+            if (r.status === 'pending_dispense' || r.status === 'completed') {
+                approverDateStr = `${thaiDays} / ${dateObj.getMonth() + 1} / ${thaiYears.toString().substring(2)}`;
+            }
+
             const printableArea = document.getElementById('printable-area');
             printableArea.innerHTML = `
-                <div class="sarabun-font text-[12px] leading-tight">
-                    <div class="flex justify-between items-start font-bold mb-0.5">
-                        <div class="text-[11px] text-emerald-900 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <div class="sarabun-font text-[13px] leading-relaxed">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start font-bold mb-1">
+                        <div class="text-[11px] text-slate-600 font-normal">
                             เลขที่คำขอ: ${r.id}
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-bold leading-tight">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
-                            <p class="text-[11px] font-normal text-slate-700">แบบ กฟผ.-รพ.74</p>
+                            <p class="text-base font-bold leading-tight">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
+                            <p class="text-[12px] font-bold">แบบ กฟผ.-รพ.74</p>
                         </div>
                     </div>
-                    <h2 class="text-center font-bold text-sm mb-1 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
                     
-                    <div class="flex justify-end text-[11px] mb-1">
-                        <span>วันที่ <strong>${thaiDays}</strong> เดือน <strong>${thaiMonths}</strong> พ.ศ. <strong>${thaiYears}</strong></span>
+                    <h2 class="text-center font-bold text-base mb-2 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
+                    
+                    <div class="flex justify-end text-[13px] mb-2 font-sarabun">
+                        <span>วันที่ <strong class="underline px-1">${thaiDays}</strong> เดือน <strong class="underline px-1">${thaiMonths}</strong> พ.ศ. <strong class="underline px-1">${thaiYears}</strong></span>
                     </div>
 
-                    <div class="space-y-0.5 text-[11px] mb-1">
-                        <p>เรียน <strong>${r.recipient || 'หธฬอ.ฟ'}</strong></p>
+                    <div class="space-y-1 text-[13px] mb-2 font-sarabun">
+                        <p>เรียน <span class="font-bold">* ${r.recipient || 'หธฬอ.ฟ / หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์'}</span></p>
+                        
                         <div class="flex flex-wrap items-center justify-between">
-                            <span>ข้าพเจ้า <strong>${r.name}</strong></span>
-                            <span>หมายเลขประจำตัว <strong>${r.idCard}</strong></span>
+                            <span>ข้าพเจ้า <strong class="underline px-1">${r.name}</strong></span>
+                            <span>หมายเลขประจำตัว <strong class="underline px-1 border border-black px-1 tracking-widest font-mono">${r.idCard}</strong></span>
                         </div>
-                        <div class="flex flex-wrap justify-between">
-                            <span>ตำแหน่ง <strong>${r.position || 'ช.6'}</strong></span>
-                            <span>แผนก <strong>${r.section || 'หธฬอ.ฟ'}</strong></span>
-                            <span>กอง <strong>${r.division || 'กอง กฬอ-ฟ'}</strong></span>
-                            <span>ฝ่าย <strong>${r.departmentSub || 'ฝ่าย อฟอ.'}</strong></span>
-                            <span>โทรศัพท์ <strong>${r.phone}</strong></span>
+                        
+                        <div class="flex flex-wrap justify-between items-center">
+                            <span>ตำแหน่ง <strong class="underline px-1">${r.position || 'ช.5'}</strong></span>
+                            <span>แผนก <strong class="underline px-1">${r.section || 'หน.พือ-ฟ.'}</strong></span>
+                            <span>กอง <strong class="underline px-1">${r.division || 'กพือ-ฟ'}</strong></span>
+                            <span>ฝ่าย <strong class="underline px-1">${r.departmentSub || 'อฟอ.'}</strong></span>
+                            <span>โทรศัพท์ <strong class="underline px-1">${r.phone}</strong></span>
                         </div>
-                        <p class="mt-0.5 font-semibold">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
+                        
+                        <p class="mt-1">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
                         
                         <div class="pl-2">
                             ${purposeHtml}
@@ -2388,22 +2429,23 @@
                     </div>
                 </div>
 
-                <div class="my-0.5 sarabun-font">
-                    <table class="w-full border-collapse border border-slate-500 text-[11px]">
+                <!-- Main Table -->
+                <div class="my-1 sarabun-font">
+                    <table class="w-full border-collapse border border-black text-[12px]">
                         <thead>
-                            <tr class="bg-slate-100 border-b border-slate-500">
-                                <th colspan="4" class="border-r border-slate-500 p-0.5 text-center font-bold text-slate-900">รายการยาและเวชภัณฑ์ที่ขอเบิก</th>
-                                <th colspan="4" class="p-0.5 text-center font-bold text-slate-900">รายการยาและเวชภัณฑ์ที่สั่งจ่าย</th>
+                            <tr class="bg-slate-50 border-b border-black">
+                                <th colspan="4" class="border-r border-black p-1 text-center font-bold">รายการยาและเวชภัณฑ์ที่ขอเบิก</th>
+                                <th colspan="4" class="p-1 text-center font-bold">รายการยาและเวชภัณฑ์ที่สั่งจ่าย</th>
                             </tr>
-                            <tr class="bg-slate-50 border-b border-slate-500 text-[10px]">
-                                <th class="border-r border-slate-500 p-0.5 w-6">ที่</th>
-                                <th class="border-r border-slate-500 p-0.5">รายการ</th>
-                                <th class="border-r border-slate-500 p-0.5 w-9">จำนวน</th>
-                                <th class="border-r border-slate-500 p-0.5 w-9">หน่วย</th>
-                                <th class="border-r border-slate-500 p-0.5 w-6">ที่</th>
-                                <th class="border-r border-slate-500 p-0.5">รายการ</th>
-                                <th class="border-r border-slate-500 p-0.5 w-9">จ่าย</th>
-                                <th class="p-0.5 w-9">หน่วย</th>
+                            <tr class="bg-white border-b border-black text-[11px]">
+                                <th class="border-r border-black p-1 w-7">ที่</th>
+                                <th class="border-r border-black p-1">รายการ</th>
+                                <th class="border-r border-black p-1 w-10">จำนวน</th>
+                                <th class="border-r border-black p-1 w-10">หน่วย</th>
+                                <th class="border-r border-black p-1 w-7">ที่</th>
+                                <th class="border-r border-black p-1">รายการ</th>
+                                <th class="border-r border-black p-1 w-10">จ่าย</th>
+                                <th class="p-1 w-10">หน่วย</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2412,40 +2454,62 @@
                     </table>
                 </div>
 
-                <div class="sarabun-font text-[11px] mt-1 space-y-1">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-18 relative">
-                            <div class="text-center text-[10px] text-slate-600">**(ลงชื่อ)...................................................ผู้ขอเบิก</div>
-                            <div class="text-center relative h-6 flex items-center justify-center">
-                                ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") ? `<img src="${r.signatures.requestor}" class="h-6 object-contain">` : ''}
+                <!-- Signatures & Notes Block (โครงสร้างเป๊ะตามภาพที่ 2) -->
+                <div class="sarabun-font text-[12px] space-y-1">
+                    <!-- Upper Box Row (ผู้ขอเบิก / ผู้อนุมัติ) -->
+                    <div class="grid grid-cols-2 border border-black">
+                        <!-- ผู้ขอเบิก -->
+                        <div class="p-2 border-r border-black flex flex-col justify-between h-24 text-center">
+                            <div>
+                                <span>**(ลงชื่อ)</span>
+                                <div class="h-9 relative flex items-center justify-center my-0.5">
+                                    ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") 
+                                        ? `<img src="${r.signatures.requestor}" class="h-9 object-contain">` 
+                                        : `<span class="border-b border-dotted border-black w-40 inline-block"></span>`}
+                                </div>
+                                <span class="font-bold">ผู้ขอเบิก</span>
                             </div>
-                            <div class="text-center text-[10px] font-bold">(${r.name})</div>
+                            <div class="font-bold">(${r.name})</div>
                         </div>
 
-                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-18 relative">
-                            <div class="text-center text-[10px] text-slate-600">**(ลงชื่อ)...................................................ผู้อนุมัติ</div>
-                            <div class="text-center relative h-6 flex items-center justify-center">
-                                ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") ? `<img src="${r.signatures.approver}" class="h-6 object-contain">` : ''}
+                        <!-- ผู้อนุมัติ -->
+                        <div class="p-2 flex flex-col justify-between h-24 text-center">
+                            <div>
+                                <span>**(ลงชื่อ)</span>
+                                <div class="h-9 relative flex items-center justify-center my-0.5">
+                                    ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") 
+                                        ? `<img src="${r.signatures.approver}" class="h-9 object-contain">` 
+                                        : `<span class="border-b border-dotted border-black w-40 inline-block"></span>`}
+                                </div>
+                                <span class="font-bold">ผู้อนุมัติ</span>
                             </div>
-                            <div class="text-center text-[10px]">
-                                <span class="font-bold">(${appState.settings.approverName})</span><br>
-                                <span class="text-[9px]">ตำแหน่ง <strong>${appState.settings.approverPos}</strong></span>
+                            <div>
+                                <div class="font-bold">(${appState.settings.approverName})</div>
+                                <div class="text-[11px]">ตำแหน่ง <strong>${appState.settings.approverPos}</strong></div>
+                                <div class="text-[10px]">วันที่ <strong>${approverDateStr}</strong></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 pt-0.5">
-                        <div class="border border-slate-500 p-1 rounded flex flex-col justify-between h-17 text-[10px]">
+                    <!-- Lower Box Row (ผู้รับยา / หมายเหตุ) -->
+                    <div class="grid grid-cols-2 border border-t-0 border-black">
+                        <!-- ผู้รับยา -->
+                        <div class="p-2 border-r border-black flex flex-col justify-between h-28">
                             <p class="leading-tight">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
-                            <div class="text-center relative">
-                                ${r.signatures && r.signatures.receiver && r.signatures.receiver.startsWith("data:image") ? `<img src="${r.signatures.receiver}" class="h-5 object-contain mx-auto">` : ''}
-                                <p class="mt-0.5">(ลงชื่อ)...................................................ผู้รับยา</p>
+                            <div class="text-center my-1">
+                                <div class="h-8 relative flex items-center justify-center">
+                                    ${r.signatures && r.signatures.receiver && r.signatures.receiver.startsWith("data:image") 
+                                        ? `<img src="${r.signatures.receiver}" class="h-8 object-contain">` 
+                                        : `<span class="border-b border-dotted border-black w-36 inline-block"></span>`}
+                                </div>
+                                <p class="mt-0.5 font-bold">(ลงชื่อ)...................................................ผู้รับยา</p>
                                 <p class="font-bold">(${r.name})</p>
                             </div>
                         </div>
 
-                        <div class="text-[9px] text-slate-800 p-1 border border-slate-400 rounded bg-slate-50/80 leading-tight space-y-0.5">
-                            <p class="font-bold">หมายเหตุ</p>
+                        <!-- หมายเหตุ -->
+                        <div class="p-2 text-[10px] leading-tight space-y-1">
+                            <p class="font-bold underline">หมายเหตุ</p>
                             <p>(1) <strong>*</strong> อพอ. ผู้ที่ อพอ. มอบหมาย กกม-ห. หัวหน้าแผนกสุขภาพอนามัยในส่วนภูมิภาค หรือผู้ปฏิบัติงานด้านการแพทย์และอนามัยที่ผู้อำนวยการฝ่ายแพทย์และอนามัย มอบหมาย</p>
                             <p>(2) <strong>**</strong> หัวหน้าแผนกขึ้นไป หรือหัวหน้าสถานีไฟฟ้าแรงสูง</p>
                             <p>(3) แบบ กฟผ.-รพ.74 ให้จัดทำครั้งละ 2 ฉบับ ต้นฉบับ - สถานพยาบาลของ กฟผ. ที่จ่ายยา / สำเนา - ผู้ขอเบิก</p>
