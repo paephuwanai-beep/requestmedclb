@@ -70,6 +70,18 @@
             font-size: 10px;
             font-weight: bold;
         }
+        #a4-capture-stage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 794px;
+            min-height: 1123px;
+            background: #ffffff;
+            z-index: -1;
+            opacity: 0;
+            pointer-events: none;
+            overflow: visible;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-full flex flex-col antialiased">
@@ -817,7 +829,7 @@
         </div>
     </div>
 
-    <div id="canvas-render-container" style="position: absolute; left: -9999px; top: -9999px; width: 794px; background: #ffffff; z-index: -9999; pointer-events: none;"></div>
+    <div id="a4-capture-stage"></div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
@@ -1682,46 +1694,71 @@
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
 
-            showLoading(true, 40);
+            showLoading(true, 45);
+
+            // 1. สร้างเนื้อหาแบบฟอร์ม A4 ลงใน #printable-area ก่อน
             populatePrintableArea(r);
+            const sourceHtml = document.getElementById('printable-area').innerHTML;
 
-            const printableArea = document.getElementById('printable-area');
-            const originalStyle = printableArea.getAttribute('style') || '';
-            
-            printableArea.style.width = '794px';
-            printableArea.style.height = '1123px';
-            printableArea.style.position = 'fixed';
-            printableArea.style.left = '-9999px';
-            printableArea.style.top = '0';
-            printableArea.style.transform = 'none';
+            // 2. นำเนื้อหามาใส่ใน #a4-capture-stage ที่ไม่ได้ซ่อน display:none (แก้ปัญหาภาพขาวบน iPhone)
+            const stage = document.getElementById('a4-capture-stage');
+            stage.innerHTML = `
+                <div id="a4-real-paper" class="bg-white text-slate-900 font-sarabun flex flex-col justify-between box-border" 
+                     style="width: 794px; min-height: 1123px; padding: 38px 56px; background: #ffffff; color: #0f172a; line-height: 1.35;">
+                    ${sourceHtml}
+                </div>
+            `;
 
-            setTimeout(() => {
-                html2canvas(printableArea, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    width: 794,
-                    height: 1123,
-                    windowWidth: 1024
-                }).then(canvas => {
-                    printableArea.setAttribute('style', originalStyle);
+            // 3. เปิดให้เบราว์เซอร์วาด Layout จริง (opacity: 1 ชั่วคราวใต้ Loading Overlay)
+            stage.style.opacity = '1';
+            stage.style.zIndex = '40';
 
-                    latestReceiptPngDataUrl = canvas.toDataURL('image/png', 1.0);
-                    latestReceiptJpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            const paperElement = document.getElementById('a4-real-paper');
 
-                    document.getElementById('receipt-preview-img').src = latestReceiptJpegDataUrl;
-                    document.getElementById('receipt-preview-title').innerText = `แบบ กฟผ.-รพ.74 (${r.id})`;
-                    document.getElementById('receipt-popup-modal').classList.remove('hidden');
-                    showLoading(false);
-                }).catch(err => {
-                    printableArea.setAttribute('style', originalStyle);
-                    console.error("html2canvas error:", err);
-                    showLoading(false);
-                    showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้");
-                });
-            }, 300);
+            // 4. รอให้ฟอนต์ Sarabun และรูปลายเซ็นโหลดเสร็จสมบูรณ์
+            document.fonts.ready.then(() => {
+                setTimeout(() => {
+                    html2canvas(paperElement, {
+                        scale: 2, // คมชัดระดับ Retina / HD
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff',
+                        width: 794,
+                        height: paperElement.scrollHeight > 1123 ? paperElement.scrollHeight : 1123,
+                        windowWidth: 1024,
+                        scrollX: 0,
+                        scrollY: 0
+                    }).then(canvas => {
+                        // ซ่อนเวทีเรนเดอร์กลับไป
+                        stage.style.opacity = '0';
+                        stage.style.zIndex = '-1';
+                        stage.innerHTML = '';
+
+                        // แปลงเป็นไฟล์ภาพคุณภาพสูง
+                        latestReceiptPngDataUrl = canvas.toDataURL('image/png', 1.0);
+                        latestReceiptJpegDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+
+                        // นำภาพแสดงใน Popup
+                        const previewImg = document.getElementById('receipt-preview-img');
+                        previewImg.src = latestReceiptJpegDataUrl;
+
+                        document.getElementById('receipt-preview-title').innerText = `แบบ กฟผ.-รพ.74 (${r.id})`;
+                        document.getElementById('pdf-modal').classList.add('hidden');
+                        document.getElementById('receipt-popup-modal').classList.remove('hidden');
+                        
+                        showLoading(false);
+                    }).catch(err => {
+                        stage.style.opacity = '0';
+                        stage.style.zIndex = '-1';
+                        stage.innerHTML = '';
+                        console.error("Capture Error:", err);
+                        showLoading(false);
+                        showToast("ข้อผิดพลาด", "ไม่สามารถสร้างรูปภาพเอกสารได้ กรุณาลองใหม่");
+                    });
+                }, 450);
+            });
         }
-
+        
         function closeReceiptPopup() {
             document.getElementById('receipt-popup-modal').classList.add('hidden');
         }
