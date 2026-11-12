@@ -36,11 +36,9 @@
         .sarabun-font { 
             font-family: 'Sarabun', 'THSarabunNew', 'TH Sarabun PSK', sans-serif !important; 
         }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Style สำหรับพิมพ์เอกสาร A4 สัดส่วนตามแบบ กฟผ.-รพ.74 เป๊ะ */
         @media print {
             @page { size: A4 portrait; margin: 0; }
             html, body {
@@ -449,10 +447,10 @@
                             </label>
                         </div>
 
-                        <!-- 1. Mobile Card View (ซ่อนใน Desktop ด้วย md:hidden เพื่อไม่ให้แสดงผลซ้ำกัน) -->
+                        <!-- Mobile Card View -->
                         <div id="drug-items-mobile-container" class="space-y-2.5 md:hidden"></div>
 
-                        <!-- 2. Desktop Table View (แสดงเฉพาะใน Desktop ด้วย hidden md:block) -->
+                        <!-- Desktop Table View -->
                         <div class="hidden md:block overflow-hidden border border-slate-200/80 rounded-2xl bg-white shadow-xs">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -589,7 +587,6 @@
                     </div>
                 </div>
 
-                <!-- Responsive Table Container -->
                 <div class="overflow-hidden border border-slate-200/80 rounded-2xl bg-white">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse min-w-[640px]">
@@ -712,35 +709,6 @@
                 <div class="flex justify-end">
                     <button onclick="savePeopleSettings()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow"><i class="fas fa-save mr-1.5"></i>บันทึกลง Google Sheet</button>
                 </div>
-
-                <hr class="border-slate-100">
-
-                <!-- Department Management -->
-                <div class="space-y-3">
-                    <h3 class="font-bold text-slate-800 text-sm flex items-center"><i class="fas fa-building text-emerald-600 mr-2"></i> รายการหน่วยงาน</h3>
-                    
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="new-dept-name" placeholder="ชื่อหน่วยงานใหม่..." class="flex-1 px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <button onclick="addDepartment()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-5 py-2 rounded-xl text-sm font-bold shadow flex items-center justify-center space-x-1">
-                            <i class="fas fa-plus mr-1"></i><span>เพิ่มหน่วยงาน</span>
-                        </button>
-                    </div>
-
-                    <div class="border border-slate-200/80 rounded-2xl overflow-hidden bg-white">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm min-w-[400px]">
-                                <thead>
-                                    <tr class="bg-slate-100/70 text-slate-700 text-xs font-bold border-b border-slate-200">
-                                        <th class="p-3 w-12 text-center">ลำดับ</th>
-                                        <th class="p-3">ชื่อหน่วยงาน</th>
-                                        <th class="p-3 w-28 text-center">จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="department-list-table" class="divide-y divide-slate-100"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -787,44 +755,17 @@
         </div>
     </div>
 
-    <!-- Receipt/Document Popup Modal (PNG/JPEG Preview for Mobile & Desktop Share) -->
-    <div id="receipt-popup-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden p-4 sm:p-5 space-y-4 text-center">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                <h3 class="font-bold text-base text-slate-900" id="receipt-preview-title">ใบขอเบิกยา (แบบ กฟผ.-รพ.74)</h3>
-                <button onclick="closeReceiptPopup()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+    <!-- Dispense Modal -->
+    <div id="dispense-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden p-5 space-y-4 flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-base text-slate-900"><i class="fas fa-pills mr-2 text-blue-600"></i>บันทึกการจ่ายยาและเวชภัณฑ์</h3>
+                <button onclick="closeDispenseModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
             </div>
-            <div id="receipt-preview-container" class="flex justify-center border border-slate-200 rounded-2xl p-2 bg-slate-100 max-h-[65vh] overflow-y-auto">
-                <img id="receipt-preview-img" class="rounded-xl shadow w-full h-auto object-contain min-h-[350px] max-h-[60vh] bg-white block" src="" alt="Document Preview">
-            </div>
-            <div class="flex justify-end space-x-2 pt-1">
-                <button onclick="closeReceiptPopup()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">ปิด</button>
-                <button onclick="shareReceiptImage()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1"><i class="fas fa-share-alt"></i><span>แชร์</span></button>
-                <button onclick="downloadReceiptImage()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow flex items-center space-x-1"><i class="fas fa-download"></i><span>ดาวน์โหลด Image</span></button>
-            </div>
+            <div id="dispense-modal-content" class="overflow-y-auto space-y-4 flex-1"></div>
         </div>
     </div>
 
-    <!-- PDF Modal (Desktop A4 Format Layout) -->
-    <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-            <div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center no-print">
-                <h3 class="font-bold text-xs sm:text-sm">ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)</h3>
-                <div class="flex items-center space-x-2">
-                    <button onclick="printA4()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow flex items-center space-x-1">
-                        <i class="fas fa-print"></i><span>พิมพ์/ดาวน์โหลด PDF</span>
-                    </button>
-                    <button onclick="closePdfModal()" class="bg-slate-700 text-white p-1.5 rounded-lg text-xs"><i class="fas fa-times"></i></button>
-                </div>
-            </div>
-            <div class="p-2 sm:p-6 overflow-y-auto bg-slate-100 flex justify-center">
-                <!-- Container hidden offscreen during render or styled inside modal -->
-                <div id="printable-area-wrapper" class="w-full flex justify-center">
-                    <div id="printable-area" class="bg-white w-[210mm] min-h-[297mm] p-[10mm_15mm] shadow-xl text-slate-900 text-[13px] leading-tight font-sarabun relative flex flex-col justify-between box-border overflow-hidden"></div>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Receipt/Document Popup Modal (PNG/JPEG Preview for Mobile & Desktop Share) -->
     <div id="receipt-popup-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden p-4 sm:p-5 space-y-3.5 flex flex-col max-h-[92vh]">
@@ -833,7 +774,7 @@
                     <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs">
                         <i class="fas fa-file-invoice"></i>
                     </div>
-                    <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate max-w-[220px] sm:max-w-xs" id="receipt-preview-title">ใบขอเบิกยา (แบบ กฟผ.-รพ.74)</h3>
+                    <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate max-w-[220px]" id="receipt-preview-title">ใบขอเบิกยา (แบบ กฟผ.-รพ.74)</h3>
                 </div>
                 <button onclick="closeReceiptPopup()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition"><i class="fas fa-times"></i></button>
             </div>
@@ -855,11 +796,31 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- PDF Modal (Desktop A4 Format Layout) -->
+    <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+            <div class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center no-print">
+                <h3 class="font-bold text-xs sm:text-sm">ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)</h3>
+                <div class="flex items-center space-x-2">
+                    <button onclick="printA4()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow flex items-center space-x-1">
+                        <i class="fas fa-print"></i><span>พิมพ์/ดาวน์โหลด PDF</span>
+                    </button>
+                    <button onclick="closePdfModal()" class="bg-slate-700 text-white p-1.5 rounded-lg text-xs"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="p-2 sm:p-6 overflow-y-auto bg-slate-100 flex justify-center">
+                <div id="printable-area-wrapper" class="w-full flex justify-center">
+                    <div id="printable-area" class="bg-white w-[210mm] min-h-[297mm] p-[10mm_15mm] shadow-xl text-slate-900 text-[13px] leading-tight font-sarabun relative flex flex-col justify-between box-border overflow-hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="canvas-render-container" style="position: absolute; left: -9999px; top: -9999px; width: 794px; background: #ffffff; z-index: -9999; pointer-events: none;"></div>
+
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Catalog ยาเริ่มต้น 11 รายการมาตรฐานตามใบเบิก
         let DRUG_CATALOG = [
             { id: 1, name: "Paracetamol 500 mg. (ยาบรรเทาปวดลดไข้)", maxQty: 50, unit: "เม็ด", image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&auto=format&fit=crop&q=80" },
             { id: 2, name: "Chlorpheniramine 4 mg. (ยาแก้แพ้ ลดผื่นคัน ลดน้ำมูก)", maxQty: 30, unit: "เม็ด", image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=300&auto=format&fit=crop&q=80" },
@@ -897,7 +858,8 @@
         };
 
         let currentFilterStatus = 'all';
-        let latestReceiptDataUrl = null;
+        let latestReceiptJpegDataUrl = null;
+        let latestReceiptPngDataUrl = null;
         let progressInterval = null;
 
         let sigPads = {
@@ -1013,7 +975,6 @@
                 if (data && data.departments && data.departments.length > 0) {
                     appState.departments = data.departments.map(d => d.DepartmentName || d.DeptName || Object.values(d)[0]).filter(Boolean);
                     renderDepartmentsSelect();
-                    if (appState.auth.admin) renderDepartmentTable();
                 }
 
                 if (data && data.medicines && data.medicines.length > 0) {
@@ -1194,7 +1155,6 @@
                 document.getElementById('user-admin').value = '';
                 document.getElementById('pass-admin').value = '';
                 showToast("สำเร็จ", "เข้าสู่ระบบแอดมินเรียบร้อยแล้ว");
-                renderDepartmentTable();
                 renderPendingUsersTable();
             } else {
                 showToast("ข้อผิดพลาด", "Username หรือ Password ของ Admin ไม่ถูกต้อง");
@@ -1247,13 +1207,7 @@
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            action: 'registerUser',
-                            user: user,
-                            pass: pass,
-                            fullname: fullname,
-                            role: role
-                        })
+                        body: JSON.stringify({ action: 'registerUser', user: user, pass: pass, fullname: fullname, role: role })
                     });
                     closeRegisterModal();
                     showToast("สำเร็จ", "ส่งคำขอลงทะเบียนไปยัง Google Sheets เรียบร้อยแล้ว");
@@ -1309,11 +1263,7 @@
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'approveUser',
-                        user: username,
-                        role: assignedRole
-                    })
+                    body: JSON.stringify({ action: 'approveUser', user: username, role: assignedRole })
                 });
                 showToast("สำเร็จ", `อนุมัติบัญชี ${username} เรียบร้อยแล้ว`);
                 setTimeout(() => fetchDataFromSheet(false), 1000);
@@ -1343,10 +1293,7 @@
 
             if (tabId === 'dispense' && appState.auth.dispense) renderDispenseList();
             if (tabId === 'approve' && appState.auth.approve) renderApproveList();
-            if (tabId === 'settings' && appState.auth.admin) {
-                renderDepartmentTable();
-                renderPendingUsersTable();
-            }
+            if (tabId === 'settings' && appState.auth.admin) renderPendingUsersTable();
             if (tabId === 'status') renderStatusTable();
             if (tabId === 'home') renderDashboardStats();
             if (tabId === 'catalog') renderDrugCatalog();
@@ -1388,7 +1335,6 @@
             if (dateEl) dateEl.value = today;
         }
 
-        // Render Drug Items Form with Mobile Card & Desktop Table
         function renderDrugItemsForm() {
             const container = document.getElementById('drug-items-container');
             const mobileContainer = document.getElementById('drug-items-mobile-container');
@@ -1399,14 +1345,10 @@
                 const chk = document.getElementById(`drug-chk-${drug.id}`);
                 const qty = document.getElementById(`drug-qty-${drug.id}`);
                 if (chk) {
-                    currentSelections[drug.id] = {
-                        checked: chk.checked,
-                        qty: qty ? qty.value : 0
-                    };
+                    currentSelections[drug.id] = { checked: chk.checked, qty: qty ? qty.value : 0 };
                 }
             });
 
-            // Desktop Table View HTML
             container.innerHTML = DRUG_CATALOG.map((drug, index) => {
                 const saved = currentSelections[drug.id] || { checked: false, qty: 0 };
                 return `
@@ -1430,7 +1372,6 @@
                 `;
             }).join('');
 
-            // Mobile App Style Card View HTML
             mobileContainer.innerHTML = DRUG_CATALOG.map((drug, index) => {
                 const saved = currentSelections[drug.id] || { checked: false, qty: 0 };
                 return `
@@ -1540,7 +1481,6 @@
             } else if (isNaN(val) || val < 0) {
                 input.value = 0;
             }
-
             const id = input.id.replace('drug-qty-', '');
             const mobInput = document.getElementById(`drug-qty-mob-${id}`);
             if (mobInput) mobInput.value = input.value;
@@ -1578,9 +1518,7 @@
                     mobCard.classList.add('border-slate-200/80');
                 }
             }
-            if (checkSelectAll) {
-                updateSelectAllState();
-            }
+            if (checkSelectAll) updateSelectAllState();
         }
 
         function initSignaturePad(key) {
@@ -1728,7 +1666,7 @@
                 showToast("กำลังซิงค์...", "กำลังบันทึกการแก้ไขไปยัง Google Sheets");
             } else {
                 showToast("กำลังซิงค์...", "กำลังบันทึกใบขอเบิกใหม่ไปยัง Google Sheets");
-                generateAndShowA4ImageForReq(reqData);
+                generateAndShowA4Image(reqData.id);
             }
 
             syncToGoogleSheets(reqData);
@@ -1739,118 +1677,90 @@
             switchTab('status');
         }
 
-        function generateAndShowA4ImageForReq(r) {
-            openPdfModal(r.id);
-            setTimeout(() => {
-                const printableArea = document.getElementById('printable-area');
-                html2canvas(printableArea, { scale: 2, useCORS: true }).then(canvas => {
-                    latestReceiptDataUrl = canvas.toDataURL('image/png', 0.95);
-                    document.getElementById('receipt-preview-img').src = latestReceiptDataUrl;
-                    document.getElementById('receipt-preview-title').innerText = `ใบขอเบิกยา (แบบ กฟผ.-รพ.74) - ${r.id}`;
-                    document.getElementById('pdf-modal').classList.add('hidden');
-                    document.getElementById('receipt-popup-modal').classList.remove('hidden');
-                });
-            }, 300);
-        }
-
+        // ระบบเรนเดอร์ภาพ A4 (Support Mobile & Desktop)
         function generateAndShowA4Image(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
 
             showLoading(true, 40);
-
-            // 1. วาดเนื้อหาเอกสารลง Printable Area ตามปกติ
             populatePrintableArea(r);
-            const sourceElem = document.getElementById('printable-area');
-            const renderContainer = document.getElementById('canvas-render-container');
 
-            if (!sourceElem || !renderContainer) {
-                showLoading(false);
-                return;
-            }
-
-            // 2. คัดลอกกระดาษ A4 ไปใส่ใน Off-screen Container นอกจอ (บังคับขนาด A4 พิกเซลเป๊ะ)
-            renderContainer.innerHTML = sourceElem.outerHTML;
-            const targetElem = renderContainer.firstElementChild;
+            const printableArea = document.getElementById('printable-area');
+            const originalStyle = printableArea.getAttribute('style') || '';
             
-            // ตั้งค่าสไตล์ A4 แบบตายตัวให้ iOS ไม่บีบขนาด
-            targetElem.style.position = 'relative';
-            targetElem.style.left = '0';
-            targetElem.style.top = '0';
-            targetElem.style.width = '794px';
-            targetElem.style.minHeight = '1123px';
-            targetElem.style.visibility = 'visible';
-            targetElem.style.display = 'block';
-            targetElem.style.margin = '0';
-            targetElem.style.boxSizing = 'border-box';
-            targetElem.style.background = '#ffffff';
+            printableArea.style.width = '794px';
+            printableArea.style.height = '1123px';
+            printableArea.style.position = 'fixed';
+            printableArea.style.left = '-9999px';
+            printableArea.style.top = '0';
+            printableArea.style.transform = 'none';
 
-            // 3. รอให้เบราว์เซอร์มือถือโหลดฟอนต์และรูปภาพลายเซ็น 400ms
             setTimeout(() => {
-                html2canvas(targetElem, {
-                    scale: 2,               // ความคมชัดระดับ HD (2x)
-                    useCORS: true,           // รองรับรูปภาพข้ามโดเมน
-                    allowTaint: false,       // ป้องกัน Canvas Security Lockout
-                    backgroundColor: '#ffffff',
+                html2canvas(printableArea, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
                     width: 794,
                     height: 1123,
-                    windowWidth: 794,
-                    windowHeight: 1123,
-                    scrollX: 0,
-                    scrollY: 0
+                    windowWidth: 1024
                 }).then(canvas => {
-                    latestReceiptDataUrl = canvas.toDataURL('image/jpeg', 0.92); // เปลี่ยนเป็น JPEG ป้องกันปัญหาการแสดงผล PNG บน iOS
-                    
-                    const previewImg = document.getElementById('receipt-preview-img');
-                    if (previewImg) {
-                        previewImg.src = latestReceiptDataUrl;
-                    }
-                    
-                    document.getElementById('receipt-preview-title').innerText = `ใบขอเบิกยา (แบบ กฟผ.-รพ.74) - ${r.id}`;
-                    document.getElementById('pdf-modal').classList.add('hidden');
-                    document.getElementById('receipt-popup-modal').classList.remove('hidden');
+                    printableArea.setAttribute('style', originalStyle);
 
-                    // ล้างข้อมูลใน Container ชั่วคราว
-                    renderContainer.innerHTML = '';
+                    latestReceiptPngDataUrl = canvas.toDataURL('image/png', 1.0);
+                    latestReceiptJpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+                    document.getElementById('receipt-preview-img').src = latestReceiptJpegDataUrl;
+                    document.getElementById('receipt-preview-title').innerText = `แบบ กฟผ.-รพ.74 (${r.id})`;
+                    document.getElementById('receipt-popup-modal').classList.remove('hidden');
                     showLoading(false);
                 }).catch(err => {
+                    printableArea.setAttribute('style', originalStyle);
                     console.error("html2canvas error:", err);
-                    renderContainer.innerHTML = '';
                     showLoading(false);
-                    showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้ กรุณาลองใหม่อีกครั้ง");
+                    showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้");
                 });
-            }, 400);
+            }, 300);
         }
 
         function closeReceiptPopup() {
             document.getElementById('receipt-popup-modal').classList.add('hidden');
         }
 
-        function downloadReceiptImage() {
-            if (!latestReceiptDataUrl) return;
+        function downloadReceiptImage(format = 'jpeg') {
+            const dataUrl = format === 'png' ? latestReceiptPngDataUrl : latestReceiptJpegDataUrl;
+            if (!dataUrl) return;
+
+            const ext = format === 'png' ? 'png' : 'jpg';
             const link = document.createElement('a');
-            link.download = `ใบขอเบิกยา_กฟผ-รพ.74.png`;
-            link.href = latestReceiptDataUrl;
+            link.download = `ใบขอเบิกยา_กฟผ-รพ74.${ext}`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         }
 
         async function shareReceiptImage() {
-            if (!latestReceiptDataUrl) return;
+            const dataUrl = latestReceiptJpegDataUrl || latestReceiptPngDataUrl;
+            if (!dataUrl) return;
+
             try {
-                const blob = await (await fetch(latestReceiptDataUrl)).blob();
-                const file = new File([blob], "ใบขอเบิกยา_กฟผ-รพ.74.png", { type: "image/png" });
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], "ใบขอเบิกยา_กฟผ-รพ74.jpg", { type: "image/jpeg" });
+                
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
-                        title: 'ใบขอเบิกยาและเวชภัณฑ์',
-                        text: 'ใบขอเบิกยา (แบบ กฟผ.-รพ.74) Request MED+ สถานพยาบาลเขื่อนจุฬาภรณ์',
+                        title: 'ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)',
+                        text: 'เอกสารใบขอเบิกยาและเวชภัณฑ์ Request MED+ สถานพยาบาลเขื่อนจุฬาภรณ์',
                         files: [file]
                     });
                 } else {
-                    downloadReceiptImage();
-                    showToast("แจ้งเตือน", "อุปกรณ์นี้ไม่รองรับการแชร์ตรง ทำการดาวน์โหลดรูปแทน");
+                    downloadReceiptImage('jpeg');
+                    showToast("แจ้งเตือน", "ดาวน์โหลดภาพเรียบร้อยแล้ว (อุปกรณ์ไม่รองรับ Web Share API)");
                 }
             } catch (err) {
                 console.log('Share error:', err);
+                downloadReceiptImage('jpeg');
             }
         }
 
@@ -1858,9 +1768,9 @@
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
             if (window.innerWidth < 768) {
-                generateAndShowA4Image(id); // แสดงภาพ JPEG/PNG พร้อมปุ่มดาวน์โหลด/แชร์ สำหรับมือถือ
+                generateAndShowA4Image(id);
             } else {
-                openPdfModal(id); // แสดงแบบฟอร์ม PDF พิมพ์ A4 สำหรับจอคอมพิวเตอร์
+                openPdfModal(id);
             }
         }
 
@@ -1941,7 +1851,7 @@
                         <td class="p-3 text-center">${statusApproveBadge}</td>
                         <td class="p-3 text-center">${statusDispenseBadge}</td>
                         <td class="p-3 text-center space-x-1">
-                            <button onclick="viewReceiptOrPdf('${r.id}')" class="p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs" title="ดูภาพเอกสารทางการ/พิมพ์ (PDF/Image)"><i class="fas fa-file-invoice"></i></button>
+                            <button onclick="viewReceiptOrPdf('${r.id}')" class="p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs" title="ดูภาพเอกสารทางการ/พิมพ์"><i class="fas fa-file-invoice"></i></button>
                             <button onclick="editRequest('${r.id}')" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteRequest('${r.id}')" class="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-xs" title="ลบรายการ"><i class="fas fa-trash"></i></button>
                         </td>
@@ -2198,7 +2108,6 @@
             `).join('');
         }
 
-        // ฟังก์ชันบีบอัดรูปภาพให้ได้ขนาดพอเหมาะ ป้องกัน Payload Oversize ก่อนส่ง Google Apps Script
         function resizeImageToDataURL(file, maxWidth = 320, quality = 0.75) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -2226,7 +2135,6 @@
             });
         }
 
-        // แก้ไขระบบอัปโหลดรูปภาพรายการยา อัปเดต state ในเครื่องและส่ง POST ไปยัง Google Sheet
         async function uploadDrugImage(event, id) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2237,8 +2145,6 @@
                 const drug = DRUG_CATALOG.find(d => d.id === parseInt(id));
                 if (drug) {
                     drug.image = compressedBase64;
-                    
-                    // อัปเดตภาพในหน้า Catalog และ Form ทันที
                     const imgEl = document.getElementById(`catalog-img-${id}`);
                     if (imgEl) imgEl.src = compressedBase64;
                     renderDrugItemsForm();
@@ -2304,101 +2210,6 @@
             const select = document.getElementById('req-department-group');
             if (select) select.innerHTML = appState.departments.map(d => `<option value="${d}">${d}</option>`).join('');
         }
-        let latestReceiptJpegDataUrl = null;
-        let latestReceiptPngDataUrl = null;
-
-        // Render & Capture A4 strictly styled as 210mm x 297mm for HD JPEG/PNG Export on iOS & Mobile
-        function generateAndShowA4Image(id) {
-            const r = appState.requests.find(item => item.id === id);
-            if (!r) return;
-
-            showLoading(true, 40);
-            
-            // Render content to printable area first
-            populatePrintableArea(r);
-
-            const printableArea = document.getElementById('printable-area');
-
-            // Save original inline styles
-            const originalStyle = printableArea.getAttribute('style') || '';
-            
-            // Force strict A4 pixel width & height (794px x 1123px) during html2canvas rendering
-            printableArea.style.width = '794px';
-            printableArea.style.height = '1123px';
-            printableArea.style.position = 'fixed';
-            printableArea.style.left = '-9999px';
-            printableArea.style.top = '0';
-            printableArea.style.transform = 'none';
-
-            setTimeout(() => {
-                html2canvas(printableArea, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    width: 794,
-                    height: 1123,
-                    windowWidth: 1024
-                }).then(canvas => {
-                    // Restore original styling
-                    printableArea.setAttribute('style', originalStyle);
-
-                    latestReceiptPngDataUrl = canvas.toDataURL('image/png', 1.0);
-                    latestReceiptJpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-
-                    document.getElementById('receipt-preview-img').src = latestReceiptJpegDataUrl;
-                    document.getElementById('receipt-preview-title').innerText = `แบบ กฟผ.-รพ.74 (${r.id})`;
-                    document.getElementById('receipt-popup-modal').classList.remove('hidden');
-                    showLoading(false);
-                }).catch(err => {
-                    printableArea.setAttribute('style', originalStyle);
-                    console.error("html2canvas error:", err);
-                    showLoading(false);
-                    showToast("ข้อผิดพลาด", "ไม่สามารถสร้างภาพเอกสารได้");
-                });
-            }, 300);
-        }
-
-        function generateAndShowA4ImageForReq(r) {
-            generateAndShowA4Image(r.id);
-        }
-
-        function downloadReceiptImage(format = 'jpeg') {
-            const dataUrl = format === 'png' ? latestReceiptPngDataUrl : latestReceiptJpegDataUrl;
-            if (!dataUrl) return;
-
-            const ext = format === 'png' ? 'png' : 'jpg';
-            const link = document.createElement('a');
-            link.download = `ใบขอเบิกยา_กฟผ-รพ74.${ext}`;
-            link.href = dataUrl;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        async function shareReceiptImage() {
-            const dataUrl = latestReceiptJpegDataUrl || latestReceiptPngDataUrl;
-            if (!dataUrl) return;
-
-            try {
-                const res = await fetch(dataUrl);
-                const blob = await res.blob();
-                const file = new File([blob], "ใบขอเบิกยา_กฟผ-รพ74.jpg", { type: "image/jpeg" });
-                
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: 'ใบขอเบิกยาและเวชภัณฑ์ (แบบ กฟผ.-รพ.74)',
-                        text: 'เอกสารใบขอเบิกยาและเวชภัณฑ์ Request MED+ สถานพยาบาลเขื่อนจุฬาภรณ์',
-                        files: [file]
-                    });
-                } else {
-                    downloadReceiptImage('jpeg');
-                    showToast("แจ้งเตือน", "ดาวน์โหลดภาพเรียบร้อยแล้ว (อุปกรณ์ไม่รองรับ Web Share API)");
-                }
-            } catch (err) {
-                console.log('Share error:', err);
-                downloadReceiptImage('jpeg');
-            }
-        }
 
         function populatePrintableArea(r) {
             const dateObj = new Date(r.date || Date.now());
@@ -2406,7 +2217,6 @@
             const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"][dateObj.getMonth()];
             const thaiYears = dateObj.getFullYear() + 543;
 
-            // ตารางคงที่ 11 แถวตามแบบ กฟผ.-รพ.74 เป๊ะ
             let rowsHtml = '';
             for (let i = 0; i < 11; i++) {
                 const item = r.items && r.items[i] ? r.items[i] : null;
@@ -2447,7 +2257,6 @@
                 </div>
             `;
 
-            // ลายเซ็นผู้อนุมัติ & วันที่อนุมัติ
             let approverDateStr = "....... / ....... / .......";
             if (r.status === 'pending_dispense' || r.status === 'completed') {
                 approverDateStr = `${thaiDays} / ${dateObj.getMonth() + 1} / ${thaiYears.toString().substring(2)}`;
@@ -2456,31 +2265,23 @@
             const printableArea = document.getElementById('printable-area');
             printableArea.innerHTML = `
                 <div class="sarabun-font text-[13px] leading-relaxed">
-                    <!-- Header -->
                     <div class="flex justify-between items-start font-bold mb-1">
-                        <div class="text-[11px] text-slate-600 font-normal">
-                            เลขที่คำขอ: ${r.id}
-                        </div>
+                        <div class="text-[11px] text-slate-600 font-normal">เลขที่คำขอ: ${r.id}</div>
                         <div class="text-right">
                             <p class="text-base font-bold leading-tight">การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย</p>
                             <p class="text-[12px] font-bold">แบบ กฟผ.-รพ.74</p>
                         </div>
                     </div>
-                    
                     <h2 class="text-center font-bold text-base mb-2 tracking-wide">ใบเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น</h2>
-                    
                     <div class="flex justify-end text-[13px] mb-2 font-sarabun">
                         <span>วันที่ <strong class="underline px-1">${thaiDays}</strong> เดือน <strong class="underline px-1">${thaiMonths}</strong> พ.ศ. <strong class="underline px-1">${thaiYears}</strong></span>
                     </div>
-
                     <div class="space-y-1 text-[13px] mb-2 font-sarabun">
                         <p>เรียน <span class="font-bold">* ${r.recipient || 'หธฬอ.ฟ / หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์'}</span></p>
-                        
                         <div class="flex flex-wrap items-center justify-between">
                             <span>ข้าพเจ้า <strong class="underline px-1">${r.name}</strong></span>
                             <span>หมายเลขประจำตัว <strong class="underline px-1 border border-black px-1.5 tracking-widest font-mono font-bold">${r.idCard}</strong></span>
                         </div>
-                        
                         <div class="flex flex-wrap justify-between items-center">
                             <span>ตำแหน่ง <strong class="underline px-1">${r.position || 'ช.5'}</strong></span>
                             <span>แผนก <strong class="underline px-1">${r.section || 'หน.พือ-ฟ.'}</strong></span>
@@ -2488,16 +2289,11 @@
                             <span>ฝ่าย <strong class="underline px-1">${r.departmentSub || 'อฟอ.'}</strong></span>
                             <span>โทรศัพท์ <strong class="underline px-1">${r.phone}</strong></span>
                         </div>
-                        
                         <p class="mt-1">ขอเบิกยาและหรือเวชภัณฑ์ที่ใช้ในการปฐมพยาบาลหรือใช้ในกรณีเจ็บป่วยเบื้องต้น ดังนี้</p>
-                        
-                        <div class="pl-2">
-                            ${purposeHtml}
-                        </div>
+                        <div class="pl-2">${purposeHtml}</div>
                     </div>
                 </div>
 
-                <!-- Main Table -->
                 <div class="my-1 sarabun-font">
                     <table class="w-full border-collapse border border-black text-[12px]">
                         <thead>
@@ -2516,38 +2312,27 @@
                                 <th class="p-1 w-10">หน่วย</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${rowsHtml}
-                        </tbody>
+                        <tbody>${rowsHtml}</tbody>
                     </table>
                 </div>
 
-                <!-- Signatures & Notes Block -->
                 <div class="sarabun-font text-[12px] space-y-1">
-                    <!-- Upper Box Row (ผู้ขอเบิก / ผู้อนุมัติ) -->
                     <div class="grid grid-cols-2 border border-black">
-                        <!-- ผู้ขอเบิก -->
                         <div class="p-2 border-r border-black flex flex-col justify-between h-24 text-center">
                             <div>
                                 <span>**(ลงชื่อ)</span>
                                 <div class="h-9 relative flex items-center justify-center my-0.5">
-                                    ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") 
-                                        ? `<img src="${r.signatures.requestor}" class="h-9 object-contain">` 
-                                        : `<span class="border-b border-dotted border-black w-40 inline-block"></span>`}
+                                    ${r.signatures && r.signatures.requestor && r.signatures.requestor.startsWith("data:image") ? `<img src="${r.signatures.requestor}" class="h-9 object-contain">` : `<span class="border-b border-dotted border-black w-40 inline-block"></span>`}
                                 </div>
                                 <span class="font-bold">ผู้ขอเบิก</span>
                             </div>
                             <div class="font-bold">(${r.name})</div>
                         </div>
-
-                        <!-- ผู้อนุมัติ -->
                         <div class="p-2 flex flex-col justify-between h-24 text-center">
                             <div>
                                 <span>**(ลงชื่อ)</span>
                                 <div class="h-9 relative flex items-center justify-center my-0.5">
-                                    ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") 
-                                        ? `<img src="${r.signatures.approver}" class="h-9 object-contain">` 
-                                        : `<span class="border-b border-dotted border-black w-40 inline-block"></span>`}
+                                    ${r.signatures && r.signatures.approver && r.signatures.approver.startsWith("data:image") ? `<img src="${r.signatures.approver}" class="h-9 object-contain">` : `<span class="border-b border-dotted border-black w-40 inline-block"></span>`}
                                 </div>
                                 <span class="font-bold">ผู้อนุมัติ</span>
                             </div>
@@ -2559,23 +2344,17 @@
                         </div>
                     </div>
 
-                    <!-- Lower Box Row (ผู้รับยา / หมายเหตุ) -->
                     <div class="grid grid-cols-2 border border-t-0 border-black">
-                        <!-- ผู้รับยา -->
                         <div class="p-2 border-r border-black flex flex-col justify-between h-28">
                             <p class="leading-tight">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
                             <div class="text-center my-1">
                                 <div class="h-8 relative flex items-center justify-center">
-                                    ${r.signatures && r.signatures.receiver && r.signatures.receiver.startsWith("data:image") 
-                                        ? `<img src="${r.signatures.receiver}" class="h-8 object-contain">` 
-                                        : `<span class="border-b border-dotted border-black w-36 inline-block"></span>`}
+                                    ${r.signatures && r.signatures.receiver && r.signatures.receiver.startsWith("data:image") ? `<img src="${r.signatures.receiver}" class="h-8 object-contain">` : `<span class="border-b border-dotted border-black w-36 inline-block"></span>`}
                                 </div>
                                 <p class="mt-0.5 font-bold">(ลงชื่อ)...................................................ผู้รับยา</p>
                                 <p class="font-bold">(${r.name})</p>
                             </div>
                         </div>
-
-                        <!-- หมายเหตุ -->
                         <div class="p-2 text-[10px] leading-tight space-y-1">
                             <p class="font-bold underline">หมายเหตุ</p>
                             <p>(1) <strong>*</strong> อพอ. ผู้ที่ อพอ. มอบหมาย กกม-ห. หัวหน้าแผนกสุขภาพอนามัยในส่วนภูมิภาค หรือผู้ปฏิบัติงานด้านการแพทย์และอนามัยที่ผู้อำนวยการฝ่ายแพทย์และอนามัย มอบหมาย</p>
