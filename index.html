@@ -2354,8 +2354,9 @@
                 </div>
 
                 <div class="sarabun-font text-[12px] space-y-1">
+                    <!-- ปรับสัดส่วนกล่องลายเซ็นให้มีความสูงพอดีและไม่ทับซ้อน -->
                     <div class="grid grid-cols-2 border border-black">
-                        <div class="p-2 border-r border-black flex flex-col justify-between h-24 text-center">
+                        <div class="p-2 border-r border-black flex flex-col justify-between min-h-[110px] text-center">
                             <div>
                                 <span>**(ลงชื่อ)</span>
                                 <div class="h-9 relative flex items-center justify-center my-0.5">
@@ -2363,9 +2364,9 @@
                                 </div>
                                 <span class="font-bold">ผู้ขอเบิก</span>
                             </div>
-                            <div class="font-bold">(${r.name})</div>
+                            <div class="font-bold pt-1">(${r.name})</div>
                         </div>
-                        <div class="p-2 flex flex-col justify-between h-24 text-center">
+                        <div class="p-2 flex flex-col justify-between min-h-[110px] text-center">
                             <div>
                                 <span>**(ลงชื่อ)</span>
                                 <div class="h-9 relative flex items-center justify-center my-0.5">
@@ -2373,7 +2374,7 @@
                                 </div>
                                 <span class="font-bold">ผู้อนุมัติ</span>
                             </div>
-                            <div>
+                            <div class="space-y-0.5 pt-1">
                                 <div class="font-bold">(${appState.settings.approverName})</div>
                                 <div class="text-[11px]">ตำแหน่ง <strong>${appState.settings.approverPos}</strong></div>
                                 <div class="text-[10px]">วันที่ <strong>${approverDateStr}</strong></div>
@@ -2382,7 +2383,7 @@
                     </div>
 
                     <div class="grid grid-cols-2 border border-t-0 border-black">
-                        <div class="p-2 border-r border-black flex flex-col justify-between h-28">
+                        <div class="p-2 border-r border-black flex flex-col justify-between min-h-[100px]">
                             <p class="leading-tight">ข้าพเจ้าได้รับยาและหรือเวชภัณฑ์ดังกล่าวข้างต้นไว้เรียบร้อยแล้ว</p>
                             <div class="text-center my-1">
                                 <div class="h-8 relative flex items-center justify-center">
