@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2canvas for Image/PNG Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- QRCode.js for generating QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -70,13 +72,10 @@
             font-size: 10px;
             font-weight: bold;
         }
-        #a4-capture-stage {
+        #a4-capture-stage, #slip-capture-stage {
             position: fixed;
             top: 0;
             left: 0;
-            width: 794px;
-            min-height: 1123px;
-            background: #ffffff;
             z-index: -1;
             opacity: 0;
             pointer-events: none;
@@ -241,8 +240,8 @@
                                 <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow">2</span>
                                 <span class="text-xl text-blue-600"><i class="fas fa-file-invoice"></i></span>
                             </div>
-                            <h4 class="font-bold text-slate-800 text-xs md:text-sm">2. ออกเอกสารทางการ</h4>
-                            <p class="text-[11px] text-slate-500 leading-snug">รับภาพเอกสาร A4 หรือแบบฟอร์มทางการ</p>
+                            <h4 class="font-bold text-slate-800 text-xs md:text-sm">2. รับสลิป & เอกสาร</h4>
+                            <p class="text-[11px] text-slate-500 leading-snug">รับภาพสลิปดิจิทัลและแบบฟอร์มทางการ</p>
                         </div>
                     </div>
 
@@ -609,7 +608,7 @@
                                     <th class="p-3">วัตถุประสงค์</th>
                                     <th class="p-3 text-center">สถานะอนุมัติ</th>
                                     <th class="p-3 text-center">สถานะจ่ายยา</th>
-                                    <th class="p-3 text-center">จัดการ / เอกสาร</th>
+                                    <th class="p-3 text-center">จัดการ / เอกสาร / สลิป</th>
                                 </tr>
                             </thead>
                             <tbody id="status-table-body" class="divide-y divide-slate-100 text-xs sm:text-sm"></tbody>
@@ -809,6 +808,34 @@
         </div>
     </div>
 
+    <!-- NEW SLIP MODAL (Bank Slip Style) -->
+    <div id="slip-popup-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden p-4 sm:p-5 space-y-3.5 flex flex-col max-h-[92vh]">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2 flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h3 class="font-bold text-sm sm:text-base text-slate-900">สลิปใบบันทึกการขอเบิกยา</h3>
+                </div>
+                <button onclick="closeSlipPopup()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="flex-1 flex justify-center items-center border border-slate-200 rounded-2xl p-2 bg-slate-900/5 overflow-y-auto">
+                <img id="slip-preview-img" class="rounded-xl shadow-md max-w-full h-auto object-contain max-h-[60vh]" src="" alt="Slip Preview">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1 flex-shrink-0">
+                <button onclick="shareSlipImage()" class="py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-1.5 transition">
+                    <i class="fas fa-share-alt"></i><span>แชร์สลิป</span>
+                </button>
+                <button onclick="downloadSlipImage()" class="py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-1.5 transition">
+                    <i class="fas fa-download"></i><span>บันทึกภาพสลิป</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- PDF Modal (Desktop A4 Format Layout) -->
     <div id="pdf-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
@@ -829,7 +856,9 @@
         </div>
     </div>
 
+    <!-- Hidden Stages for html2canvas -->
     <div id="a4-capture-stage"></div>
+    <div id="slip-capture-stage"></div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
@@ -872,6 +901,7 @@
         let currentFilterStatus = 'all';
         let latestReceiptJpegDataUrl = null;
         let latestReceiptPngDataUrl = null;
+        let latestSlipDataUrl = null;
         let progressInterval = null;
 
         let sigPads = {
@@ -889,13 +919,29 @@
             initSignaturePad('req');
             initSignaturePad('setting-approver');
             
-            fetchDataFromSheet(true);
+            fetchDataFromSheet(true).then(() => {
+                // ตรวจสอบ URL Hash เช่น #status=EGAT-123456 เพื่อเปิดดูรายการทันทีเมื่อสแกน QR Code
+                const hash = window.location.hash;
+                if (hash && hash.includes('status=')) {
+                    const reqId = hash.split('status=')[1];
+                    if (reqId) {
+                        switchTab('status');
+                        const searchInput = document.getElementById('search-input');
+                        if (searchInput) {
+                            searchInput.value = reqId;
+                            renderStatusTable();
+                        }
+                    }
+                }
+            });
 
             setInterval(() => {
                 fetchDataFromSheet(false);
             }, 10000);
 
-            switchTab('home');
+            if (!window.location.hash.includes('status=')) {
+                switchTab('home');
+            }
         });
 
         function showLoading(show, targetPercent = 90) {
@@ -1648,8 +1694,10 @@
                 purposeText = `เพื่อใช้ในการเดินทางไปปฏิบัติงาน ณ ${loc} ประมาณ ${days} วัน สำหรับผู้เดินทาง ${staffCount} คน`;
             }
 
+            const newReqId = editId ? editId : 'EGAT-' + Math.floor(100000 + Math.random() * 900000);
+
             const reqData = {
-                id: editId ? editId : 'EGAT-' + Math.floor(100000 + Math.random() * 900000),
+                id: newReqId,
                 date: document.getElementById('req-date').value,
                 recipient: document.getElementById('req-recipient').value,
                 departmentGroup: deptGroup,
@@ -1677,8 +1725,10 @@
                 document.getElementById('submit-btn-text').innerText = "บันทึกใบขอเบิกยา";
                 showToast("กำลังซิงค์...", "กำลังบันทึกการแก้ไขไปยัง Google Sheets");
             } else {
-                showToast("กำลังซิงค์...", "กำลังบันทึกใบขอเบิกใหม่ไปยัง Google Sheets");
-                generateAndShowA4Image(reqData.id);
+                showToast("สำเร็จ", "บันทึกใบขอเบิกยาเรียบร้อยแล้ว กำลังสร้างสลิปดิจิทัล...");
+                // บันทึกลงใน appState ชั่วคราวเพื่อให้แสดงสลิปได้ทันที
+                appState.requests.unshift(reqData);
+                generateAndShowSlip(newReqId);
             }
 
             syncToGoogleSheets(reqData);
@@ -1686,21 +1736,170 @@
             clearSignature('req');
             initDate();
             renderDrugItemsForm();
+        }
+
+        // ==========================================
+        // ฟังก์ชันสร้างภาพสลิปดิจิทัล (Bank Slip Style)
+        // ==========================================
+        async function generateAndShowSlip(id) {
+            const r = appState.requests.find(item => item.id === id);
+            if (!r) return;
+
+            showLoading(true, 50);
+
+            const stage = document.getElementById('slip-capture-stage');
+            stage.innerHTML = `
+                <div id="slip-real-paper" style="width: 420px; background: #ffffff; padding: 24px; font-family: 'Prompt', 'Kanit', sans-serif; color: #1e293b; box-sizing: border-box; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <!-- Header with QR Code top right -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px dashed #cbd5e1; padding-bottom: 16px; margin-bottom: 16px;">
+                        <div>
+                            <div style="background: #15803d; color: #ffffff; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-bottom: 4px;">สถานพยาบาลเขื่อนจุฬาภรณ์</div>
+                            <h2 style="font-size: 16px; font-weight: 800; color: #0f172a; line-height: 1.2; margin: 0;">ใบบันทึกการขอเบิกยา<br>และเวชภัณฑ์สำรองใช้ในหน่วยงาน</h2>
+                            <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">เลขที่: <strong>${r.id}</strong></p>
+                        </div>
+                        <div id="slip-qrcode-box" style="width: 72px; height: 72px; background: #f8fafc; padding: 4px; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"></div>
+                    </div>
+
+                    <!-- Details -->
+                    <div style="font-size: 12px; space-y: 6px; background: #f8fafc; padding: 12px 16px; border-radius: 16px; margin-bottom: 16px; border: 1px solid #f1f5f9;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <span style="color: #64748b;">วันที่ขอเบิก:</span>
+                            <span style="font-weight: 600; color: #0f172a;">${r.date}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <span style="color: #64748b;">ชื่อผู้ขอเบิก:</span>
+                            <span style="font-weight: 600; color: #0f172a;">${r.name}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <span style="color: #64748b;">รหัสพนักงาน:</span>
+                            <span style="font-weight: 600; color: #0f172a;">${r.idCard}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #64748b;">หน่วยงาน:</span>
+                            <span style="font-weight: 600; color: #0f172a; text-align: right; max-width: 220px; white-space: normal;">${r.departmentGroup}</span>
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <div style="margin-bottom: 16px;">
+                        <h4 style="font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 8px; text-transform: uppercase;">รายการยาและเวชภัณฑ์ (${r.items.length} รายการ)</h4>
+                        <div style="border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background: #ffffff;">
+                            ${r.items.map((item, idx) => `
+                                <div style="display: flex; justify-content: space-between; padding: 8px 12px; font-size: 12px; border-bottom: ${idx === r.items.length - 1 ? 'none' : '1px solid #f1f5f9'}; align-items: center;">
+                                    <span style="color: #334155; font-weight: 500;">${idx + 1}. ${item.name}</span>
+                                    <span style="font-weight: bold; color: #16a34a; white-space: nowrap; margin-left: 8px;">${item.qty} ${item.unit}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Notice message -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; padding: 12px; text-align: center; margin-bottom: 16px;">
+                        <p style="font-size: 11px; color: #166534; line-height: 1.4; margin: 0; font-weight: 500;">
+                            ระบบได้บันทึกรายการขอเบิกยาของคุณแล้ว ท่านสามารถเข้าติดต่อรับรายการได้ที่สถานพยาบาลเขื่อนจุฬาภรณ์ในวัน และเวลาที่เปิดบริการ
+                        </p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; pt-12px;">
+                        Request MED+ PRO • การไฟฟ้าฝ่ายผลิตแห่งประเทศไทย (กฟผ.)
+                    </div>
+                </div>
+            `;
+
+            stage.style.opacity = '1';
+            stage.style.zIndex = '40';
+
+            // สร้าง QR Code ข้างในกล่อง
+            const qrContainer = document.getElementById('slip-qrcode-box');
+            qrContainer.innerHTML = '';
+            const statusUrl = `${window.location.origin}${window.location.pathname}#status=${r.id}`;
+            new QRCode(qrContainer, {
+                text: statusUrl,
+                width: 64,
+                height: 64,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            const paperElement = document.getElementById('slip-real-paper');
+
+            setTimeout(() => {
+                document.fonts.ready.then(() => {
+                    html2canvas(paperElement, {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff'
+                    }).then(canvas => {
+                        stage.style.opacity = '0';
+                        stage.style.zIndex = '-1';
+                        stage.innerHTML = '';
+
+                        latestSlipDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                        document.getElementById('slip-preview-img').src = latestSlipDataUrl;
+                        document.getElementById('slip-popup-modal').classList.remove('hidden');
+
+                        showLoading(false);
+                        renderStatusTable();
+                    }).catch(err => {
+                        stage.style.opacity = '0';
+                        stage.style.zIndex = '-1';
+                        stage.innerHTML = '';
+                        console.error("Slip capture error:", err);
+                        showLoading(false);
+                    });
+                });
+            }, 500);
+        }
+
+        function closeSlipPopup() {
+            document.getElementById('slip-popup-modal').classList.add('hidden');
             switchTab('status');
         }
 
-        // ระบบเรนเดอร์ภาพ A4 (Support Mobile & Desktop)
+        function downloadSlipImage() {
+            if (!latestSlipDataUrl) return;
+            const link = document.createElement('a');
+            link.download = `สลิปขอเบิกยา_กฟผ-รพ74.jpg`;
+            link.href = latestSlipDataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function shareSlipImage() {
+            if (!latestSlipDataUrl) return;
+            try {
+                const res = await fetch(latestSlipDataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], "สลิปขอเบิกยา_กฟผ-รพ74.jpg", { type: "image/jpeg" });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'สลิปใบบันทึกการขอเบิกยาและเวชภัณฑ์',
+                        text: 'สลิปบันทึกรายการขอเบิกยา Request MED+ สถานพยาบาลเขื่อนจุฬาภรณ์',
+                        files: [file]
+                    });
+                } else {
+                    downloadSlipImage();
+                    showToast("แจ้งเตือน", "บันทึกภาพสลิปเรียบร้อยแล้ว");
+                }
+            } catch (err) {
+                downloadSlipImage();
+            }
+        }
+
+        // ระบบเรนเดอร์ภาพ A4 เอกสารทางการ
         function generateAndShowA4Image(id) {
             const r = appState.requests.find(item => item.id === id);
             if (!r) return;
 
             showLoading(true, 45);
-
-            // 1. สร้างเนื้อหาแบบฟอร์ม A4 ลงใน #printable-area ก่อน
             populatePrintableArea(r);
             const sourceHtml = document.getElementById('printable-area').innerHTML;
 
-            // 2. นำเนื้อหามาใส่ใน #a4-capture-stage ที่ไม่ได้ซ่อน display:none (แก้ปัญหาภาพขาวบน iPhone)
             const stage = document.getElementById('a4-capture-stage');
             stage.innerHTML = `
                 <div id="a4-real-paper" class="bg-white text-slate-900 font-sarabun flex flex-col justify-between box-border" 
@@ -1709,17 +1908,15 @@
                 </div>
             `;
 
-            // 3. เปิดให้เบราว์เซอร์วาด Layout จริง (opacity: 1 ชั่วคราวใต้ Loading Overlay)
             stage.style.opacity = '1';
             stage.style.zIndex = '40';
 
             const paperElement = document.getElementById('a4-real-paper');
 
-            // 4. รอให้ฟอนต์ Sarabun และรูปลายเซ็นโหลดเสร็จสมบูรณ์
             document.fonts.ready.then(() => {
                 setTimeout(() => {
                     html2canvas(paperElement, {
-                        scale: 2, // คมชัดระดับ Retina / HD
+                        scale: 2,
                         useCORS: true,
                         allowTaint: true,
                         backgroundColor: '#ffffff',
@@ -1729,16 +1926,13 @@
                         scrollX: 0,
                         scrollY: 0
                     }).then(canvas => {
-                        // ซ่อนเวทีเรนเดอร์กลับไป
                         stage.style.opacity = '0';
                         stage.style.zIndex = '-1';
                         stage.innerHTML = '';
 
-                        // แปลงเป็นไฟล์ภาพคุณภาพสูง
                         latestReceiptPngDataUrl = canvas.toDataURL('image/png', 1.0);
                         latestReceiptJpegDataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
-                        // นำภาพแสดงใน Popup
                         const previewImg = document.getElementById('receipt-preview-img');
                         previewImg.src = latestReceiptJpegDataUrl;
 
@@ -1751,9 +1945,7 @@
                         stage.style.opacity = '0';
                         stage.style.zIndex = '-1';
                         stage.innerHTML = '';
-                        console.error("Capture Error:", err);
                         showLoading(false);
-                        showToast("ข้อผิดพลาด", "ไม่สามารถสร้างรูปภาพเอกสารได้ กรุณาลองใหม่");
                     });
                 }, 450);
             });
@@ -1793,10 +1985,9 @@
                     });
                 } else {
                     downloadReceiptImage('jpeg');
-                    showToast("แจ้งเตือน", "ดาวน์โหลดภาพเรียบร้อยแล้ว (อุปกรณ์ไม่รองรับ Web Share API)");
+                    showToast("แจ้งเตือน", "ดาวน์โหลดภาพเรียบร้อยแล้ว");
                 }
             } catch (err) {
-                console.log('Share error:', err);
                 downloadReceiptImage('jpeg');
             }
         }
@@ -1888,6 +2079,7 @@
                         <td class="p-3 text-center">${statusApproveBadge}</td>
                         <td class="p-3 text-center">${statusDispenseBadge}</td>
                         <td class="p-3 text-center space-x-1">
+                            <button onclick="generateAndShowSlip('${r.id}')" class="p-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-xl text-xs" title="ดูสลิปดิจิทัล"><i class="fas fa-receipt"></i></button>
                             <button onclick="viewReceiptOrPdf('${r.id}')" class="p-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs" title="ดูภาพเอกสารทางการ/พิมพ์"><i class="fas fa-file-invoice"></i></button>
                             <button onclick="editRequest('${r.id}')" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs" title="แก้ไขข้อมูล"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteRequest('${r.id}')" class="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-xs" title="ลบรายการ"><i class="fas fa-trash"></i></button>
@@ -2354,7 +2546,6 @@
                 </div>
 
                 <div class="sarabun-font text-[12px] space-y-1">
-                    <!-- ปรับสัดส่วนกล่องลายเซ็นให้มีความสูงพอดีและไม่ทับซ้อน -->
                     <div class="grid grid-cols-2 border border-black">
                         <div class="p-2 border-r border-black flex flex-col justify-between min-h-[110px] text-center">
                             <div>
