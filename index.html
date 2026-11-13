@@ -808,7 +808,7 @@
         </div>
     </div>
 
-    <!-- NEW SLIP MODAL (Bank Slip Style) -->
+    <!-- SLIP MODAL (Bank Slip Style) -->
     <div id="slip-popup-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden p-4 sm:p-5 space-y-3.5 flex flex-col max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2 flex-shrink-0">
@@ -911,6 +911,45 @@
             receive: { canvas: null, ctx: null, drawing: false, hasDrawn: false }
         };
 
+        // ฟังก์ชันแปลงวันที่ให้เป็นรูปแบบ วว/ด.ด./ปปปป เวลา --.-- น.
+        function formatThaiDateTime(dateInput) {
+            if (!dateInput) return "-";
+            const shortMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            
+            let d;
+            // กรณีที่เป็น YYYY-MM-DD (เช่น จาก input date หรือข้อความวันที่ล้วน)
+            if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput.trim())) {
+                const parts = dateInput.trim().split('-');
+                d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), 0, 0, 0);
+            } else {
+                d = new Date(dateInput);
+            }
+
+            if (isNaN(d.getTime())) return String(dateInput);
+
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = shortMonths[d.getMonth()];
+            const year = d.getFullYear() + 543;
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+
+            return `${day}/${month}/${year} เวลา ${hours}.${minutes} น.`;
+        }
+
+        // ฟังก์ชันแปลงวันที่สำหรับ input type="date" (YYYY-MM-DD)
+        function formatDateForInput(dateInput) {
+            if (!dateInput) return new Date().toISOString().split('T')[0];
+            if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput.trim())) {
+                return dateInput.trim();
+            }
+            const d = new Date(dateInput);
+            if (isNaN(d.getTime())) return new Date().toISOString().split('T')[0];
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             initDate();
             renderDrugItemsForm();
@@ -920,7 +959,6 @@
             initSignaturePad('setting-approver');
             
             fetchDataFromSheet(true).then(() => {
-                // ตรวจสอบ URL Hash เช่น #status=EGAT-123456 เพื่อเปิดดูรายการทันทีเมื่อสแกน QR Code
                 const hash = window.location.hash;
                 if (hash && hash.includes('status=')) {
                     const reqId = hash.split('status=')[1];
@@ -1388,9 +1426,12 @@
         }
 
         function initDate() {
-            const today = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
             const dateEl = document.getElementById('req-date');
-            if (dateEl) dateEl.value = today;
+            if (dateEl) dateEl.value = `${yyyy}-${mm}-${dd}`;
         }
 
         function renderDrugItemsForm() {
@@ -1696,9 +1737,22 @@
 
             const newReqId = editId ? editId : 'EGAT-' + Math.floor(100000 + Math.random() * 900000);
 
+            // ผสานวันที่ที่เลือกเข้ากับเวลาปัจจุบัน
+            const inputDateVal = document.getElementById('req-date').value;
+            const now = new Date();
+            const dateParts = inputDateVal.split('-');
+            const combinedDateTime = new Date(
+                parseInt(dateParts[0]),
+                parseInt(dateParts[1]) - 1,
+                parseInt(dateParts[2]),
+                now.getHours(),
+                now.getMinutes(),
+                now.getSeconds()
+            ).toISOString();
+
             const reqData = {
                 id: newReqId,
-                date: document.getElementById('req-date').value,
+                date: combinedDateTime,
                 recipient: document.getElementById('req-recipient').value,
                 departmentGroup: deptGroup,
                 name: document.getElementById('req-name').value,
@@ -1726,7 +1780,6 @@
                 showToast("กำลังซิงค์...", "กำลังบันทึกการแก้ไขไปยัง Google Sheets");
             } else {
                 showToast("สำเร็จ", "บันทึกใบขอเบิกยาเรียบร้อยแล้ว กำลังสร้างสลิปดิจิทัล...");
-                // บันทึกลงใน appState ชั่วคราวเพื่อให้แสดงสลิปได้ทันที
                 appState.requests.unshift(reqData);
                 generateAndShowSlip(newReqId);
             }
@@ -1764,7 +1817,7 @@
                     <div style="font-size: 12px; space-y: 6px; background: #f8fafc; padding: 12px 16px; border-radius: 16px; margin-bottom: 16px; border: 1px solid #f1f5f9;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                             <span style="color: #64748b;">วันที่ขอเบิก:</span>
-                            <span style="font-weight: 600; color: #0f172a;">${r.date}</span>
+                            <span style="font-weight: 600; color: #0f172a;">${formatThaiDateTime(r.date)}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                             <span style="color: #64748b;">ชื่อผู้ขอเบิก:</span>
@@ -1810,7 +1863,6 @@
             stage.style.opacity = '1';
             stage.style.zIndex = '40';
 
-            // สร้าง QR Code ข้างในกล่อง
             const qrContainer = document.getElementById('slip-qrcode-box');
             qrContainer.innerHTML = '';
             const statusUrl = `${window.location.origin}${window.location.pathname}#status=${r.id}`;
@@ -2073,7 +2125,7 @@
 
                 return `
                     <tr class="hover:bg-slate-50/80 border-b border-slate-100">
-                        <td class="p-3"><span class="font-bold block text-slate-900">${r.id}</span><span class="text-[11px] text-slate-400">${r.date}</span></td>
+                        <td class="p-3"><span class="font-bold block text-slate-900">${r.id}</span><span class="text-[11px] text-slate-500">${formatThaiDateTime(r.date)}</span></td>
                         <td class="p-3"><span class="font-medium block text-slate-800">${r.name}</span><span class="text-[11px] text-slate-500">${r.departmentGroup}</span></td>
                         <td class="p-3 text-xs text-slate-600">${r.purpose.text}</td>
                         <td class="p-3 text-center">${statusApproveBadge}</td>
@@ -2095,7 +2147,7 @@
 
             switchTab('request');
             document.getElementById('edit-id').value = r.id;
-            document.getElementById('req-date').value = r.date;
+            document.getElementById('req-date').value = formatDateForInput(r.date);
             document.getElementById('req-recipient').value = r.recipient || "หธฬอ.ฟ / หัวหน้าสถานพยาบาลเขื่อนจุฬาภรณ์";
             document.getElementById('req-department-group').value = r.departmentGroup;
             document.getElementById('req-name').value = r.name;
@@ -2146,7 +2198,7 @@
                     <div>
                         <div class="flex items-center space-x-2">
                             <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">${r.id}</span>
-                            <span class="text-xs text-slate-500">วันที่: ${r.date}</span>
+                            <span class="text-xs text-slate-500">วันที่: ${formatThaiDateTime(r.date)}</span>
                         </div>
                         <h4 class="font-bold text-slate-900 text-base mt-1">${r.name} (${r.departmentGroup})</h4>
                         <p class="text-xs text-slate-600 mt-1"><strong>วัตถุประสงค์:</strong> ${r.purpose.text}</p>
@@ -2177,6 +2229,7 @@
                 <div class="space-y-3">
                     <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs space-y-1">
                         <p><strong>เลขที่คำขอ:</strong> ${r.id}</p>
+                        <p><strong>วันที่ขอเบิก:</strong> ${formatThaiDateTime(r.date)}</p>
                         <p><strong>ผู้ขอเบิก:</strong> ${r.name} (รหัส: ${r.idCard}, โทร: ${r.phone})</p>
                         <p><strong>ตำแหน่ง/แผนก:</strong> ${r.position} / ${r.section} (${r.departmentGroup})</p>
                         <p><strong>วัตถุประสงค์:</strong> ${r.purpose.text}</p>
@@ -2232,6 +2285,7 @@
                             <span class="text-xs text-emerald-600 font-bold"><i class="fas fa-check mr-1"></i>อนุมัติแล้ว</span>
                         </div>
                         <h4 class="font-bold text-slate-900 text-base mt-1">${r.name} (${r.departmentGroup})</h4>
+                        <p class="text-xs text-slate-500">วันที่ขอเบิก: ${formatThaiDateTime(r.date)}</p>
                         <p class="text-xs text-slate-600 mt-1"><strong>วัตถุประสงค์:</strong> ${r.purpose.text}</p>
                         <p class="text-xs text-slate-600 mt-0.5"><strong>รายการยา:</strong> ${r.items.length} รายการ</p>
                     </div>
@@ -2263,7 +2317,8 @@
 
             document.getElementById('dispense-modal-content').innerHTML = `
                 <div class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
-                    <p>คำขอเบิก: <strong>${r.id}</strong> | หน่วยงาน: <strong>${r.departmentGroup}</strong></p>
+                    <p>คำขอเบิก: <strong>${r.id}</strong> | วันที่: <strong>${formatThaiDateTime(r.date)}</strong></p>
+                    <p class="mt-0.5">หน่วยงาน: <strong>${r.departmentGroup}</strong></p>
                 </div>
                 <div class="space-y-2">
                     <label class="block text-xs font-bold text-slate-700 uppercase">รายการยาที่สั่งจ่าย</label>
